@@ -1,0 +1,288 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>  KMP |    o10d3blb</title>
+  <meta name="description" content="永远相信美好的事情即将发生">
+  <!-- 标签页图标 -->
+  
+
+  <!-- 图标库 -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@2.2.0/fonts/remixicon.css" rel="stylesheet">
+  <!-- 动画库 -->
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fushaolei/cdn-white@1.0/css/animate.css"/>
+  
+  <!-- css文件 -->
+  
+<link rel="stylesheet" href="/css/white.css">
+
+  <!-- 代码高亮 -->
+  
+    
+      
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.1/styles/github.css">
+
+    
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+
+<div class="menu-outer">
+    <div class="menu-inner">
+      <div class="menu-site-name  animate__animated  animate__fadeInUp">
+        <a href="/">
+          o10d3blb
+        </a>
+        
+      </div>
+      <div class="menu-group">
+        <ul class="menu-ul">
+        
+          <a href="/" class="nav-link">
+            <li class="menu-li  animate__animated  animate__fadeInUp">
+              Home
+            </li>
+          </a>
+        
+          <a href="/archives" class="nav-link">
+            <li class="menu-li  animate__animated  animate__fadeInUp">
+              Blog
+            </li>
+          </a>
+        
+        
+          <li class="menu-li animate__animated  animate__fadeInUp" id="sort">
+             Category
+             <div class="categories-outer " id="sort-div">
+               <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/DataStructure/">DataStructure</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Misc/">Misc</a></li></ul>
+             </div>
+          </li>
+        
+        
+          <li class="menu-li animate__animated  animate__fadeInUp" id="mobile-menu">
+            <i class="ri-menu-line"></i>
+          </li>
+        
+        </ul>
+
+      </div>
+
+    </div>
+</div>
+<div id="mobile-main" class="animate__animated  animate__fadeIn">
+  <div class="mobile-menu-inner">
+    <div class="mobile-menu-site-name animate__animated  animate__fadeInUp">
+      <a href="/">
+        o10d3blb
+      </a>
+    </div>
+    <div class="mobile-menu-group" id="mobile-close">
+      <i class="ri-close-line"></i>
+    </div>
+
+  </div>
+
+  <div class="mobile-menu-div">
+  
+    <a href="/" class="mobile-nav-link">
+      <div class="mobile-menu-child animate__animated  animate__fadeInUp">
+        <span>Home</span>
+      </div>
+    </a>
+  
+    <a href="/archives" class="mobile-nav-link">
+      <div class="mobile-menu-child animate__animated  animate__fadeInUp">
+        <span>Blog</span>
+      </div>
+    </a>
+  
+  
+  </div>
+
+
+</div>
+
+<div class="body-outer">
+  <div class="body-inner">
+    
+<article class="post-inner">
+  <div class="post-content-outer">
+    <div class="post-intro">
+      <div class="post-title animate__animated  animate__fadeInUp">KMP</div>
+      <div class="meta-intro animate__animated  animate__fadeInUp">Jul 13 2013</div>
+      
+    </div>
+    <div class="post-content-inner">
+      <div class="post-content-inner-space">
+
+      </div>
+      <div class="post-content-main animate__animated  animate__fadeInUp">
+        <!-- top型目录 -->
+        
+        <h1 id="kmp算法"><a href="#kmp算法" class="headerlink" title="kmp算法"></a>kmp算法</h1><h2 id="kmp算法主要原理"><a href="#kmp算法主要原理" class="headerlink" title="kmp算法主要原理"></a>kmp算法主要原理</h2><p>利用next数组中存储的信息，将模式串移到合适的位置进行与主串的匹配</p>
+<h2 id="构建getNext函数大致结构"><a href="#构建getNext函数大致结构" class="headerlink" title="构建getNext函数大致结构"></a>构建getNext函数大致结构</h2><p>next数组储存有能使模式串在接下来的匹配中能够进入适当位置的信息，我们在这里认为储存的信息是该处后缀与整个字符串前缀的最大交集max，那么此处的信息可以使得我们在该处匹配失败时，在下一次匹配中忽略字符串前缀max个数，因为此时这些数已经在刚刚的匹配中被成功匹配了</p>
+<pre><code class="C++">int* getNext(const char p[])
+&#123;
+    int pLen = strlen(p);
+    int* next = new int[pLen];
+    next[0] = -1;
+    int k = -1, i = 0;
+    while (i &lt; pLen - 1)
+    &#123;
+        if (p[i] == p[k] || k == -1)
+             next[++i] = ++k;
+        else
+             k = next[k];
+    &#125;
+    return next;
+&#125;
+</code></pre>
+<h2 id="构建匹配函数大致结构"><a href="#构建匹配函数大致结构" class="headerlink" title="构建匹配函数大致结构"></a>构建匹配函数大致结构</h2><p>对于在主串与模式串的匹配，每当匹配失败，模式串进入恰当的位置继续进行匹配，我们进入的新位置就是next储存的除去重复交集的位置</p>
+<pre><code class="C++">int search(const char arr[], const char P[])
+&#123;
+    int t = 0, p = 0;
+    int* next = getNext(P);
+    int tLen = strlen(arr);
+    int pLen = strlen(P);
+    while (t &lt; tLen &amp;&amp; p &lt; pLen)
+    &#123;
+        if (arr[t] == P[p])
+             t++, p++;
+        else if (next[p] != -1)
+             p = next[p];
+        else
+             t++;
+        if (p == pLen)
+             return t - p;
+    &#125;
+    return -1;
+&#125;
+</code></pre>
+<h2 id="kmp匹配优化"><a href="#kmp匹配优化" class="headerlink" title="kmp匹配优化"></a>kmp匹配优化</h2><p>在之前的实现中，模式串中每一个字符对应的next都会存储最大交集的信息，然而我们注意到，在一些情况下，我们会产生多余的匹配。<br>比如，当我们在getNext方法中遇到了p[i] == p[k]的情况，我们直接进行了next[++i] = ++k;然而如果在匹配过程中，我们在接下来的p[i+1]中匹配失败，那么如果getNext()中p[i+1]==p[k+1]，那么我们的下一次匹配也必然是失败的，匹配结束后才会递归进入next[next[i]],这样就产生了多余的匹配，我们可以将其避免。</p>
+<pre><code class="C++">int* getNext(const char p[])
+&#123;
+    int pLen = strlen(p);
+    int* next = new int[pLen];
+    next[0] = -1;
+    int k = -1, i = 0;
+    while (i &lt; pLen - 1)
+    &#123;
+        if (p[i] == p[k] || k == -1)
+        &#123;
+             i++, k++;
+             if (p[i] == p[k])
+            //因为不能出现p[i] = p[next[i]]，所以当出现时需要继续递归，k = next[k] = next[next[k]]
+                 next[i] = next[k];//  此处等价于next[i] = next[ next[i] ]
+             else
+                 next[i] = k;
+        &#125;
+        else
+             k = next[k];
+    &#125;
+    return next;
+&#125;
+</code></pre>
+
+        <!-- 分类文章 -->
+        
+          <div class="post-categoris-bottom">
+            <div class="post-categoris-name">DataStructure</div>
+            <ul>
+            
+            
+              
+                <li class="me base">
+                  <a  href="/2013/07/13/kmp/" class="post-categoris-bottom-link">
+                  KMP
+                </a>
+                </li>
+              
+              
+            
+            
+            
+              
+            
+            
+            </ul>
+
+          </div>
+
+        
+      </div>
+      <div class="post-content-inner-space">
+        
+          <div class="space-toc-main animate__animated  animate__fadeInUp">
+            <ol class="space-toc"><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#kmp%E7%AE%97%E6%B3%95%E4%B8%BB%E8%A6%81%E5%8E%9F%E7%90%86"><span class="space-toc-text">kmp算法主要原理</span></a></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#%E6%9E%84%E5%BB%BAgetNext%E5%87%BD%E6%95%B0%E5%A4%A7%E8%87%B4%E7%BB%93%E6%9E%84"><span class="space-toc-text">构建getNext函数大致结构</span></a></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#%E6%9E%84%E5%BB%BA%E5%8C%B9%E9%85%8D%E5%87%BD%E6%95%B0%E5%A4%A7%E8%87%B4%E7%BB%93%E6%9E%84"><span class="space-toc-text">构建匹配函数大致结构</span></a></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#kmp%E5%8C%B9%E9%85%8D%E4%BC%98%E5%8C%96"><span class="space-toc-text">kmp匹配优化</span></a></li></ol>
+           </div>
+        
+      </div>
+   </div>
+    <!-- 评论 -->
+    
+  </div>
+</article>
+  </div>
+</div>
+
+
+
+<!-- 如果是home模式的话，不在首页就显示footer，如果不是home模式的话 所有都显示footer -->
+
+  <div class="footer-outer animate__animated  animate__fadeInUp">
+    <div class="footer-inner">
+    <div class="footer-text">
+    <p>Always believe that something wonderful is about to happen</p>
+
+    </div>
+    <div class="footer-contact">
+    <ul class="footer-ul">
+        
+        <li class="footer-li">
+            <a href="https://github.com/ccuuy" target="_blank">
+                <i class="ri-github-line"></i>
+            </a>
+        </li>
+        
+        <li class="footer-li">
+            <a href="qdmengg@foxmail.com" target="_blank">
+                <i class="ri-mail-line"></i>
+            </a>
+        </li>
+        
+        <li class="footer-li">
+            <a href="https://www.zhihu.com/people/da-shuai-bi-34-99" target="_blank">
+                <i class="ri-zhihu-line"></i>
+            </a>
+        </li>
+        
+    </ul>
+    </div>
+    </div>
+</div>
+
+
+
+
+
+
+<script src="/js/white.js"></script>
+
+
+
+    
+      
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/highlight.min.js"></script>
+
+      <script>hljs.initHighlightingOnLoad();</script>
+    
+
+</body>
+</html>
