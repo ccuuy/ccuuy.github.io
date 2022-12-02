@@ -1,0 +1,913 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>  KMP |    o10d3blb</title>
+  <meta name="description" content="永远相信美好的事情即将发生">
+  <!-- 标签页图标 -->
+  
+
+  <!-- 图标库 -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@2.2.0/fonts/remixicon.css" rel="stylesheet">
+  <!-- 动画库 -->
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fushaolei/cdn-white@1.0/css/animate.css"/>
+  
+  <!-- css文件 -->
+  
+<link rel="stylesheet" href="/css/white.css">
+
+  <!-- 代码高亮 -->
+  
+    
+      
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.1/styles/github.css">
+
+    
+  
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+
+<body>
+
+<div class="menu-outer">
+    <div class="menu-inner">
+      <div class="menu-site-name  animate__animated  animate__fadeInUp">
+        <a href="/">
+          o10d3blb
+        </a>
+        
+      </div>
+      <div class="menu-group">
+        <ul class="menu-ul">
+        
+          <a href="/" class="nav-link">
+            <li class="menu-li  animate__animated  animate__fadeInUp">
+              Home
+            </li>
+          </a>
+        
+          <a href="/archives" class="nav-link">
+            <li class="menu-li  animate__animated  animate__fadeInUp">
+              Blog
+            </li>
+          </a>
+        
+        
+          <li class="menu-li animate__animated  animate__fadeInUp" id="sort">
+             Category
+             <div class="categories-outer " id="sort-div">
+               <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/">网络安全</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90/">计算机组成</a></li></ul>
+             </div>
+          </li>
+        
+        
+          <li class="menu-li animate__animated  animate__fadeInUp" id="mobile-menu">
+            <i class="ri-menu-line"></i>
+          </li>
+        
+        </ul>
+
+      </div>
+
+    </div>
+</div>
+<div id="mobile-main" class="animate__animated  animate__fadeIn">
+  <div class="mobile-menu-inner">
+    <div class="mobile-menu-site-name animate__animated  animate__fadeInUp">
+      <a href="/">
+        o10d3blb
+      </a>
+    </div>
+    <div class="mobile-menu-group" id="mobile-close">
+      <i class="ri-close-line"></i>
+    </div>
+
+  </div>
+
+  <div class="mobile-menu-div">
+  
+    <a href="/" class="mobile-nav-link">
+      <div class="mobile-menu-child animate__animated  animate__fadeInUp">
+        <span>Home</span>
+      </div>
+    </a>
+  
+    <a href="/archives" class="mobile-nav-link">
+      <div class="mobile-menu-child animate__animated  animate__fadeInUp">
+        <span>Blog</span>
+      </div>
+    </a>
+  
+  
+  </div>
+
+
+</div>
+
+<div class="body-outer">
+  <div class="body-inner">
+    
+<article class="post-inner">
+  <div class="post-content-outer">
+    <div class="post-intro">
+      <div class="post-title animate__animated  animate__fadeInUp">KMP</div>
+      <div class="meta-intro animate__animated  animate__fadeInUp">Jun 14 2022</div>
+      
+    </div>
+    <div class="post-content-inner">
+      <div class="post-content-inner-space">
+
+      </div>
+      <div class="post-content-main animate__animated  animate__fadeInUp">
+        <!-- top型目录 -->
+        
+        <h1 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h1><h2 id="1-线性表"><a href="#1-线性表" class="headerlink" title="1 线性表"></a>1 线性表</h2><h3 id="1-1-顺序表"><a href="#1-1-顺序表" class="headerlink" title="1.1 顺序表"></a>1.1 顺序表</h3><h4 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h4><p>不需要附加空间<br>随机存取任何一个元素</p>
+<h4 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h4><p>很难估计所需空间的大小<br>开始就要分配足够大的内存空间<br>更新操作代价大</p>
+<h3 id="1-2-链表"><a href="#1-2-链表" class="headerlink" title="1.2 链表"></a>1.2 链表</h3><p>用指针连接节点的存储方式</p>
+<h4 id="几个特殊点的处理"><a href="#几个特殊点的处理" class="headerlink" title="几个特殊点的处理"></a>几个特殊点的处理</h4><p>头指针处理<br>非循环链表尾结点的指针域保持为NULL<br>循环链表的尾节点指针回指头节点</p>
+<h4 id="链表处理"><a href="#链表处理" class="headerlink" title="链表处理"></a>链表处理</h4><p>空链表的特殊处理<br>指针移动的正确性</p>
+<h4 id="链表的主要优点"><a href="#链表的主要优点" class="headerlink" title="链表的主要优点"></a>链表的主要优点</h4><p>无需事先了解线性表的长度<br>允许线性表的长度动态变化<br>能够适应经常插入删除内部元素的状况</p>
+<h3 id="顺序表和链表的比较"><a href="#顺序表和链表的比较" class="headerlink" title="顺序表和链表的比较"></a>顺序表和链表的比较</h3><h4 id="顺序表"><a href="#顺序表" class="headerlink" title="顺序表"></a>顺序表</h4><p>插入、删除运算时间代价O(n)，查找则可常数时间完成<br>预先申请固定长度的数组<br>如果整个数组元素很满，则没有结构性存储开销</p>
+<h4 id="链表"><a href="#链表" class="headerlink" title="链表"></a>链表</h4><p>插入、删除运算时间代价O(1)，但找第i个元素运算时间代价O(n)<br>存储利用指针，动态地按照需要为表中新的元素分配存储空间<br>每个元素都有结构性存储开销</p>
+<h2 id="2-栈与队列"><a href="#2-栈与队列" class="headerlink" title="2 栈与队列"></a>2 栈与队列</h2><h3 id="2-1-栈"><a href="#2-1-栈" class="headerlink" title="2.1 栈"></a>2.1 栈</h3><h4 id="2-1-1-特点"><a href="#2-1-1-特点" class="headerlink" title="2.1.1 特点"></a>2.1.1 特点</h4><p>先进后出</p>
+<h4 id="2-1-2-上溢"><a href="#2-1-2-上溢" class="headerlink" title="2.1.2 上溢"></a>2.1.2 上溢</h4><p>对满栈进行进栈运算</p>
+<h4 id="2-1-3-下溢"><a href="#2-1-3-下溢" class="headerlink" title="2.1.3 下溢"></a>2.1.3 下溢</h4><p>对空栈进行出栈运算</p>
+<h4 id="2-1-4-应用"><a href="#2-1-4-应用" class="headerlink" title="2.1.4 应用"></a>2.1.4 应用</h4><p>深度优先搜索<br>表达式求值<br>函数调用管理<br>消除递归</p>
+<h4 id="2-1-5-顺序栈与链式栈的比较"><a href="#2-1-5-顺序栈与链式栈的比较" class="headerlink" title="2.1.5 顺序栈与链式栈的比较"></a>2.1.5 顺序栈与链式栈的比较</h4><p>所有操作都只需常数时间，在时间效率上难分伯仲</p>
+<h3 id="2-2-队列"><a href="#2-2-队列" class="headerlink" title="2.2 队列"></a>2.2 队列</h3><h4 id="2-2-1-特点"><a href="#2-2-1-特点" class="headerlink" title="2.2.1 特点"></a>2.2.1 特点</h4><p>先进先出<br>所有插入在表的一端进行，所有删除在表的一端进行</p>
+<h4 id="2-2-2假溢出"><a href="#2-2-2假溢出" class="headerlink" title="2.2.2假溢出"></a>2.2.2假溢出</h4><p>顺序队列中，当rear=MAXNUM时，再进行插入运算就会产生溢出，然而这时队列前端还有空位置</p>
+<h4 id="2-2-3应用"><a href="#2-2-3应用" class="headerlink" title="2.2.3应用"></a>2.2.3应用</h4><p>满足先来先服务特性的应用<br>调度或缓冲<br>广度优先搜索</p>
+<h3 id="2-3-栈与队列的深入讨论"><a href="#2-3-栈与队列的深入讨论" class="headerlink" title="2.3 栈与队列的深入讨论"></a>2.3 栈与队列的深入讨论</h3><h4 id="2-3-1-多栈管理"><a href="#2-3-1-多栈管理" class="headerlink" title="2.3.1 多栈管理"></a>2.3.1 多栈管理</h4><p>节省空间<br>减少上溢概率</p>
+<h4 id="2-3-2-双栈实现一个队列"><a href="#2-3-2-双栈实现一个队列" class="headerlink" title="2.3.2 双栈实现一个队列"></a>2.3.2 双栈实现一个队列</h4><h4 id="2-3-3双队列实现一个栈"><a href="#2-3-3双队列实现一个栈" class="headerlink" title="2.3.3双队列实现一个栈"></a>2.3.3双队列实现一个栈</h4><h2 id="3-字符串"><a href="#3-字符串" class="headerlink" title="3 字符串"></a>3 字符串</h2><h3 id="kmp算法"><a href="#kmp算法" class="headerlink" title="kmp算法"></a>kmp算法</h3><h4 id="1-kmp算法主要原理"><a href="#1-kmp算法主要原理" class="headerlink" title="1 kmp算法主要原理"></a>1 kmp算法主要原理</h4><p>利用next数组中存储的信息，将模式串移到合适的位置进行与主串的匹配</p>
+<h4 id="2-构建getNext函数大致结构"><a href="#2-构建getNext函数大致结构" class="headerlink" title="2 构建getNext函数大致结构"></a>2 构建getNext函数大致结构</h4><p>next数组储存有能使模式串在接下来的匹配中能够进入适当位置的信息，我们在这里认为储存的信息是该处后缀与整个字符串前缀的最大交集max，那么此处的信息可以使得我们在该处匹配失败时，在下一次匹配中忽略字符串前缀max个数，因为此时这些数已经在刚刚的匹配中被成功匹配了</p>
+<pre><code class="C++">int* getNext(const char p[])
+&#123;
+    int pLen = strlen(p);
+    int* next = new int[pLen];
+    next[0] = -1;
+    int k = -1, i = 0;
+    while (i &lt; pLen - 1)
+    &#123;
+        if (p[i] == p[k] || k == -1)
+             next[++i] = ++k;
+        else
+             k = next[k];
+    &#125;
+    return next;
+&#125;
+</code></pre>
+<h4 id="3-构建匹配函数大致结构"><a href="#3-构建匹配函数大致结构" class="headerlink" title="3 构建匹配函数大致结构"></a>3 构建匹配函数大致结构</h4><p>对于在主串与模式串的匹配，每当匹配失败，模式串进入恰当的位置继续进行匹配，我们进入的新位置就是next储存的除去重复交集的位置</p>
+<pre><code class="C++">int search(const char arr[], const char P[])
+&#123;
+    int t = 0, p = 0;
+    int* next = getNext(P);
+    int tLen = strlen(arr);
+    int pLen = strlen(P);
+    while (t &lt; tLen &amp;&amp; p &lt; pLen)
+    &#123;
+        if (arr[t] == P[p])
+             t++, p++;
+        else if (next[p] != -1)
+             p = next[p];
+        else
+             t++;
+        if (p == pLen)
+             return t - p;
+    &#125;
+    return -1;
+&#125;
+</code></pre>
+<h4 id="4-kmp匹配优化"><a href="#4-kmp匹配优化" class="headerlink" title="4 kmp匹配优化"></a>4 kmp匹配优化</h4><p>在之前的实现中，模式串中每一个字符对应的next都会存储最大交集的信息，然而我们注意到，在一些情况下，我们会产生多余的匹配。<br>比如，当我们在getNext方法中遇到了p[i] == p[k]的情况，我们直接进行了next[++i] = ++k;然而如果在匹配过程中，我们在接下来的p[i+1]中匹配失败，那么如果getNext()中p[i+1]==p[k+1]，那么我们的下一次匹配也必然是失败的，匹配结束后才会递归进入next[next[i]],这样就产生了多余的匹配，我们可以将其避免。</p>
+<pre><code class="C++">int* getNext(const char p[])
+&#123;
+    int pLen = strlen(p);
+    int* next = new int[pLen];
+    next[0] = -1;
+    int k = -1, i = 0;
+    while (i &lt; pLen - 1)
+    &#123;
+        if (p[i] == p[k] || k == -1)
+        &#123;
+             i++, k++;
+             if (p[i] == p[k])
+            //因为不能出现p[i] = p[next[i]]，所以当出现时需要继续递归，k = next[k] = next[next[k]]
+                 next[i] = next[k];//  此处等价于next[i] = next[ next[i] ]
+             else
+                 next[i] = k;
+        &#125;
+        else
+             k = next[k];
+    &#125;
+    return next;
+&#125;
+</code></pre>
+<h2 id="4-二叉树"><a href="#4-二叉树" class="headerlink" title="4 二叉树"></a>4 二叉树</h2><h3 id="二叉树的主要性质"><a href="#二叉树的主要性质" class="headerlink" title="二叉树的主要性质"></a>二叉树的主要性质</h3><p>1.在二叉树中，第i层上最多有2i个结点<br>2.深度为k的二叉树至多有 2k+1-1个结点（k≥0）。其中深度(depth)定义为二叉树中层数最大的叶结点的层数<br>3.任何一棵二叉树，若其终端结点数为n0 ，度为2的结点数为n2，则n0=n2+1<br>4.满二叉树定理：非空满二叉树树叶数目等于其分支结点数加1<br>5.满二叉树定理推论：一个非空二叉树的空子树数目等于其结点数加1<br>6.有n个结点（n&gt;0）的完全二叉树的高度为⌈〖”log” 〗_”2”  (“n” +”1” )⌉。 其中二叉树的高度(height)定义为二叉树中层数最大的叶结点的层数加1</p>
+<h4 id="二叉树的周游"><a href="#二叉树的周游" class="headerlink" title="二叉树的周游"></a>二叉树的周游</h4><h5 id="深度优先"><a href="#深度优先" class="headerlink" title="深度优先"></a>深度优先</h5><p>对于有n个结点的二叉树，周游完树的每一个元素都需要O(n)时间<br>所需要的辅助空间为周游过程中栈的最大容量，即树的高度</p>
+<h5 id="广度优先"><a href="#广度优先" class="headerlink" title="广度优先"></a>广度优先</h5><pre><code class="C++">void BinaryTree&lt;T&gt;::LevelOrder(BinaryTreeNode&lt;T&gt; *root) &#123;
+ using std::queue;                     // 使用STL的队列
+ queue&lt;BinaryTreeNode&lt;T&gt;*&gt; aQueue;
+ BinaryTreeNode&lt;T&gt; *pointer = root;
+ if (pointer)
+  aQueue.push(pointer);                  // 根结点入队列
+ while (!aQueue.empty()) &#123;                     // 队列非空
+  pointer = aQueue.front();       // 获得队列首结点
+  aQueue.pop();                               // 当前结点出队列
+   Visit(pointer-&gt;value());   // 访问当前结点
+  if (pointer-&gt;leftchild() != NULL)
+   aQueue.push(pointer-&gt;leftchild());  // 左子树进队列
+  if (pointer-&gt;rightchild()!= NULL)
+   aQueue.push(pointer-&gt;rightchild()); // 右子树进队列
+ &#125;
+&#125;
+</code></pre>
+<h4 id="二叉树的线索化"><a href="#二叉树的线索化" class="headerlink" title="二叉树的线索化"></a>二叉树的线索化</h4><p>设一棵二叉树有n个结点，则有n-1条边(指针连线) ， 而n个结点共有2n个指针域(Lchild和Rchild) ，显然有n+1个空闲指针域未用。则可以利用这些空闲的指针域来存放结点的直接前驱和直接后继信息。<br>线索化的过程就是<strong>在遍历过程中修改空指针使其指向直接前驱或直接后继</strong>的过程。<br>若结点有左孩子，则Lchild指向其左孩子，否则，指向其直接前驱；<br>若结点有右孩子，则Rchild指向其右孩子，否则，指向其直接后继；</p>
+<h4 id="二叉树的顺序存储"><a href="#二叉树的顺序存储" class="headerlink" title="二叉树的顺序存储"></a>二叉树的顺序存储</h4><p>对于任何一个二叉树结点，如果它存储在数组的第i个位置，那么它的左右子结点分别存放在2i + 1和2i + 2的位置，它的父结点的下标为⌊”(i−1) / 2” ⌋。</p>
+<h4 id="二叉搜索树"><a href="#二叉搜索树" class="headerlink" title="二叉搜索树"></a>二叉搜索树</h4><p>对二叉搜索树的检索，每一次只需与结点的一棵子树相比较<br>在执行插入操作时，也不必像在有序线性表中插入元素那样要移动大量的数据，而只需改动某个结点的空指针插入一个叶结点即可<br>与查找结点的操作一样，插入一个新结点操作的时间复杂度是根到插入位置的路径长度，因此在树形比较平衡时二叉搜索树的效率相当高</p>
+<h5 id="二叉搜索树的删除"><a href="#二叉搜索树的删除" class="headerlink" title="二叉搜索树的删除"></a>二叉搜索树的删除</h5><p>若结点pointer没有左子树，则用pointer右子树的根代替被删除的结点pointer；<br>若结点pointer有左子树，则<br> 在左子树里找到按中序周游的最后一个结点temppointer;<br> 把temppointer的右指针置成指向pointer的右子树的根;<br> 后用结点pointer左子树的根代替被删除的结点pointer。</p>
+<pre><code class="C++">//插入二叉搜索树节点
+void BinarySearchTree::insert(int data, treeNode** node, treeNode* pare)
+&#123;
+ if (!*node)
+ &#123;
+  (*node) = new treeNode;
+  (*node)-&gt;key = data;
+  (*node)-&gt;lChild = NULL;
+  (*node)-&gt;rChild = NULL;
+  (*node)-&gt;parent = pare;
+ &#125;
+ else if (data &gt; (*node)-&gt;key)
+ &#123;
+  insert(data, &amp;(*node)-&gt;rChild, &amp;(**node));
+ &#125;
+ else if (data &lt; (*node)-&gt;key)
+ &#123;
+  insert(data, &amp;(*node)-&gt;lChild, &amp;(**node));
+ &#125;
+&#125;
+
+//初始化二叉搜索树
+void BinarySearchTree::initBinaryTree()
+&#123;
+ int data = 0;
+ while (std::cin &gt;&gt; data)
+ &#123;
+  insert(data, &amp;root, NULL);
+  if (std::cin.get() == &#39;\n&#39;)
+   break;
+ &#125;
+&#125;
+
+//前序遍历二叉树
+void BinarySearchTree::preOrderBiTree()
+&#123;
+ std::stack&lt;treeNode*&gt; stk;
+ stk.push(root);
+ while (!stk.empty())
+ &#123;
+  treeNode* cur = stk.top();
+  stk.pop();
+  std::cout &lt;&lt; cur-&gt;key&lt;&lt;&quot; &quot;;
+  if (cur-&gt;rChild)
+   stk.push(cur-&gt;rChild);
+  if (cur-&gt;lChild)
+   stk.push(cur-&gt;lChild);
+ &#125;
+&#125;
+
+//删除二叉搜索树节点
+void BinarySearchTree::_deleteNode(int data, treeNode** node)
+&#123;
+ if ((*node)-&gt;key == data)
+ &#123;
+  //删除叶子节点
+  if (!(*node)-&gt;lChild &amp;&amp; !(*node)-&gt;rChild)
+  &#123;
+   treeNode* tmp = *node;
+   delete tmp;
+   *node = NULL;
+  &#125;
+  //要删除的节点有一个孩子节点
+  else if ((*node)-&gt;lChild &amp;&amp; !(*node)-&gt;rChild)
+  &#123;
+   if ((*node)-&gt;parent-&gt;lChild == (*node))
+   &#123;
+    (*node)-&gt;parent-&gt;lChild = (*node)-&gt;lChild;
+   &#125;
+   if ((*node)-&gt;parent-&gt;rChild == (*node))
+   &#123;
+    (*node)-&gt;parent-&gt;rChild = (*node)-&gt;lChild;
+   &#125;
+  &#125;
+  else if ((*node)-&gt;rChild &amp;&amp; !(*node)-&gt;lChild)
+  &#123;
+   if ((*node)-&gt;parent-&gt;lChild == (*node))
+   &#123;
+    (*node)-&gt;parent-&gt;lChild = (*node)-&gt;rChild;
+   &#125;
+   if ((*node)-&gt;parent-&gt;rChild == (*node))
+   &#123;
+    (*node)-&gt;parent-&gt;rChild = (*node)-&gt;rChild;
+   &#125;
+  &#125;
+  //要删除的节点有两个孩子节点
+  else if((*node)-&gt;rChild &amp;&amp; (*node)-&gt;lChild)
+  &#123;
+   treeNode* tmp = (*node)-&gt;rChild;
+   while (tmp-&gt;lChild)
+   &#123;
+    tmp = tmp-&gt;lChild;
+   &#125;
+   (*node)-&gt;key = tmp-&gt;key;
+   _deleteNode(tmp-&gt;key, &amp;tmp);
+  &#125;
+ &#125;
+ else if ((*node)-&gt;key &gt; data)
+  _deleteNode(data, &amp;(*node)-&gt;lChild);
+ else if ((*node)-&gt;key &lt; data)
+  _deleteNode(data, &amp;(*node)-&gt;rChild);
+&#125;
+</code></pre>
+<h3 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h3><p>从逻辑的角度来讲，堆是一种树形结构，而且是一种特殊的完全二叉树。此完全二叉树的每个结点对应于序列中的一个关键码，根结点对应于关键码K0，按层次从左至右依次类推。<br>说其特殊，主要是因为堆序只是局部有序，即最小堆对应的完全二叉树中所有内部结点的值均不大于其左右孩子的关键码值，而一个结点与其兄弟之间没有必然的联系。<br>最小堆不像二叉搜索树那样实现了关键码的完全排序。相比较而言，只有当结点之间是父子关系的时候，才可以确定这两个结点关键码的大小关系。</p>
+<h4 id="建堆过程"><a href="#建堆过程" class="headerlink" title="建堆过程"></a>建堆过程</h4><p>首先将所有关键码放到一维数组中，这时形成的完全二叉树并不具备最小堆的特性，但是仅包含叶子结点的子树已经是堆<br>即在有n个结点的完全二叉树中，当i &gt;⌊”n/2” ⌋-1时，以关键码Ki为根的子树已经是堆。<br>这时从含有内部结点数最少的子树（这种子树在完全二叉树的倒数第二层，此时i =⌊”n/2” ⌋-1）开始，从右至左依次调整<br>对这一层调整完成之后，继续对上一层进行同样的工作，直到整个过程到达树根时，整棵完全二叉树就成为一个堆了</p>
+<h3 id="huffman树"><a href="#huffman树" class="headerlink" title="huffman树"></a>huffman树</h3><p>假设有n个权值分别为w0，w1，…，wn-1(n≥2)的结点，求带权外部路径长度就是要构造一棵具有n个外部结点的扩充二叉树，每一个外部结点ki取wi作为它的权，其中带权外部路径长度最小的二叉树称为Huffman树。</p>
+<h4 id="huffman树建立"><a href="#huffman树建立" class="headerlink" title="huffman树建立"></a>huffman树建立</h4><p>(1) 对于给定的n个权值w0，w1，…，wn-1(n≥2)，构成n棵二叉树的集合T = { T0，T1，T2，…，Tn－1}，使得每一棵扩充二叉树只具有一个带权为wi的根结点。<br>(2) 构造一棵新的扩充二叉树，在集合T中找出两个权值最小的树作为新树根结点的左右子树，把新树根结点的权值赋为其左右子树根结点的和。<br>(3) 在集合T中删除这两棵树，并把得到的新扩充二叉树加入到集合中。<br>(4) 重复步骤(2)、(3)的操作，直到集合T中只含有一棵树为止。</p>
+<h2 id="5-树"><a href="#5-树" class="headerlink" title="5 树"></a>5 树</h2><h3 id="5-1-树的定义和基本内容"><a href="#5-1-树的定义和基本内容" class="headerlink" title="5.1 树的定义和基本内容"></a>5.1 树的定义和基本内容</h3><h4 id="5-1-1-树"><a href="#5-1-1-树" class="headerlink" title="5.1.1 树"></a>5.1.1 树</h4><p>同一个父结点的子结点之间互称兄弟。树中没有父结点的结点称为根。没有子结点的结点称为树叶。<br>结点的子树数目称为结点的度，树的度是树中各结点度的最大值，二叉树的度是2。<br>若树中存在结点序列k0，k1，…，ks，使得&lt;k0，k1&gt;，&lt; k1，k2&gt;，…，&lt; ks-1，ks&gt;都是树中的边，则称从结点k0到结点ks存在一条路径。<br>若有一条由 k到达ks的路径，则称k是ks的祖先，ks是k的子孙。<br>结点的层数同样由树根开始定义的，根结点为第0层，非根结点的层数是其父结点的层数加1。</p>
+<h4 id="5-1-2-森林"><a href="#5-1-2-森林" class="headerlink" title="5.1.2 森林"></a>5.1.2 森林</h4><p>森林(forest)是零棵或多棵不相交的树的集合</p>
+<h4 id="5-1-3-树与二叉树的转换"><a href="#5-1-3-树与二叉树的转换" class="headerlink" title="5.1.3 树与二叉树的转换"></a>5.1.3 树与二叉树的转换</h4><p>连线：将兄弟结点用线连接起来。<br>切线：保留父结点与其第一个子结点的连线，将父结点到其它子结点的连线切掉。<br>旋转：以根为轴，平面向下顺时针方向旋转一定的角度。旋转只是为了调整画面，使得转化后的二叉树看起来比较规整。<br>
+        <span class="lazyload-img-span">
+        <img   
+           data-src="https://s3.bmp.ovh/imgs/2022/06/12/62e74cba24313f93.png" >
+        </sapn>
+      <br>二叉树的根结点没有右子树，只有左子树；<br> 左子结点仍然是原来树中相应结点的子结点，而所有沿右链往下的右子结点均是原来树中该结点的兄弟结点。</p>
+<h4 id="5-1-4-森林与二叉树的转换"><a href="#5-1-4-森林与二叉树的转换" class="headerlink" title="5.1.4 森林与二叉树的转换"></a>5.1.4 森林与二叉树的转换</h4><p>按给出的森林中树的次序，从最后一棵二叉树开始，每棵二叉树作为前一棵二叉树的根结点的右子树，依次类推，则第一棵树的根结点就是转换后生成的二叉树的根结点，如下图所示。</p>
+<h4 id="5-1-5-二叉树与树的转换"><a href="#5-1-5-二叉树与树的转换" class="headerlink" title="5.1.5 二叉树与树的转换"></a>5.1.5 二叉树与树的转换</h4><p>补线：若结点x是父结点y的左子结点，则把x的右子结点，右子结点的右孩子，依此类推，直到最右孩子，用连线与y连起来。<br>删线：去掉所有父结点到右孩子的连线。<br>旋转：以根为轴，平面逆时针方向旋转。</p>
+<h4 id="5-1-6-树的周游"><a href="#5-1-6-树的周游" class="headerlink" title="5.1.6 树的周游"></a>5.1.6 树的周游</h4><h3 id="5-2-树的链式存储结构"><a href="#5-2-树的链式存储结构" class="headerlink" title="5.2 树的链式存储结构"></a>5.2 树的链式存储结构</h3><h4 id="5-2-1-“子结点表”表示方法"><a href="#5-2-1-“子结点表”表示方法" class="headerlink" title="5.2.1  “子结点表”表示方法"></a>5.2.1  “子结点表”表示方法</h4><h4 id="5-2-2-静态“左孩子-右兄弟”表示法"><a href="#5-2-2-静态“左孩子-右兄弟”表示法" class="headerlink" title="5.2.2  静态“左孩子/右兄弟”表示法"></a>5.2.2  静态“左孩子/右兄弟”表示法</h4><h4 id="5-2-3-动态表示法"><a href="#5-2-3-动态表示法" class="headerlink" title="5.2.3  动态表示法"></a>5.2.3  动态表示法</h4><h4 id="5-2-4-动态“左孩子-右兄弟”二叉链表表示法"><a href="#5-2-4-动态“左孩子-右兄弟”二叉链表表示法" class="headerlink" title="5.2.4  动态“左孩子/右兄弟”二叉链表表示法"></a>5.2.4  动态“左孩子/右兄弟”二叉链表表示法</h4><h4 id="5-2-5-父指针表示法及在并查集中的应用"><a href="#5-2-5-父指针表示法及在并查集中的应用" class="headerlink" title="5.2.5  父指针表示法及在并查集中的应用"></a>5.2.5  父指针表示法及在并查集中的应用</h4><p>并查集是一种特殊的集合，由一些不相交子集构成，合并查集的基本操作是：<br>Find：判断两个结点是否在同一个集合中<br>Union：归并两个集合<br>像栈、队列一样，并查集也是一种重要的抽象数据类型，可以用于求解等价类问题</p>
+<pre><code class="C++">
+</code></pre>
+<h3 id="5-3-树的顺序存储结构"><a href="#5-3-树的顺序存储结构" class="headerlink" title="5.3 树的顺序存储结构"></a>5.3 树的顺序存储结构</h3><h3 id="5-4-k叉树"><a href="#5-4-k叉树" class="headerlink" title="5.4 k叉树"></a>5.4 k叉树</h3><h2 id="6-图"><a href="#6-图" class="headerlink" title="6 图"></a>6 图</h2><h3 id="6-1-图的定义和术语"><a href="#6-1-图的定义和术语" class="headerlink" title="6.1 图的定义和术语"></a>6.1 图的定义和术语</h3><h3 id="6-2-图的抽象数据类型"><a href="#6-2-图的抽象数据类型" class="headerlink" title="6.2 图的抽象数据类型"></a>6.2 图的抽象数据类型</h3><h3 id="6-3-图的存储结构"><a href="#6-3-图的存储结构" class="headerlink" title="6.3 图的存储结构"></a>6.3 图的存储结构</h3><h4 id="6-3-1-邻接矩阵"><a href="#6-3-1-邻接矩阵" class="headerlink" title="6.3.1 邻接矩阵"></a>6.3.1 邻接矩阵</h4><p>对于有n个顶点的图，用一维数组vexs[n]存储顶点信息，用二维数组A[n][n]存储顶点之间关系的信息。该二维数组称为邻接矩阵。</p>
+<h4 id="6-3-2-邻接表"><a href="#6-3-2-邻接表" class="headerlink" title="6.3.2 邻接表"></a>6.3.2 邻接表</h4><p>当图中的边数较少时，相邻矩阵就会出现大量的零元素，存储这些零元素将耗费大量的存储空间。对于稀疏图，可以采用邻接表存储法。<br>邻接表(adjacency list)表示法是一种链式存储结构，由一个顺序存储的顶点表和n个链接存储的边表组成</p>
+<pre><code class="C++">struct vexNode
+&#123;
+ int data;
+ arcNode* firstarc;
+&#125;
+struct arcNode
+&#123;
+ vexNode* adjvex;//结束点
+ arcNode* nextarc;//起始点的下一条边
+ int info;
+&#125;
+</code></pre>
+<p>若图中有n个顶点和e条边，如果该图是无向图，则需要用到n个顶点结点和2e个边结点；若是有向图时，不考虑逆邻接表，只需要n个顶点结点和e个边结点。当边数e很小时，可以节省大量的存储空间。边表中表目顺序往往按照顶点编号从小到大排列。</p>
+<h4 id="6-3-3-十字链表"><a href="#6-3-3-十字链表" class="headerlink" title="6.3.3 十字链表"></a>6.3.3 十字链表</h4><p>十字链表（Orthogonal List）是有向图的另一种链式存储结构，可以看成是邻接表和逆邻接表的结合<br>表中对应于有向图的每一条弧有一个表目，共有5个域：头(headvex)和尾(tailvex)分别表示弧头（终点）和弧尾（始点）顶点序号；tailnextarc链接指针指向下一条顶点以tailvex为弧尾的弧；headnextarc指针指向下一条以顶点headvex为弧头的弧；此外还有一个表示弧权值等信息的info域<br>顶点表目由3个域组成：data域存放顶点的相关信息；firstinarc链接指针指向第一条以该顶点为终点的弧；firstoutarc链接指针指向第一条以该顶点为始点的弧。所有的顶点也可以放在顺序存储结构中<br>
+        <span class="lazyload-img-span">
+        <img   
+           data-src="https://s3.bmp.ovh/imgs/2022/06/12/89c216bb9ab75821.png" >
+        </sapn>
+      </p>
+<h3 id="6-4-图的周游"><a href="#6-4-图的周游" class="headerlink" title="6.4 图的周游"></a>6.4 图的周游</h3><h4 id="6-4-1-深度优先周游"><a href="#6-4-1-深度优先周游" class="headerlink" title="6.4.1 深度优先周游"></a>6.4.1 深度优先周游</h4><p>当遇到一个所有邻接顶点都被访问过了的顶点w时，则回到已访问顶点序列中最后一个拥有未被访问的相邻顶点的顶点u</p>
+<pre><code class="C++">void DFS(Graph&amp; G, int v)  &#123;         // 深度优先搜索的递规实现
+     G.Mark[v] = VISITED;         // 将标记位设置为VISITED
+     Visit(G,v);    // 访问顶点v
+for (Edge e = G.FirstEdge(v);G.IsEdge(e);e = G.NextEdge(e))
+        if (G.Mark[G.ToVertex(e)] == UNVISITED)
+         DFS(G, G.ToVertex(e));
+&#125;
+</code></pre>
+<h4 id="6-4-2-广度优先周游"><a href="#6-4-2-广度优先周游" class="headerlink" title="6.4.2 广度优先周游"></a>6.4.2 广度优先周游</h4><p>在依次访问v的各个未被访问的邻接点之后，再从这些邻接点出发，依次访问与它们邻接的所有未曾访问过的顶点<br>重复上述过程直至图中所有与源点v有路径相通的顶点都被访问为止</p>
+<pre><code class="C++">void BFS(Graph&amp; G, int v)  &#123;
+    using std::queue;     // 使用STL中的队列
+ queue&lt;int&gt; Q;
+ Visit(G,v);                               // 访问顶点v
+    G.Mark[v] = VISITED;  // 将标记位设置为VISITED
+    Q.push(v);                        // 顶点v入队列
+ while (!Q.empty()) &#123;                // 如果队列非空
+  int u = Q.front ();              // 获得队列顶部元素
+  Q.pop();                      // 队列顶部元素出队
+        // 与该顶点邻接的所有未访问顶点入队
+  for (Edge e = G.FirstEdge(u);G.IsEdge(e);e = G.NextEdge(e))
+   if (G.Mark[G.ToVertex(e)] == UNVISITED) &#123;
+          Visit(G, G.ToVertex(e)); 
+    G.Mark[G.ToVertex(e)] = VISITED;
+       Q.push(G.ToVertex(e));
+      &#125;
+ &#125;
+&#125;
+</code></pre>
+<h4 id="6-4-3-拓扑排序"><a href="#6-4-3-拓扑排序" class="headerlink" title="6.4.3 拓扑排序"></a>6.4.3 拓扑排序</h4><p>当且仅当图中没有定向环时（即有向无环图），才有可能进行拓扑排序。</p>
+<h5 id="6-4-3-1-要求"><a href="#6-4-3-1-要求" class="headerlink" title="6.4.3.1 要求"></a>6.4.3.1 要求</h5><p>序列中包含每个顶点，且每个顶点只出现一次；<br>若A在序列中排在B的前面，则在图中不存在从B到A的路径。</p>
+<h5 id="6-4-3-2-卡恩算法"><a href="#6-4-3-2-卡恩算法" class="headerlink" title="6.4.3.2 卡恩算法"></a>6.4.3.2 卡恩算法</h5><p>卡恩于1962年提出了该算法。简单来说，假设L是存放结果的列表，先找到那些入度为零的节点，把这些节点放到L中，因为这些节点没有任何的父节点。然后把与这些节点相连的边从图中去掉，再寻找图中的入度为零的节点。对于新找到的这些入度为零的节点来说，他们的父节点已经都在L中了，所以也可以放入L。重复上述操作，直到找不到入度为零的节点。如果此时L中的元素个数和节点总数相同，说明排序完成；如果L中的元素个数和节点总数不同，说明原图中存在环，无法进行拓扑排序。</p>
+<h3 id="6-5-最短路径"><a href="#6-5-最短路径" class="headerlink" title="6.5 最短路径"></a>6.5 最短路径</h3><h4 id="6-5-1-Dijkstra"><a href="#6-5-1-Dijkstra" class="headerlink" title="6.5.1 Dijkstra"></a>6.5.1 Dijkstra</h4><p>贪心找出并更新每一个节点到头结点的距离<br>关键在于每轮遍历中距离头最近的节点确认为已经找到最短距离</p>
+<pre><code class="C++">void Dijkstra(int headNode,int tailNode) 
+ &#123;
+  int* tag = new int[nodeNum]();//标记数组
+  double* dist = new double[nodeNum];//距离数组
+  int tmp = headNode, min = 114514;
+  for (int i = 0; i &lt; nodeNum; i++)//初始化所有结点距离
+  &#123;
+   dist[i] = MAX;
+  &#125;
+  dist[headNode] = 0; tag[headNode] = 1;
+  for (int i = 0; i &lt; nodeNum; i++)
+  &#123;
+   int tmp = headNode, min = MAX;
+   for (int j = 0; j &lt; nodeNum; j++)//找到本轮遍历中距离头最近的节点
+   &#123;
+    if (!tag[j] &amp;&amp; dist[j] &lt; min)
+    &#123;
+     min = dist[j], tmp = j;
+    &#125;
+   &#125;
+   for (int j = 0; j &lt; nodeNum; j++)//更新每个节点到头的最近距离
+   &#123;
+    if (!tag[j] &amp;&amp; graph[i][j] + dist[i] &lt; dist[j])
+    &#123;
+     dist[j] = graph[i][j] + dist[i];
+    &#125;
+   &#125;
+   tag[tmp] = 1;
+  &#125;
+  for (int i = 0; i &lt; nodeNum; i++)
+  &#123;
+   if (i == tailNode)
+    std::cout &lt;&lt; std::fixed &lt;&lt; std::setprecision(2) &lt;&lt; dist[i];
+  &#125;
+  delete[] tag;
+  delete[] dist;
+ &#125;
+</code></pre>
+<h4 id="Floyd"><a href="#Floyd" class="headerlink" title="Floyd"></a>Floyd</h4><p><strong>待学</strong></p>
+<h3 id="最小生成树"><a href="#最小生成树" class="headerlink" title="最小生成树"></a>最小生成树</h3><p>带权连通图中代价最小的生成树称为最小生成树。</p>
+<h4 id="prim算法"><a href="#prim算法" class="headerlink" title="prim算法"></a>prim算法</h4><p>1).输入：一个加权连通图，其中顶点集合为V，边集合为E；<br>2).初始化：Vnew = {x}，其中x为集合V中的任一节点（起始点），Enew = {},为空；<br>3).重复下列操作，直到Vnew = V：<br>a.在集合E中选取权值最小的边&lt;u, v&gt;，其中u为集合Vnew中的元素，而v不在Vnew集合当中，并且v∈V（如果存在有多条满足前述条件即具有相同权值的边，则可任意选取其中之一）；<br>b.将v加入集合Vnew中，将&lt;u, v&gt;边加入集合Enew中；<br>4).输出：使用集合Vnew和Enew来描述所得到的最小生成树。</p>
+<pre><code class="C++">void MiniSpanTree_PRIM (MGraph G, VertexType u) &#123;
+    /*  用普利姆算法從第u個頂點出發構造網G 的最小生成樹T,輸出T的各條邊。
+        記錄從頂點集U到V-U的代價最小的邊的輔助數組定義：
+        struct
+        &#123;
+            VertexType adjvex;
+            VRtype lowcost;
+        &#125;closedge[MAX_VERTEX_NUM];
+    */
+    
+    k = LocateVex(G, u);
+    for (j = 0 ; j &lt; G.vexnum; j++) &#123;           //輔助數組初始化
+        if (j != k)
+            closedge[j] = &#123;u, G.arcs[k][j].adj&#125;; //&#123;adjvex, lowcost&#125;
+    &#125;
+    closedge[k].lowcost = 0;                 //初始，U=&#123;u&#125;
+    for (i = 1; i &lt; G.vexnum ; i++) &#123;           //選擇其餘G.vexnum -1 個頂點
+        k = minimum(closedge);              //求出T的下個結點：第k結點
+        //  此时 closedge[k].lowcost = MIN&#123; closedge[Vi].lowcost|closedge[Vi].lowcost&gt;0,Vi∈V-U&#125;
+        printf(closedge[k].adjvex, G.vexs[k]);    //輸出生成樹的邊
+        closedge[k].lowcost = 0;             //第k條邊併入U集
+        for (j = 0; j &lt; G.vexnum; j++) &#123;
+        
+            //新頂點併入U後重新選擇最小邊
+            if (G.arcs[k][j].adj &lt; closedge[j].lowcost &amp;&amp; closedge[j].lowcost!=0) 
+                closedge[j] = &#123;G.vex[k], G.arcs[k][j].adj&#125;;
+        &#125;
+    &#125;
+&#125;
+</code></pre>
+<h4 id="Kruskal算法"><a href="#Kruskal算法" class="headerlink" title="Kruskal算法"></a>Kruskal算法</h4><p>G=(V, E)是具有n个顶点的连通网，T=(U, TE)是其最小生成树。初值：U=V，TE={} 。<br>对G中的边按权值大小从小到大依次选取。<br>⑴   选取权值最小的边(vi，vj)，若边(vi，vj)加入到TE后形成回路，则舍弃该边(边(vi，vj) ；否则，将该边并入到TE中，即TE=TE∪{(vi，vj)} 。<br>⑵ 重复⑴ ，直到TE中包含有n-1条边为止。</p>
+<h5 id="判断是否形成回路"><a href="#判断是否形成回路" class="headerlink" title="判断是否形成回路"></a>判断是否形成回路</h5><p>定义一个一维数组Vset[n] ，存放图T中每个顶点所在的连通分量的编号。<br>初值：Vset[i]=i，表示每个顶点各自组成一个连通分量，连通分量的编号简单地使用顶点在图中的位置(编号)。<br>当往T中增加一条边(vi，vj) 时，先检查Vset[i]和Vset[j]值：<br>若Vset[i]=Vset[j]：表明vi和vj处在同一个连通分量中，加入此边会形成回路；<br>Vset[i]≠Vset[j]，则加入此边不会形成回路，将此边加入到生成树的边集中。<br>加入一条新边后，将两个不同的连通分量合并：将一个连通分量的编号换成另一个连通分量的编号。</p>
+<h2 id="7-内排序"><a href="#7-内排序" class="headerlink" title="7 内排序"></a>7 内排序</h2><h3 id="7-0-排序"><a href="#7-0-排序" class="headerlink" title="7.0 排序"></a>7.0 排序</h3><h4 id="7-0-1-排序的稳定性"><a href="#7-0-1-排序的稳定性" class="headerlink" title="7.0.1 排序的稳定性"></a>7.0.1 排序的稳定性</h4><p>存在多个相同排序码的记录，排序后这些记录相对次序保持不变</p>
+<h3 id="7-1-冒泡排序"><a href="#7-1-冒泡排序" class="headerlink" title="7.1 冒泡排序"></a>7.1 冒泡排序</h3><pre><code class="C++">for(int i = 0;i &lt; size-1;i++)
+&#123;
+    for(int j = 0;j &lt; size-i-1;j++)
+    &#123;
+        if(array[j] &gt; array[j+1])
+            swap(array[j], array[j+1]);
+    &#125;
+&#125;
+</code></pre>
+<h3 id="7-2-插入排序"><a href="#7-2-插入排序" class="headerlink" title="7.2 插入排序"></a>7.2 插入排序</h3><p><strong>稳定</strong></p>
+<pre><code class="C++">template &lt;class Record&gt;
+void InsertSort (Record Array[], int n)  &#123;
+    //Array[]为待排序数组，n为数组长度
+ Record TempRecord; // 临时变量
+ for (int i=1; i&lt;n; i++)  &#123; // 依次插入第i个记录
+  TempRecord=Array[i];
+  //从i开始往前寻找记录i的正确位置
+  int j = i-1;
+           //将那些大于等于记录i的记录后移
+        while ((j&gt;=0) &amp;&amp; TempRecord &lt; Array[j]) &#123; 
+     Array[j+1] = Array[j];
+     j = j - 1;
+  &#125;
+  //此时j后面就是记录i的正确位置，回填 
+     Array[j+1] = TempRecord;
+ &#125;
+&#125; 
+</code></pre>
+<h3 id="7-3-希尔排序"><a href="#7-3-希尔排序" class="headerlink" title="7.3 希尔排序"></a>7.3 希尔排序</h3><p>希尔排序是一种对于插入排序的改进，将待排序数组按一定的步长进行分组，分别对每一个分组进行插入排序，到达部分有序；然后，缩小步长，重新分组，进行插入排序，直到步长为1，对基本有序的数组进行插入排序。<br><strong>不稳定</strong></p>
+<pre><code class="C++">void shellSort(int* record, int gap)
+&#123;
+ for (int i = MAXSIZE / gap; i &gt; 0; i /= gap)
+ &#123;
+  for (int j = 0; j &lt; i; j++)
+   insertSort(record, i, j);
+ &#125;
+&#125;
+</code></pre>
+<h3 id="7-4-快速排序"><a href="#7-4-快速排序" class="headerlink" title="7.4 快速排序"></a>7.4 快速排序</h3><p>快速排序算法通过多次比较和交换来实现排序，其排序流程如下<br>(1)首先设定一个分界值，通过该分界值将数组分成左右两部分。<br>(2)将大于或等于分界值的数据集中到数组右边，小于分界值的数据集中到数组的左边。此时，左边部分中各元素都小于分界值，而右边部分中各元素都大于或等于分界值。<br>(3)然后，左边和右边的数据可以独立排序。对于左侧的数组数据，又可以取一个分界值，将该部分数据分成左右两部分，同样在左边放置较小值，右边放置较大值。右侧的数组数据也可以做类似处理。<br>(4)重复上述过程，可以看出，这是一个递归定义。通过递归将左侧部分排好序后，再递归排好右侧部分的顺序。当左、右两个部分各数据排序完成后，整个数组的排序也就完成了。<br><strong>不稳定</strong></p>
+<pre><code class="C++">//首位轴值的快排
+void quickSort1_(int* record, int begin, int end)
+&#123;
+ if (begin &gt;= end)
+  return;
+ int tmp = record[begin];
+ int _begin = begin, _end = end;
+ while (_end &gt; _begin)
+ &#123;
+  while (record[_end] &gt;= tmp &amp;&amp; _end &gt; _begin)
+  &#123;
+   _end--;
+  &#125;
+  record[_begin] = record[_end];
+  while (record[_begin] &lt; tmp &amp;&amp; _end &gt; _begin)
+  &#123;
+   _begin++;
+  &#125;
+  record[_end] = record[_begin];
+ &#125;
+ record[_begin] = tmp;
+ quickSort1_(record, begin, _begin - 1);
+ quickSort1_(record, _begin + 1, end);
+
+//随机轴值的快排
+ void quickSort2_(int* record, int begin, int end)
+&#123;
+ if (begin &gt;= end)
+  return;
+ int axis = rand() % (end - begin + 1) + begin;
+ int tmp = record[axis];
+ int _begin = begin, _end = end;
+ while (_end &gt; _begin)
+ &#123;
+  while (record[_end] &gt;= tmp &amp;&amp; _end &gt; _begin)
+  &#123;
+   _end--;
+  &#125;
+  record[_begin] = record[_end];
+  while (record[_begin] &lt; tmp &amp;&amp; _end &gt; _begin)
+  &#123;
+   _begin++;
+  &#125;
+  record[_end] = record[_begin];
+ &#125;
+ record[_begin] = tmp;
+ quickSort2_(record, begin, _begin - 1);
+ quickSort2_(record, _begin + 1, end);
+&#125;
+&#125;
+</code></pre>
+<h3 id="7-5-堆排序"><a href="#7-5-堆排序" class="headerlink" title="7.5 堆排序"></a>7.5 堆排序</h3><p>时间代价：O(nlogn)<br>若以升序排序说明，把阵列转换成最大堆积（Max-Heap Heap），这是一种满足最大堆积性质（Max-Heap Property）的二元树：对于除了根之外的每个节点i, A[parent(i)] ≥ A[i]。<br>重复从最大堆积取出数值最大的结点（把根结点和最后一个结点交换，把交换后的最后一个结点移出堆），并让残馀的堆积维持最大堆积性质。</p>
+<pre><code class="C++">void max_heapify(int arr[], int start, int end) &#123;
+    // 建立父節點指標和子節點指標
+    int dad = start;
+    int son = dad * 2 + 1;
+    while (son &lt;= end) &#123; // 若子節點指標在範圍內才做比較
+        if (son + 1 &lt;= end &amp;&amp; arr[son] &lt; arr[son + 1]) // 先比較兩個子節點大小，選擇最大的
+            son++;
+        if (arr[dad] &gt; arr[son]) // 如果父節點大於子節點代表調整完畢，直接跳出函數
+            return;
+        else &#123; // 否則交換父子內容再繼續子節點和孫節點比較
+            swap(arr[dad], arr[son]);
+            dad = son;
+            son = dad * 2 + 1;
+        &#125;
+    &#125;
+&#125;
+
+void heap_sort(int arr[], int len) &#123;
+    // 初始化，i從最後一個父節點開始調整
+    for (int i = len / 2 - 1; i &gt;= 0; i--)
+        max_heapify(arr, i, len - 1);
+    // 先將第一個元素和已经排好的元素前一位做交換，再從新調整(刚调整的元素之前的元素)，直到排序完畢
+    for (int i = len - 1; i &gt; 0; i--) &#123;
+        swap(arr[0], arr[i]);
+        max_heapify(arr, 0, i - 1);
+    &#125;
+&#125;
+</code></pre>
+<h3 id="7-6-归并排序"><a href="#7-6-归并排序" class="headerlink" title="7.6 归并排序"></a>7.6 归并排序</h3><h3 id="7-7-桶排序"><a href="#7-7-桶排序" class="headerlink" title="7.7 桶排序"></a>7.7 桶排序</h3><h3 id="7-8-基数排序"><a href="#7-8-基数排序" class="headerlink" title="7.8 基数排序"></a>7.8 基数排序</h3><h2 id="8-外排序"><a href="#8-外排序" class="headerlink" title="8 外排序"></a>8 外排序</h2><h3 id="置换选择排序"><a href="#置换选择排序" class="headerlink" title="置换选择排序"></a>置换选择排序</h3><p>为了获得初始归并段，我们可以采用置换选择排序，其特点是选择最小关键值和输入、输出交叉或并行进行。<br>它的主要思路是：用堆从已经传递到内存中的记录中找到关键值最小（或最大）的记录，然后将此记录写入外存，再将外存中一个没有排序过的记录传递到内存，然后再用堆的一次调整过程找到最小关键值记录，再将此最小关键值记录调出，再调入新的记录。<br>1、 实现最小堆<br>我们需要堆能够进行自上而下和自下而上的调整<br>代码实现：</p>
+<pre><code class="C++">class minHeap
+&#123;
+private:
+ int* nums;//存放堆元素
+ int minNum;//根上的元素
+ int size;//堆的大小
+ //自上而下调整堆
+ void _adjustHeap(int _last, int k)
+ &#123;
+  int last = _last - 1;
+  int i = k, j = k + 1;
+  while (j &lt;= last)
+  &#123;
+   if (j + 1 &lt;= last &amp;&amp; nums[j + 1] &lt; nums[j])
+    j++;
+   if (nums[i] &gt; nums[j])
+   &#123;
+    std::swap(nums[i], nums[j]);
+    i = j;
+    j = 2 * i + 1;
+   &#125;
+   else break;
+  &#125;
+  minNum = nums[0];
+ &#125;
+
+public:
+ minHeap(int i)
+ &#123;
+  nums = new int[i]();
+  minNum = -1;
+  size = i;
+ &#125;
+ ~minHeap()
+ &#123;
+  delete[] nums;
+ &#125;
+ //调整堆
+ void adjustHeap(int _last)
+ &#123;
+  for (int i = _last / 2; i &gt;= 0; i--)
+  &#123;
+   _adjustHeap(_last, i);
+  &#125;
+ &#125;
+ //置换选择排序 void Sort(std::vector&lt;int&gt; array);
+&#125;;
+</code></pre>
+<p>2、 利用堆模拟置换选择排序<br>我们的堆将逐次加入并输出一个关键值，当输入的关键值小于堆当前记录的最小值时，我们需要暂且将新加入的关键值搁置到一旁，输出堆中剩余元素的最小值并记录，直到堆中有效元素为0，这代表一个归并段构造完成。<br>代码实现：</p>
+<pre><code class="C++">//置换选择排序
+ void Sort(std::vector&lt;int&gt; array)
+ &#123;
+  int last = size;
+  for (int i = 0; i &lt; array.size(); i++)
+  &#123;
+   if (i &lt; size)//初始化堆
+   &#123;
+    nums[i] = array[i];
+    if (i == size - 1)
+     adjustHeap(last);
+    continue;
+   &#125;
+   if (array[i] &gt;= minNum)
+    nums[0] = array[i];
+   else
+   &#123;
+    nums[0] = nums[last - 1];
+    nums[last - 1] = array[i];
+    last--;
+   &#125;
+   std::cout &lt;&lt; minNum &lt;&lt; &quot; &quot;;
+   if (last == 0)//上一个归并段构造完成
+   &#123;
+    last = size;
+    adjustHeap(last);
+    std::cout &lt;&lt; std::endl;
+   &#125;
+   adjustHeap(last);
+   if (i == array.size() - 1)//输出堆中残留数据
+   &#123;
+    int tmp = last;
+    while (last != 0)
+    &#123;
+     adjustHeap(last);
+     nums[0] = nums[last - 1];
+     std::cout &lt;&lt; minNum &lt;&lt; &quot; &quot;;
+     last--;
+    &#125;
+    if (tmp &lt; size)//最后可能存在完整的归并段没有被输出
+    &#123;
+     std::cout &lt;&lt; std::endl;
+     int newLast = size - tmp;
+     for (int j = 0; j &lt; newLast; j++)
+     &#123;
+      nums[j] = nums[size - 1 - j];
+     &#125;
+     while (newLast &gt; 0)
+     &#123;
+      adjustHeap(newLast);
+      nums[0] = nums[newLast - 1];
+      std::cout &lt;&lt; minNum &lt;&lt; &quot; &quot;;
+      newLast--;
+     &#125;
+    &#125;
+   &#125;
+  &#125;
+ &#125;
+</code></pre>
+<h4 id="败者树实现归并"><a href="#败者树实现归并" class="headerlink" title="败者树实现归并"></a>败者树实现归并</h4><p>二、 败者树实现8路归并排序<br>败者树可以在归并段较多的情况下尽可能减少内部归并的压力。<br>败者树可以通过树枝和树叶两个数组进行存储，树枝节点存储对应树叶节点中的较大值即败者，树枝的根存储最终胜者。由于有树枝的记录，就可以在内部对有序对进行归并排序时减少进行比较的次数。<br>1、 调整败者树<br>对于新加入的树叶s，我们需要逐层与父节点比较决出胜负直到决出最后的胜利者，并在每一层对决中更新树枝记录的败者。</p>
+<pre><code class="C++">//调整败者树
+ void adjustLoserTree(int s)
+ &#123;
+  int t = (s + Size) / 2;
+  while (t &gt; 0) &#123;
+   //判断每一个叶子结点同其双亲结点中记录的败者的值相比较，调整败者的值，其中 s 一直表示的都是胜者
+   if (loserTreeLeaf[s] &gt; loserTreeLeaf[loserTreeBranch[t]]) &#123;
+    std::swap(s, loserTreeBranch[t]);
+   &#125;
+   t = t / 2;
+  &#125;
+  //最终将胜者的值赋给 ls[0]
+  loserTreeBranch[0] = s;
+ &#125;
+</code></pre>
+<p>2、 初始化败者树<br>      将每个归并段的首位关键码组成的树叶放到败者树里。</p>
+<pre><code class="C++">//初始化败者树
+ void initLoserTree()
+ &#123;  //设置loserTreeBranch数组中败者的初始值
+  for (int i = 0; i &lt; Size; i++) &#123;
+   loserTreeBranch[i] = Size;
+  &#125;
+  //对于每一个叶子结点，调整败者树中非终端结点中记录败者的值
+  for (int i = Size - 1; i &gt;= 0; i--) &#123;
+   adjustLoserTree(i);
+  &#125;
+ &#125;
+</code></pre>
+<p>3、 读入归并段<br>      对于第i个归并段，如果还没有完全被读取过，那就读取一位，否则对应的树叶调整为必败值。</p>
+<pre><code class="C++"> //读入归并段
+ void inputMergeSegments(vector&lt;vector&lt;int&gt;&gt; Segment, int i)
+ &#123;
+  if (mergeSegmentRecord[i] &lt; Segment[i].size())
+  &#123;
+   loserTreeLeaf[i] = Segment[i][mergeSegmentRecord[i]];
+   mergeSegmentRecord[i]++;
+  &#125;
+  else
+   loserTreeLeaf[i] = MAXKEY;
+ &#125;
+</code></pre>
+<p>4、 败者树建立以及内部归并</p>
+<pre><code class="C++"> void createLoserTree(vector&lt;vector&lt;int&gt;&gt; Segment)
+ &#123;
+  for (int i = 0; i &lt; Size; i++)
+  &#123;
+   inputMergeSegments(Segment, i);
+  &#125;
+  initLoserTree();
+  std::cout &lt;&lt; &quot;排序结果是：&quot; &lt;&lt; std::endl;
+  while (loserTreeLeaf[loserTreeBranch[0]] != MAXKEY)//必败者成为最终胜者
+  &#123;
+   std::cout &lt;&lt; loserTreeLeaf[loserTreeBranch[0]] &lt;&lt; &quot; &quot;;
+   //读入后续的记录
+   inputMergeSegments(Segment, loserTreeBranch[0]);
+   //根据新读入的记录值调整败者树，找出最终的胜者
+   adjustLoserTree(loserTreeBranch[0]);
+  &#125;
+ &#125;
+</code></pre>
+<h2 id="9-检索"><a href="#9-检索" class="headerlink" title="9 检索"></a>9 检索</h2><h3 id="二分检索"><a href="#二分检索" class="headerlink" title="二分检索"></a>二分检索</h3><p>将任一元素dataList[i] .Key与给定值K比较<br>三种情况：<br>     （1）Key = K，检索成功，返回dataList[i]<br>     （2）Key &gt; K，若有则一定排在dataList[i]前<br>     （3）Key &lt; K，若右则一定排在dataList[i]后</p>
+<h2 id="10-索引技术"><a href="#10-索引技术" class="headerlink" title="10 索引技术"></a>10 索引技术</h2><p>索引是把一个关键码与他对应的数据记录的过程</p>
+<h3 id="10-1-线性索引"><a href="#10-1-线性索引" class="headerlink" title="10.1 线性索引"></a>10.1 线性索引</h3><h4 id="二级线性索引"><a href="#二级线性索引" class="headerlink" title="二级线性索引"></a>二级线性索引</h4><h3 id="10-2-静态索引-多分树"><a href="#10-2-静态索引-多分树" class="headerlink" title="10.2 静态索引-多分树"></a>10.2 静态索引-多分树</h3><h3 id="10-3-倒排索引"><a href="#10-3-倒排索引" class="headerlink" title="10.3 倒排索引"></a>10.3 倒排索引</h3><h4 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h4><p>能够对基于属性的检索进行高效率的处理</p>
+<h4 id="缺点-1"><a href="#缺点-1" class="headerlink" title="缺点"></a>缺点</h4><p>花费了保存倒排表的存储代价<br>降低了更新运算的效率</p>
+<h3 id="10-4-动态索引"><a href="#10-4-动态索引" class="headerlink" title="10.4 动态索引"></a>10.4 动态索引</h3><p>在系统运行过程插入或删除记录时，索引结构本身也可能发生变化<br>以保持更好的性能</p>
+<h4 id="B-tree"><a href="#B-tree" class="headerlink" title="B-tree"></a>B-tree</h4><h5 id="m阶B树结构定义"><a href="#m阶B树结构定义" class="headerlink" title="m阶B树结构定义"></a>m阶B树结构定义</h5><ol>
+<li>每个节点至多有m个子节点</li>
+<li>除根结点和叶结点外，其他每个节点至少有m/2个子节点</li>
+<li>根节点至少有两个子节点</li>
+<li>所有叶节点在同一层</li>
+<li>有k个子节点的非根节点恰好包含k-1个关键码</li>
+</ol>
+<h5 id="B树的性质"><a href="#B树的性质" class="headerlink" title="B树的性质"></a>B树的性质</h5><ol>
+<li>树高平衡，所有叶结点都在同一层；</li>
+<li>关键码没有重复，父结点中的关键码是其子结点的分界；</li>
+<li>B树把（值接近）相关记录放在同一个磁盘页中，从而利用了访问局部性原理；</li>
+<li>B树保证树中至少有一定比例的结点是满的<br>这样能够改进空间的利用率<br>减少检索和更新操作的磁盘读取数目</li>
+</ol>
+<h5 id="B树插入"><a href="#B树插入" class="headerlink" title="B树插入"></a>B树插入</h5><ol>
+<li>找到最底层，插入</li>
+<li>若溢出，则结点分裂，中间关键码连同新指针插入父结点</li>
+<li>若父结点也溢出，则继续分裂<br>分裂过程可能传达到根结点(则树升高一层)</li>
+</ol>
+<h6 id="一次插入操作最多读写次数"><a href="#一次插入操作最多读写次数" class="headerlink" title="一次插入操作最多读写次数"></a>一次插入操作最多读写次数</h6><p>总共h层，每层都需要分裂（包括根）<br>分裂一个非根结点要向磁盘写出 2 个结点，分裂根结点（最后一次）要写出 3 个结点<br>            = 找插入结点向下读盘次数 +<br>                + 分裂非根结点时写盘次数 +<br>                + 分裂根结点时写盘次数<br>            =  h+2(h-1)+3  =  3h+1</p>
+<h5 id="B树的删除"><a href="#B树的删除" class="headerlink" title="B树的删除"></a>B树的删除</h5><h6 id="删除的关键码不在叶节点层"><a href="#删除的关键码不在叶节点层" class="headerlink" title="删除的关键码不在叶节点层"></a>删除的关键码不在叶节点层</h6><p>先把此关键码与它在B树里的后继对换位置，然后再删除该关键码</p>
+<h6 id="删除的关键码在叶节点层"><a href="#删除的关键码在叶节点层" class="headerlink" title="删除的关键码在叶节点层"></a>删除的关键码在叶节点层</h6><p>删除后关键码个数不小于m/2-1直接删除<br>关键码个数小于m/2-1<br>如果兄弟结点关键码个数不等于m/21,从兄弟结点移若干个关键码到该结点中来(父结点中的一个关键码要做相应变化)。<br>如果兄弟结点关键码个数等于m/2-1,合并</p>
+<h4 id="B-tree-1"><a href="#B-tree-1" class="headerlink" title="B+tree"></a>B+tree</h4><p>有k个子结点的结点（分支节点）必有k个关键码。<br>B+树的叶结点一般链接起来，形成一个双链表</p>
+<h3 id="10-5-位索引技术"><a href="#10-5-位索引技术" class="headerlink" title="10.5 位索引技术"></a>10.5 位索引技术</h3><p>字段F的一个位图索引是一个长度为n的位向量的集合（n为文件的记录数）</p>
+<h3 id="10-6-红黑树"><a href="#10-6-红黑树" class="headerlink" title="10.6 红黑树"></a>10.6 红黑树</h3><h4 id="性质"><a href="#性质" class="headerlink" title="性质"></a>性质</h4><p>1.每个节点要么是红色，要么是黑色<br>2.根节点和叶结点(nil)一定是黑色的<br>3.如果一个节点是红色的，那么他的孩子是黑色的<br>4.任意节点到叶结点的树链中包含相同数量的黑节点</p>
+<h4 id="变色和旋转"><a href="#变色和旋转" class="headerlink" title="变色和旋转"></a>变色和旋转</h4>
+        <!-- 分类文章 -->
+        
+          <div class="post-categoris-bottom">
+            <div class="post-categoris-name">数据结构</div>
+            <ul>
+            
+            
+              
+                <li class="me base">
+                  <a  href="/2022/04/13/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/kmp/" class="post-categoris-bottom-link">
+                  KMP
+                </a>
+                </li>
+              
+              
+            
+            
+            
+              
+                <li class="me base">
+                  <a  href="/2022/06/14/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/" class="post-categoris-bottom-link">
+                  KMP
+                </a>
+                </li>
+              
+              
+            
+            
+            
+              
+            
+            
+            
+              
+            
+            
+            
+              
+            
+            
+            </ul>
+
+          </div>
+
+        
+      </div>
+      <div class="post-content-inner-space">
+        
+          <div class="space-toc-main animate__animated  animate__fadeInUp">
+            <ol class="space-toc"><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#1-%E7%BA%BF%E6%80%A7%E8%A1%A8"><span class="space-toc-text">1 线性表</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#1-1-%E9%A1%BA%E5%BA%8F%E8%A1%A8"><span class="space-toc-text">1.1 顺序表</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#%E4%BC%98%E7%82%B9"><span class="space-toc-text">优点</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#%E7%BC%BA%E7%82%B9"><span class="space-toc-text">缺点</span></a></li></ol></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#1-2-%E9%93%BE%E8%A1%A8"><span class="space-toc-text">1.2 链表</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#%E5%87%A0%E4%B8%AA%E7%89%B9%E6%AE%8A%E7%82%B9%E7%9A%84%E5%A4%84%E7%90%86"><span class="space-toc-text">几个特殊点的处理</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#%E9%93%BE%E8%A1%A8%E5%A4%84%E7%90%86"><span class="space-toc-text">链表处理</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#%E9%93%BE%E8%A1%A8%E7%9A%84%E4%B8%BB%E8%A6%81%E4%BC%98%E7%82%B9"><span class="space-toc-text">链表的主要优点</span></a></li></ol></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#%E9%A1%BA%E5%BA%8F%E8%A1%A8%E5%92%8C%E9%93%BE%E8%A1%A8%E7%9A%84%E6%AF%94%E8%BE%83"><span class="space-toc-text">顺序表和链表的比较</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#%E9%A1%BA%E5%BA%8F%E8%A1%A8"><span class="space-toc-text">顺序表</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#%E9%93%BE%E8%A1%A8"><span class="space-toc-text">链表</span></a></li></ol></li></ol></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#2-%E6%A0%88%E4%B8%8E%E9%98%9F%E5%88%97"><span class="space-toc-text">2 栈与队列</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#2-1-%E6%A0%88"><span class="space-toc-text">2.1 栈</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#2-1-1-%E7%89%B9%E7%82%B9"><span class="space-toc-text">2.1.1 特点</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#2-1-2-%E4%B8%8A%E6%BA%A2"><span class="space-toc-text">2.1.2 上溢</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#2-1-3-%E4%B8%8B%E6%BA%A2"><span class="space-toc-text">2.1.3 下溢</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#2-1-4-%E5%BA%94%E7%94%A8"><span class="space-toc-text">2.1.4 应用</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#2-1-5-%E9%A1%BA%E5%BA%8F%E6%A0%88%E4%B8%8E%E9%93%BE%E5%BC%8F%E6%A0%88%E7%9A%84%E6%AF%94%E8%BE%83"><span class="space-toc-text">2.1.5 顺序栈与链式栈的比较</span></a></li></ol></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#2-2-%E9%98%9F%E5%88%97"><span class="space-toc-text">2.2 队列</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#2-2-1-%E7%89%B9%E7%82%B9"><span class="space-toc-text">2.2.1 特点</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#2-2-2%E5%81%87%E6%BA%A2%E5%87%BA"><span class="space-toc-text">2.2.2假溢出</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#2-2-3%E5%BA%94%E7%94%A8"><span class="space-toc-text">2.2.3应用</span></a></li></ol></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#2-3-%E6%A0%88%E4%B8%8E%E9%98%9F%E5%88%97%E7%9A%84%E6%B7%B1%E5%85%A5%E8%AE%A8%E8%AE%BA"><span class="space-toc-text">2.3 栈与队列的深入讨论</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#2-3-1-%E5%A4%9A%E6%A0%88%E7%AE%A1%E7%90%86"><span class="space-toc-text">2.3.1 多栈管理</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#2-3-2-%E5%8F%8C%E6%A0%88%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E9%98%9F%E5%88%97"><span class="space-toc-text">2.3.2 双栈实现一个队列</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#2-3-3%E5%8F%8C%E9%98%9F%E5%88%97%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E6%A0%88"><span class="space-toc-text">2.3.3双队列实现一个栈</span></a></li></ol></li></ol></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#3-%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="space-toc-text">3 字符串</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#kmp%E7%AE%97%E6%B3%95"><span class="space-toc-text">kmp算法</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#1-kmp%E7%AE%97%E6%B3%95%E4%B8%BB%E8%A6%81%E5%8E%9F%E7%90%86"><span class="space-toc-text">1 kmp算法主要原理</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#2-%E6%9E%84%E5%BB%BAgetNext%E5%87%BD%E6%95%B0%E5%A4%A7%E8%87%B4%E7%BB%93%E6%9E%84"><span class="space-toc-text">2 构建getNext函数大致结构</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#3-%E6%9E%84%E5%BB%BA%E5%8C%B9%E9%85%8D%E5%87%BD%E6%95%B0%E5%A4%A7%E8%87%B4%E7%BB%93%E6%9E%84"><span class="space-toc-text">3 构建匹配函数大致结构</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#4-kmp%E5%8C%B9%E9%85%8D%E4%BC%98%E5%8C%96"><span class="space-toc-text">4 kmp匹配优化</span></a></li></ol></li></ol></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#4-%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="space-toc-text">4 二叉树</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E4%B8%BB%E8%A6%81%E6%80%A7%E8%B4%A8"><span class="space-toc-text">二叉树的主要性质</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%91%A8%E6%B8%B8"><span class="space-toc-text">二叉树的周游</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-5"><a class="space-toc-link" href="#%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88"><span class="space-toc-text">深度优先</span></a></li><li class="space-toc-item space-toc-level-5"><a class="space-toc-link" href="#%E5%B9%BF%E5%BA%A6%E4%BC%98%E5%85%88"><span class="space-toc-text">广度优先</span></a></li></ol></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E7%BA%BF%E7%B4%A2%E5%8C%96"><span class="space-toc-text">二叉树的线索化</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%A1%BA%E5%BA%8F%E5%AD%98%E5%82%A8"><span class="space-toc-text">二叉树的顺序存储</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91"><span class="space-toc-text">二叉搜索树</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-5"><a class="space-toc-link" href="#%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E5%88%A0%E9%99%A4"><span class="space-toc-text">二叉搜索树的删除</span></a></li></ol></li></ol></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#%E5%A0%86"><span class="space-toc-text">堆</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#%E5%BB%BA%E5%A0%86%E8%BF%87%E7%A8%8B"><span class="space-toc-text">建堆过程</span></a></li></ol></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#huffman%E6%A0%91"><span class="space-toc-text">huffman树</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#huffman%E6%A0%91%E5%BB%BA%E7%AB%8B"><span class="space-toc-text">huffman树建立</span></a></li></ol></li></ol></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#5-%E6%A0%91"><span class="space-toc-text">5 树</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#5-1-%E6%A0%91%E7%9A%84%E5%AE%9A%E4%B9%89%E5%92%8C%E5%9F%BA%E6%9C%AC%E5%86%85%E5%AE%B9"><span class="space-toc-text">5.1 树的定义和基本内容</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#5-1-1-%E6%A0%91"><span class="space-toc-text">5.1.1 树</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#5-1-2-%E6%A3%AE%E6%9E%97"><span class="space-toc-text">5.1.2 森林</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#5-1-3-%E6%A0%91%E4%B8%8E%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E8%BD%AC%E6%8D%A2"><span class="space-toc-text">5.1.3 树与二叉树的转换</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#5-1-4-%E6%A3%AE%E6%9E%97%E4%B8%8E%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E8%BD%AC%E6%8D%A2"><span class="space-toc-text">5.1.4 森林与二叉树的转换</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#5-1-5-%E4%BA%8C%E5%8F%89%E6%A0%91%E4%B8%8E%E6%A0%91%E7%9A%84%E8%BD%AC%E6%8D%A2"><span class="space-toc-text">5.1.5 二叉树与树的转换</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#5-1-6-%E6%A0%91%E7%9A%84%E5%91%A8%E6%B8%B8"><span class="space-toc-text">5.1.6 树的周游</span></a></li></ol></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#5-2-%E6%A0%91%E7%9A%84%E9%93%BE%E5%BC%8F%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84"><span class="space-toc-text">5.2 树的链式存储结构</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#5-2-1-%E2%80%9C%E5%AD%90%E7%BB%93%E7%82%B9%E8%A1%A8%E2%80%9D%E8%A1%A8%E7%A4%BA%E6%96%B9%E6%B3%95"><span class="space-toc-text">5.2.1  “子结点表”表示方法</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#5-2-2-%E9%9D%99%E6%80%81%E2%80%9C%E5%B7%A6%E5%AD%A9%E5%AD%90-%E5%8F%B3%E5%85%84%E5%BC%9F%E2%80%9D%E8%A1%A8%E7%A4%BA%E6%B3%95"><span class="space-toc-text">5.2.2  静态“左孩子&#x2F;右兄弟”表示法</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#5-2-3-%E5%8A%A8%E6%80%81%E8%A1%A8%E7%A4%BA%E6%B3%95"><span class="space-toc-text">5.2.3  动态表示法</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#5-2-4-%E5%8A%A8%E6%80%81%E2%80%9C%E5%B7%A6%E5%AD%A9%E5%AD%90-%E5%8F%B3%E5%85%84%E5%BC%9F%E2%80%9D%E4%BA%8C%E5%8F%89%E9%93%BE%E8%A1%A8%E8%A1%A8%E7%A4%BA%E6%B3%95"><span class="space-toc-text">5.2.4  动态“左孩子&#x2F;右兄弟”二叉链表表示法</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#5-2-5-%E7%88%B6%E6%8C%87%E9%92%88%E8%A1%A8%E7%A4%BA%E6%B3%95%E5%8F%8A%E5%9C%A8%E5%B9%B6%E6%9F%A5%E9%9B%86%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8"><span class="space-toc-text">5.2.5  父指针表示法及在并查集中的应用</span></a></li></ol></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#5-3-%E6%A0%91%E7%9A%84%E9%A1%BA%E5%BA%8F%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84"><span class="space-toc-text">5.3 树的顺序存储结构</span></a></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#5-4-k%E5%8F%89%E6%A0%91"><span class="space-toc-text">5.4 k叉树</span></a></li></ol></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#6-%E5%9B%BE"><span class="space-toc-text">6 图</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#6-1-%E5%9B%BE%E7%9A%84%E5%AE%9A%E4%B9%89%E5%92%8C%E6%9C%AF%E8%AF%AD"><span class="space-toc-text">6.1 图的定义和术语</span></a></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#6-2-%E5%9B%BE%E7%9A%84%E6%8A%BD%E8%B1%A1%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="space-toc-text">6.2 图的抽象数据类型</span></a></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#6-3-%E5%9B%BE%E7%9A%84%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84"><span class="space-toc-text">6.3 图的存储结构</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#6-3-1-%E9%82%BB%E6%8E%A5%E7%9F%A9%E9%98%B5"><span class="space-toc-text">6.3.1 邻接矩阵</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#6-3-2-%E9%82%BB%E6%8E%A5%E8%A1%A8"><span class="space-toc-text">6.3.2 邻接表</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#6-3-3-%E5%8D%81%E5%AD%97%E9%93%BE%E8%A1%A8"><span class="space-toc-text">6.3.3 十字链表</span></a></li></ol></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#6-4-%E5%9B%BE%E7%9A%84%E5%91%A8%E6%B8%B8"><span class="space-toc-text">6.4 图的周游</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#6-4-1-%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E5%91%A8%E6%B8%B8"><span class="space-toc-text">6.4.1 深度优先周游</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#6-4-2-%E5%B9%BF%E5%BA%A6%E4%BC%98%E5%85%88%E5%91%A8%E6%B8%B8"><span class="space-toc-text">6.4.2 广度优先周游</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#6-4-3-%E6%8B%93%E6%89%91%E6%8E%92%E5%BA%8F"><span class="space-toc-text">6.4.3 拓扑排序</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-5"><a class="space-toc-link" href="#6-4-3-1-%E8%A6%81%E6%B1%82"><span class="space-toc-text">6.4.3.1 要求</span></a></li><li class="space-toc-item space-toc-level-5"><a class="space-toc-link" href="#6-4-3-2-%E5%8D%A1%E6%81%A9%E7%AE%97%E6%B3%95"><span class="space-toc-text">6.4.3.2 卡恩算法</span></a></li></ol></li></ol></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#6-5-%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84"><span class="space-toc-text">6.5 最短路径</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#6-5-1-Dijkstra"><span class="space-toc-text">6.5.1 Dijkstra</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#Floyd"><span class="space-toc-text">Floyd</span></a></li></ol></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#%E6%9C%80%E5%B0%8F%E7%94%9F%E6%88%90%E6%A0%91"><span class="space-toc-text">最小生成树</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#prim%E7%AE%97%E6%B3%95"><span class="space-toc-text">prim算法</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#Kruskal%E7%AE%97%E6%B3%95"><span class="space-toc-text">Kruskal算法</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-5"><a class="space-toc-link" href="#%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E5%BD%A2%E6%88%90%E5%9B%9E%E8%B7%AF"><span class="space-toc-text">判断是否形成回路</span></a></li></ol></li></ol></li></ol></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#7-%E5%86%85%E6%8E%92%E5%BA%8F"><span class="space-toc-text">7 内排序</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#7-0-%E6%8E%92%E5%BA%8F"><span class="space-toc-text">7.0 排序</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#7-0-1-%E6%8E%92%E5%BA%8F%E7%9A%84%E7%A8%B3%E5%AE%9A%E6%80%A7"><span class="space-toc-text">7.0.1 排序的稳定性</span></a></li></ol></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#7-1-%E5%86%92%E6%B3%A1%E6%8E%92%E5%BA%8F"><span class="space-toc-text">7.1 冒泡排序</span></a></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#7-2-%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F"><span class="space-toc-text">7.2 插入排序</span></a></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#7-3-%E5%B8%8C%E5%B0%94%E6%8E%92%E5%BA%8F"><span class="space-toc-text">7.3 希尔排序</span></a></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#7-4-%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F"><span class="space-toc-text">7.4 快速排序</span></a></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#7-5-%E5%A0%86%E6%8E%92%E5%BA%8F"><span class="space-toc-text">7.5 堆排序</span></a></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#7-6-%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F"><span class="space-toc-text">7.6 归并排序</span></a></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#7-7-%E6%A1%B6%E6%8E%92%E5%BA%8F"><span class="space-toc-text">7.7 桶排序</span></a></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#7-8-%E5%9F%BA%E6%95%B0%E6%8E%92%E5%BA%8F"><span class="space-toc-text">7.8 基数排序</span></a></li></ol></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#8-%E5%A4%96%E6%8E%92%E5%BA%8F"><span class="space-toc-text">8 外排序</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#%E7%BD%AE%E6%8D%A2%E9%80%89%E6%8B%A9%E6%8E%92%E5%BA%8F"><span class="space-toc-text">置换选择排序</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#%E8%B4%A5%E8%80%85%E6%A0%91%E5%AE%9E%E7%8E%B0%E5%BD%92%E5%B9%B6"><span class="space-toc-text">败者树实现归并</span></a></li></ol></li></ol></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#9-%E6%A3%80%E7%B4%A2"><span class="space-toc-text">9 检索</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#%E4%BA%8C%E5%88%86%E6%A3%80%E7%B4%A2"><span class="space-toc-text">二分检索</span></a></li></ol></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#10-%E7%B4%A2%E5%BC%95%E6%8A%80%E6%9C%AF"><span class="space-toc-text">10 索引技术</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#10-1-%E7%BA%BF%E6%80%A7%E7%B4%A2%E5%BC%95"><span class="space-toc-text">10.1 线性索引</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#%E4%BA%8C%E7%BA%A7%E7%BA%BF%E6%80%A7%E7%B4%A2%E5%BC%95"><span class="space-toc-text">二级线性索引</span></a></li></ol></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#10-2-%E9%9D%99%E6%80%81%E7%B4%A2%E5%BC%95-%E5%A4%9A%E5%88%86%E6%A0%91"><span class="space-toc-text">10.2 静态索引-多分树</span></a></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#10-3-%E5%80%92%E6%8E%92%E7%B4%A2%E5%BC%95"><span class="space-toc-text">10.3 倒排索引</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#%E4%BC%98%E7%82%B9-1"><span class="space-toc-text">优点</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#%E7%BC%BA%E7%82%B9-1"><span class="space-toc-text">缺点</span></a></li></ol></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#10-4-%E5%8A%A8%E6%80%81%E7%B4%A2%E5%BC%95"><span class="space-toc-text">10.4 动态索引</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#B-tree"><span class="space-toc-text">B-tree</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-5"><a class="space-toc-link" href="#m%E9%98%B6B%E6%A0%91%E7%BB%93%E6%9E%84%E5%AE%9A%E4%B9%89"><span class="space-toc-text">m阶B树结构定义</span></a></li><li class="space-toc-item space-toc-level-5"><a class="space-toc-link" href="#B%E6%A0%91%E7%9A%84%E6%80%A7%E8%B4%A8"><span class="space-toc-text">B树的性质</span></a></li><li class="space-toc-item space-toc-level-5"><a class="space-toc-link" href="#B%E6%A0%91%E6%8F%92%E5%85%A5"><span class="space-toc-text">B树插入</span></a></li><li class="space-toc-item space-toc-level-5"><a class="space-toc-link" href="#B%E6%A0%91%E7%9A%84%E5%88%A0%E9%99%A4"><span class="space-toc-text">B树的删除</span></a></li></ol></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#B-tree-1"><span class="space-toc-text">B+tree</span></a></li></ol></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#10-5-%E4%BD%8D%E7%B4%A2%E5%BC%95%E6%8A%80%E6%9C%AF"><span class="space-toc-text">10.5 位索引技术</span></a></li><li class="space-toc-item space-toc-level-3"><a class="space-toc-link" href="#10-6-%E7%BA%A2%E9%BB%91%E6%A0%91"><span class="space-toc-text">10.6 红黑树</span></a><ol class="space-toc-child"><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#%E6%80%A7%E8%B4%A8"><span class="space-toc-text">性质</span></a></li><li class="space-toc-item space-toc-level-4"><a class="space-toc-link" href="#%E5%8F%98%E8%89%B2%E5%92%8C%E6%97%8B%E8%BD%AC"><span class="space-toc-text">变色和旋转</span></a></li></ol></li></ol></li></ol>
+           </div>
+        
+      </div>
+   </div>
+    <!-- 评论 -->
+    
+  </div>
+</article>
+  </div>
+</div>
+
+
+
+<!-- 如果是home模式的话，不在首页就显示footer，如果不是home模式的话 所有都显示footer -->
+
+  <div class="footer-outer animate__animated  animate__fadeInUp">
+    <div class="footer-inner">
+    <div class="footer-text">
+    <p>Always believe that something wonderful is about to happen</p>
+
+    </div>
+    <div class="footer-contact">
+    <ul class="footer-ul">
+        
+        <li class="footer-li">
+            <a href="https://github.com/ccuuy" target="_blank">
+                <i class="ri-github-line"></i>
+            </a>
+        </li>
+        
+        <li class="footer-li">
+            <a href="qdmengg@foxmail.com" target="_blank">
+                <i class="ri-mail-line"></i>
+            </a>
+        </li>
+        
+        <li class="footer-li">
+            <a href="https://www.zhihu.com/people/da-shuai-bi-34-99" target="_blank">
+                <i class="ri-zhihu-line"></i>
+            </a>
+        </li>
+        
+    </ul>
+    </div>
+    </div>
+</div>
+
+
+
+
+
+
+<script src="/js/white.js"></script>
+
+
+
+    
+      
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/highlight.min.js"></script>
+
+      <script>hljs.initHighlightingOnLoad();</script>
+    
+
+</body>
+</html>
