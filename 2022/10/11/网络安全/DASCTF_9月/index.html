@@ -29,9 +29,7 @@
 
     
   
-<!-- hexo injector head_end start -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.2"></head>
+<meta name="generator" content="Hexo 5.4.2"></head>
 
 
 <body>
@@ -145,7 +143,7 @@
            data-src="https://img2022.cnblogs.com/blog/2687686/202211/2687686-20221108131033449-1923461288.png" >
         </sapn>
       </p>
-<pre><code class="python">import requests
+<pre><code class="lang-python">import requests
 from hashlib import md5
 import time
 target = &quot;http://node4.buuoj.cn:29625/check.php&quot;
@@ -171,8 +169,11 @@ print(res.text)
            data-src="https://img2022.cnblogs.com/blog/2687686/202211/2687686-20221108131250546-1184911317.png" >
         </sapn>
       </p>
-<h2 id="Text-Reverser"><a href="#Text-Reverser" class="headerlink" title="Text Reverser"></a>Text Reverser</h2><p><code>&#123;&#123;&#125;&#125;```和反转后的```&#125;&#125;&#123;&#123;</code>都被ban了,<br>但似乎没有对反转后的字符串进行检测，那么可以随便进行ssti注入啦<br>找一下能利用的类</p>
-<pre><code class="python">import requests
+<h2 id="Text-Reverser"><a href="#Text-Reverser" class="headerlink" title="Text Reverser"></a>Text Reverser</h2><pre><code class="lang-&#123;&#123;&#125;&#125;```和反转后的```&#125;&#125;&#123;&#123;```都被ban了,">但似乎没有对反转后的字符串进行检测，那么可以随便进行ssti注入啦
+找一下能利用的类
+
+```python
+import requests
 from bs4 import BeautifulSoup
 import re
 
@@ -325,5 +326,20 @@ for i in classlist:
       <script>hljs.initHighlightingOnLoad();</script>
     
 
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="//cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 </body>
 </html>

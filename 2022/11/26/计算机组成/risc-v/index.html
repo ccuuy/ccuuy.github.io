@@ -29,9 +29,7 @@
 
     
   
-<!-- hexo injector head_end start -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.2"></head>
+<meta name="generator" content="Hexo 5.4.2"></head>
 
 
 <body>
@@ -130,7 +128,8 @@
         
         <h1 id="简化单周期riscv处理器的实现"><a href="#简化单周期riscv处理器的实现" class="headerlink" title="简化单周期riscv处理器的实现"></a>简化单周期riscv处理器的实现</h1><p>凭着感觉懵懵懂懂地居然真的独自完成了一个简化的riscv指令集处理器，虽说逻辑其实比较简单，但是由于实在没有系统学习过verilog，仿真的时候出现了好多bug，许多问题到最后虽然成功解决了，但还是没能搞清楚背后的原理，直到最后真的仿真通过的时候我甚至脑子都是懵的。把实现的过程在这里尽量具体地写一下，希望看到文章的人能够帮助我解答一些心中的疑惑，同时文章稍作修改后也会作为计算机组成原理实验报告的一部分上交。代码上传至<a target="_blank" rel="noopener" href="https://github.com/ccuuy/riscv">riscv代码</a></p>
 <h2 id="指令分析"><a href="#指令分析" class="headerlink" title="指令分析"></a>指令分析</h2><p>最初想要实现完整的riscv32i指令集，但由于试验任务的时间要求以及我个人能力的限制，最终只能摘选了18个进行实现。有条件跳转指令只实现了beq，无符号跳转指令实现了jal(并不完整)，对于I型指令中的加载指令以及S型指令，则没有实现半字、字节级的操作和无符号的操作。<br>倘若之后有时间，会尝试实现完整的riscv32i指令集。</p>
-<h3 id="实现指令"><a href="#实现指令" class="headerlink" title="实现指令"></a>实现指令</h3><table>
+<h3 id="实现指令"><a href="#实现指令" class="headerlink" title="实现指令"></a>实现指令</h3><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>指令</th>
@@ -140,12 +139,12 @@
 <th>func3</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>jal</td>
 <td>无条件跳转</td>
 <td>J型指令</td>
 <td>1101111</td>
-<td></td>
 </tr>
 <tr>
 <td>beq</td>
@@ -159,14 +158,12 @@
 <td>加载字</td>
 <td>I型指令</td>
 <td>0000011</td>
-<td></td>
 </tr>
 <tr>
 <td>sw</td>
 <td>存字</td>
 <td>S型指令</td>
 <td>0100011</td>
-<td></td>
 </tr>
 <tr>
 <td>add</td>
@@ -266,7 +263,9 @@
 <td>0010011</td>
 <td>100</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>出于简化指令集的简洁性考虑，在不破坏功能的前提下，我对sub指令以及beq指令实现的func3数据段进行了细微的调整，与原版riscv32i有出入，执行sub相关指令时需要手动修正机器码。<br>具体理由在后面提到。</p>
 <h2 id="处理器总体思路"><a href="#处理器总体思路" class="headerlink" title="处理器总体思路"></a>处理器总体思路</h2><p>为了能够之后可能进行的完整实现以及方便与课堂内容结合，我决定尽量完全按照黑皮书《计算机组成与设计 riscv版》进行实现<br>下图为书中数据通路实现<br>
         <span class="lazyload-img-span">
@@ -276,12 +275,12 @@
       <br>下面进行处理器实现时，所有的信号与模块都是与书中一一对应的，减轻了一些设计上的压力。</p>
 <h3 id="一些处理"><a href="#一些处理" class="headerlink" title="一些处理"></a>一些处理</h3><p>整个处理器的核心在于控制模块，控制模块获取<code>opcode[6:0]</code>信号就可以发出控制其余所有模块的信号。</p>
 <h4 id="ALU与func3"><a href="#ALU与func3" class="headerlink" title="ALU与func3"></a>ALU与func3</h4><p>为了简化操作，我们将ALU的操作码直接与指令的func3对应，在这个简化指令集中，这样实际上完全可行，但是问题是需要将sub和add进行区分，我们在这里实际上无需背离原版指令集，只要给ALUControl一个func7信号的一位让其区分add和sub即可，但是我选择不这么做，我认为区分add与sub的func3是个更优雅的选择。</p>
-<h3 id="分块拆解"><a href="#分块拆解" class="headerlink" title="分块拆解"></a>分块拆解</h3><p>直接实现未免过于困难，于是尝试先把每一个部分进行实现，最后整合成完整的数据通路。<br>下面列一下要实现的所有小模块。<br>|模块|说明|<br>| —— | —— |<br>InstrMem|指令存储器|<br>DataMem|数据存储器|<br>Rigisters|寄存器堆<br>PC|PC寄存器|<br>PCMux|PC多选器|<br>Control|主控制器<br>ALUMux|ALU来源多选器<br>ALU|ALU运算器<br>ALUControl|ALU运算控制<br>Branch_judge|判断指令是否跳转<br>ImmGen|立即数生成器<br>RigisterWriteMux|寄存器写入数据多选器</p>
+<h3 id="分块拆解"><a href="#分块拆解" class="headerlink" title="分块拆解"></a>分块拆解</h3><p>直接实现未免过于困难，于是尝试先把每一个部分进行实现，最后整合成完整的数据通路。<br>下面列一下要实现的所有小模块。<br>|模块|说明|<br>| ——— | ——— |<br>InstrMem|指令存储器|<br>DataMem|数据存储器|<br>Rigisters|寄存器堆<br>PC|PC寄存器|<br>PCMux|PC多选器|<br>Control|主控制器<br>ALUMux|ALU来源多选器<br>ALU|ALU运算器<br>ALUControl|ALU运算控制<br>Branch_judge|判断指令是否跳转<br>ImmGen|立即数生成器<br>RigisterWriteMux|寄存器写入数据多选器</p>
 <h2 id="处理器完整实现"><a href="#处理器完整实现" class="headerlink" title="处理器完整实现"></a>处理器完整实现</h2><h3 id="各分模块实现"><a href="#各分模块实现" class="headerlink" title="各分模块实现"></a>各分模块实现</h3><p>接下来我们一步步实现每一个模块</p>
-<h4 id="InstrMem"><a href="#InstrMem" class="headerlink" title="InstrMem"></a>InstrMem</h4><p>类型|信号|注释<br>| —— | —— | —— |<br>input|[7:0]addr|指令地址(总共可存${2^8}$个指令)|<br>output|[31:0]instr|地址对应的指令|</p>
+<h4 id="InstrMem"><a href="#InstrMem" class="headerlink" title="InstrMem"></a>InstrMem</h4><p>类型|信号|注释<br>| ——— | ——— | ——— |<br>input|[7:0]addr|指令地址(总共可存${2^8}$个指令)|<br>output|[31:0]instr|地址对应的指令|</p>
 <p>指令存储器相对比较容易实现，只要根据输入的地址取出相对应的指令即可。</p>
 <p>代码实现</p>
-<pre><code class="verilog">module InstrMem(
+<pre><code class="lang-verilog">module InstrMem(
  input [7:0]addr,
  output [31:0]instr
     ); 
@@ -293,15 +292,15 @@
         rom[2] = 32&#39;b00000000001000010000000110110011;
         rom[3] = 32&#39;b01000000000100011000000110110011;    
     end
- 
+
     assign instr = rom[addr];
 
 endmodule
 </code></pre>
-<h4 id="DataMem"><a href="#DataMem" class="headerlink" title="DataMem"></a>DataMem</h4><p>类型|信号|注释<br>|—|—|—|<br>input|clk|时钟信号|<br>input|rst_n|复位信号|<br>input|MemWrite|写使能信号|<br>input|MemRead|读使能信号|<br>input|[7:0]Address|数据存储器地址|<br>input|[31:0] WriteData|写入数据|<br>output|[31:0] ReadData|读出数据|</p>
+<h4 id="DataMem"><a href="#DataMem" class="headerlink" title="DataMem"></a>DataMem</h4><p>类型|信号|注释<br>|—-|—-|—-|<br>input|clk|时钟信号|<br>input|rst_n|复位信号|<br>input|MemWrite|写使能信号|<br>input|MemRead|读使能信号|<br>input|[7:0]Address|数据存储器地址|<br>input|[31:0] WriteData|写入数据|<br>output|[31:0] ReadData|读出数据|</p>
 <p>根据控制器处理得到的的读写使能信号，决定写入还是读出数据。<br>写入数据来自寄存器堆读出的第二个寄存器数据。<br>数据存储器地址来自主ALU运算。</p>
 <p>代码实现：</p>
-<pre><code class="verilog">module DataMem(
+<pre><code class="lang-verilog">module DataMem(
  input clk,
  input rst_n, 
  input MemWrite,
@@ -310,8 +309,8 @@ endmodule
  input [31:0] WriteData,
  output [31:0] ReadData
     );
- 
- 
+
+
  reg [31:0]ram[255:0];
  assign ReadData = ram[Address];
 
@@ -335,9 +334,9 @@ endmodule
 endmodule
 </code></pre>
 <h4 id="Control"><a href="#Control" class="headerlink" title="Control"></a>Control</h4><p>这里几乎是整个处理器的核心模块，既然是实验结束后复盘，可以先从这里写起，方便之后模块输入输出的描述。</p>
-<p>类型|信号|注释<br>|—|—|—|<br>input|[6:0]opcode||<br>output|ALUSrc|决定ALU的第二个操作数来源|<br>output|[1:0] Branch|分辨beq, jal, 与其他指令。后面被输入到Branch_judge模块判断指令是否跳转|<br>output|MemWrite|数据存储器写使能信号|<br>output|MemRead|数据存储器读使能信号|<br>output|[7:0]Address|数据存储器地址|<br>output|[31:0] WriteData|写入数据|<br>output|[31:0] ReadData|读出数据|</p>
+<p>类型|信号|注释<br>|—-|—-|—-|<br>input|[6:0]opcode||<br>output|ALUSrc|决定ALU的第二个操作数来源|<br>output|[1:0] Branch|分辨beq, jal, 与其他指令。后面被输入到Branch_judge模块判断指令是否跳转|<br>output|MemWrite|数据存储器写使能信号|<br>output|MemRead|数据存储器读使能信号|<br>output|[7:0]Address|数据存储器地址|<br>output|[31:0] WriteData|写入数据|<br>output|[31:0] ReadData|读出数据|</p>
 <p>代码实现：</p>
-<pre><code class="verilog">module Control(
+<pre><code class="lang-verilog">module Control(
     input [6:0] opcode,
     output reg ALUSrc, // 0时来自寄存器，1时来自立即数
     output reg[1:0] Branch,
@@ -409,9 +408,9 @@ always@(*) begin
 end                
 endmodule
 </code></pre>
-<h4 id="ImmGen"><a href="#ImmGen" class="headerlink" title="ImmGen"></a>ImmGen</h4><p>类型|信号|注释<br>|—|—|—|<br>input|[31:0]instr|指令|<br>output|[31:0]imme|立即数|</p>
+<h4 id="ImmGen"><a href="#ImmGen" class="headerlink" title="ImmGen"></a>ImmGen</h4><p>类型|信号|注释<br>|—-|—-|—-|<br>input|[31:0]instr|指令|<br>output|[31:0]imme|立即数|</p>
 <p>输入指令输出符号扩展之后的立即数，这个模块事实上是第一个我实现的模块，这时候我还抱着完成完整指令集实现的心态，把所有指令的立即数都进行了生成，然而毫无疑问后来失败跑路了，但这个模块见证了我曾经的雄心壮志（笑</p>
-<pre><code class="verilog">`define  lui   7&#39;b0110111
+<pre><code class="lang-verilog">`define  lui   7&#39;b0110111
 `define  auipc   7&#39;b0010111
 `define  jal   7&#39;b1101111
 `define  jalr   7&#39;b1100111
@@ -425,32 +424,32 @@ module ImmGen(
  input [31:0]instr,
  output [31:0]imme
  );
-  
+
  wire I;
  wire U;
  wire J;
  wire B;
  wire S;
- 
+
  wire [31:0]I_imme;
  wire [31:0]U_imme;
  wire [31:0]J_imme;
  wire [31:0]B_imme;
  wire [31:0]S_imme;
- 
+
  assign I=(instr[6:0]==`jalr) | (instr[6:0]==`load) | (instr[6:0]==`I_type);
  assign U=(instr[6:0]==`lui) | (instr[6:0]==`auipc);
  assign J=(instr[6:0]==`jal);
  assign B=(instr[6:0]==`B_type);
  assign S=(instr[6:0]==`store);
- 
+
  //立即数符号扩展
  assign I_imme = &#123;&#123;20&#123;instr[31]&#125;&#125;,instr[31:20]&#125;; 
  assign U_imme = &#123;instr[31:12],&#123;12&#123;1&#39;b0&#125;&#125;&#125;;
  assign J_imme = &#123;&#123;12&#123;instr[31]&#125;&#125;,instr[19:12],instr[20],instr[30:21],1&#39;b0&#125;;   
  assign B_imme = &#123;&#123;20&#123;instr[31]&#125;&#125;,instr[7],instr[30:25],instr[11:8],1&#39;b0&#125;;
  assign S_imme = &#123;&#123;20&#123;instr[31]&#125;&#125;,instr[31:25],instr[11:7]&#125;; 
- 
+
  assign imme = I ? I_imme : U ? U_imme : J ? J_imme : B ? B_imme : S ? S_imme : 32&#39;d0;
 
 
@@ -458,7 +457,7 @@ endmodule
 </code></pre>
 <h4 id="PC"><a href="#PC" class="headerlink" title="PC"></a>PC</h4><p>这两个模块我的实现遇到了未知的错误，在整合的数据通路中我需要保存当前的地址，我定义了wire类型的两个变量PCin和PCout，它们来存储经过多选器前后的地址，但是当我简单地<code>assign PCin = PCout;</code>时,令人难过的事情发生了。PC多选器变得一团糟，当最初的<code>PCin = 8&#39;b0</code>被输入进去之后，输出的PCout信号竟然是<code>8&#39;h00xx</code>未知态。经过长时间的debug，只是发现了将语句改为<code>assign PCin = instrAddress;//由PC产生的直接给入指令存储器的信号</code>时，仿真波形恢复了正常。</p>
 <h5 id="PCMUx"><a href="#PCMUx" class="headerlink" title="PCMUx"></a>PCMUx</h5><p>根据branch信息判断是否要进行跳转，跳转的话输出当前指令地址加立即数，不跳转则直接输出指令地址加一。</p>
-<pre><code class="verilog">module PC_mux(
+<pre><code class="lang-verilog">module PC_mux(
     input [7:0] PCin,
     input [7:0] imm,
     input branch,
@@ -470,7 +469,7 @@ assign PCout = branch ? (PCin + imm) : (PCin + 8&#39;b00000001);
 endmodule
 </code></pre>
 <h5 id="PC-1"><a href="#PC-1" class="headerlink" title="PC"></a>PC</h5><p>将输入地址输出，第一次或复位信息传来时输出指令地址为0。</p>
-<pre><code class="verilog">module PC(
+<pre><code class="lang-verilog">module PC(
     input clk,
     input rst_n,
     input [7:0] PCin,
@@ -488,17 +487,17 @@ end
 endmodule
 </code></pre>
 <h4 id="ALU"><a href="#ALU" class="headerlink" title="ALU"></a>ALU</h4><h5 id="ALUControl"><a href="#ALUControl" class="headerlink" title="ALUControl"></a>ALUControl</h5><p>这个模块用于生成ALU控制信号</p>
-<pre><code class="verilog">module ALUControl(
+<pre><code class="lang-verilog">module ALUControl(
     input ALUop,
     input [2:0]func3,
     output [2:0]ALUControlOp
     );
- 
+
     assign ALUControlOp = ALUop ? func3 : 3&#39;b000;
 endmodule
 </code></pre>
 <h5 id="ALUMux"><a href="#ALUMux" class="headerlink" title="ALUMux"></a>ALUMux</h5><p>这个模块用于选择ALU输入信号来源</p>
-<pre><code class="verilog">module ALUMux(
+<pre><code class="lang-verilog">module ALUMux(
     input ALUSrc,//0时ReadData2
     input [31:0]ReadData2,
     input [31:0]imm,
@@ -511,7 +510,7 @@ endmodule
 endmodule
 </code></pre>
 <h5 id="ALU-1"><a href="#ALU-1" class="headerlink" title="ALU"></a>ALU</h5><p>这是ALU运算模块，后面会有快速加法的改进。</p>
-<pre><code class="verilog">module ALU (
+<pre><code class="lang-verilog">module ALU (
             input [31: 0]A,
             input [31: 0]B,
             input [2: 0]ALUop,
@@ -541,7 +540,7 @@ assign orOut[31: 0] = A[31: 0] | B[31: 0];
 assign xorOut[31: 0] = A[31: 0] ^ B[31: 0];
 assign sllOut[31: 0] = A[31: 0] &lt;&lt; B[4: 0];
 assign srlOut[31: 0] = A[31: 0] &gt;&gt; B[4: 0];
- 
+
 // 输出选择
 
 assign out = out_reg;
@@ -578,7 +577,7 @@ end
  endmodule
 </code></pre>
 <h4 id="Rigisters"><a href="#Rigisters" class="headerlink" title="Rigisters"></a>Rigisters</h4><h5 id="RigisterWithMux"><a href="#RigisterWithMux" class="headerlink" title="RigisterWithMux"></a>RigisterWithMux</h5><p>选择寄存器写入信息的来源。</p>
-<pre><code class="verilog">module RigisterWriteMux(
+<pre><code class="lang-verilog">module RigisterWriteMux(
     input [31:0] DataFromRam,
     input MemToReg,
     input [31:0] ALU_result,
@@ -589,7 +588,7 @@ end
 endmodule
 </code></pre>
 <h5 id="Rigisters-1"><a href="#Rigisters-1" class="headerlink" title="Rigisters"></a>Rigisters</h5><p>这是寄存器模块。<br>为了仿真成功先为每一寄存器赋值0。</p>
-<pre><code class="verilog">`define zero_word 32&#39;b0
+<pre><code class="lang-verilog">`define zero_word 32&#39;b0
 module Registers(
  input clk,
  input rst_n,
@@ -599,13 +598,13 @@ module Registers(
 
  input [4:0]WriteRegister, // 写入地址
  input [31:0]WriteData, // 写入数据
- 
+
  output [31:0]ReadData1,
  output [31:0]ReadData2
     );
- 
+
  reg [4:0] regs [31:0];
- 
+
 
  //read
 
@@ -614,7 +613,7 @@ module Registers(
 
 
  //write
-  
+
  always@(posedge clk)
  begin
         if(!rst_n)
@@ -655,12 +654,12 @@ module Registers(
   else if(RegWrite &amp; (WriteRegister!=0))
    regs[WriteRegister]&lt;=WriteData; 
  end
-  
+
 
 endmodule
 </code></pre>
 <h4 id="BranchJudge"><a href="#BranchJudge" class="headerlink" title="BranchJudge"></a>BranchJudge</h4><p>通过控制器生成的isbranch和ALU运算得到的Zero判断是否跳转</p>
-<pre><code class="verilog">module BranchJudge(
+<pre><code class="lang-verilog">module BranchJudge(
     input [1:0]Branch,
     input Zero,
     output reg isBranch // 
@@ -683,7 +682,7 @@ end
 endmodule
 </code></pre>
 <h3 id="模块整合"><a href="#模块整合" class="headerlink" title="模块整合"></a>模块整合</h3><p>这里我们将完整的CPU分成两个存储器与其他部件组成的数据通路</p>
-<h4 id="DataPath"><a href="#DataPath" class="headerlink" title="DataPath"></a>DataPath</h4><pre><code class="verilog">module DataPath(
+<h4 id="DataPath"><a href="#DataPath" class="headerlink" title="DataPath"></a>DataPath</h4><pre><code class="lang-verilog">module DataPath(
     input clk,
  input rst_n,
     input [31:0]Instruction,
@@ -695,13 +694,13 @@ endmodule
     output [31:0]DataToRam, //要写入到DataMem中的数据
     output [7:0]InstrAddress
     );
-    
+
     wire branch; // 交给PC模块进行判断的branch
     wire [7:0] PCin;
     wire [7:0] PCout;
 
     wire Zero;//
-    
+
     wire [31:0]imm; //32位立即数
 
     wire [6:0] opcode;
@@ -715,7 +714,7 @@ endmodule
  wire [31:0]ReadData2;
 
     wire [2:0]ALUControlOp; // ALU_control通过ALUop对ALU的命令
-    
+
     wire [31:0]ALU_result;
 
     wire [31:0] DataToReg;
@@ -744,7 +743,7 @@ endmodule
 
 endmodule
 </code></pre>
-<h4 id="riscvWithMem"><a href="#riscvWithMem" class="headerlink" title="riscvWithMem"></a>riscvWithMem</h4><pre><code class="verilog">module RiscvWithMem(
+<h4 id="riscvWithMem"><a href="#riscvWithMem" class="headerlink" title="riscvWithMem"></a>riscvWithMem</h4><pre><code class="lang-verilog">module RiscvWithMem(
     input clk,
  input rst_n,
     output [31:0] OutIO
@@ -770,7 +769,7 @@ endmodule
 <h2 id="存在的问题"><a href="#存在的问题" class="headerlink" title="存在的问题"></a>存在的问题</h2><h3 id="jal"><a href="#jal" class="headerlink" title="jal"></a>jal</h3><p>我没有理解这个命令如何在数据通路中实现实现，PC地址+4怎样被存放到寄存器中，事实上我没有对这个进行处理，这个指令并不完善。</p>
 <h3 id="控制模块"><a href="#控制模块" class="headerlink" title="控制模块"></a>控制模块</h3><p>由于目前实现命令较少，没有对逻辑进行简化，而只使用了几个case对不同类型的指令发出不同的控制信号。</p>
 <h2 id="仿真检验"><a href="#仿真检验" class="headerlink" title="仿真检验"></a>仿真检验</h2><p>接下来我们对指令进行仿真执行，看一下我们的cpu是否可以正常运行。</p>
-<pre><code class="verilog">`timescale 1ns / 1ps
+<pre><code class="lang-verilog">`timescale 1ns / 1ps
 
 
 module test;
@@ -790,10 +789,10 @@ module test;
 
   #10;
   rst_n=1;
-        
+
 
  end
-      
+
 endmodule
 </code></pre>
 <h3 id="add-sub"><a href="#add-sub" class="headerlink" title="add sub"></a>add sub</h3><p>下面是仿真代码。</p>
@@ -817,8 +816,7 @@ add x8,x7,x3
 01000000001100101000001100110011
 01000000010000110000001110110011
 00000000001100111000010000110011
-</code></pre>
-<p>
+</code></pre><p>
         <span class="lazyload-img-span">
         <img   
            data-src="https://img2022.cnblogs.com/blog/2687686/202211/2687686-20221122214910126-28635050.png" >
@@ -842,8 +840,7 @@ addi x6,x0,6
 00000000001000010000001010110011
 00000000010100100010010001100011
 00000000011000000000001100010011
-</code></pre>
-<p>
+</code></pre><p>
         <span class="lazyload-img-span">
         <img   
            data-src="https://img2022.cnblogs.com/blog/2687686/202211/2687686-20221122223820273-2089196395.png" >
@@ -856,8 +853,7 @@ lw x1,0,x0
 00000000001000000000000100010011
 00000000001000000010000000100011
 00000000000000000010000010000011
-</code></pre>
-<p>
+</code></pre><p>
         <span class="lazyload-img-span">
         <img   
            data-src="https://img2022.cnblogs.com/blog/2687686/202211/2687686-20221123192912839-386097196.png" >
@@ -975,5 +971,20 @@ lw x1,0,x0
       <script>hljs.initHighlightingOnLoad();</script>
     
 
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="//cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 </body>
 </html>

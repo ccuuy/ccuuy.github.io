@@ -29,9 +29,7 @@
 
     
   
-<!-- hexo injector head_end start -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.2"></head>
+<meta name="generator" content="Hexo 5.4.2"></head>
 
 
 <body>
@@ -147,7 +145,7 @@
 <h3 id="2-3-栈与队列的深入讨论"><a href="#2-3-栈与队列的深入讨论" class="headerlink" title="2.3 栈与队列的深入讨论"></a>2.3 栈与队列的深入讨论</h3><h4 id="2-3-1-多栈管理"><a href="#2-3-1-多栈管理" class="headerlink" title="2.3.1 多栈管理"></a>2.3.1 多栈管理</h4><p>节省空间<br>减少上溢概率</p>
 <h4 id="2-3-2-双栈实现一个队列"><a href="#2-3-2-双栈实现一个队列" class="headerlink" title="2.3.2 双栈实现一个队列"></a>2.3.2 双栈实现一个队列</h4><h4 id="2-3-3双队列实现一个栈"><a href="#2-3-3双队列实现一个栈" class="headerlink" title="2.3.3双队列实现一个栈"></a>2.3.3双队列实现一个栈</h4><h2 id="3-字符串"><a href="#3-字符串" class="headerlink" title="3 字符串"></a>3 字符串</h2><h3 id="kmp算法"><a href="#kmp算法" class="headerlink" title="kmp算法"></a>kmp算法</h3><h4 id="1-kmp算法主要原理"><a href="#1-kmp算法主要原理" class="headerlink" title="1 kmp算法主要原理"></a>1 kmp算法主要原理</h4><p>利用next数组中存储的信息，将模式串移到合适的位置进行与主串的匹配</p>
 <h4 id="2-构建getNext函数大致结构"><a href="#2-构建getNext函数大致结构" class="headerlink" title="2 构建getNext函数大致结构"></a>2 构建getNext函数大致结构</h4><p>next数组储存有能使模式串在接下来的匹配中能够进入适当位置的信息，我们在这里认为储存的信息是该处后缀与整个字符串前缀的最大交集max，那么此处的信息可以使得我们在该处匹配失败时，在下一次匹配中忽略字符串前缀max个数，因为此时这些数已经在刚刚的匹配中被成功匹配了</p>
-<pre><code class="C++">int* getNext(const char p[])
+<pre><code class="lang-C++">int* getNext(const char p[])
 &#123;
     int pLen = strlen(p);
     int* next = new int[pLen];
@@ -164,7 +162,7 @@
 &#125;
 </code></pre>
 <h4 id="3-构建匹配函数大致结构"><a href="#3-构建匹配函数大致结构" class="headerlink" title="3 构建匹配函数大致结构"></a>3 构建匹配函数大致结构</h4><p>对于在主串与模式串的匹配，每当匹配失败，模式串进入恰当的位置继续进行匹配，我们进入的新位置就是next储存的除去重复交集的位置</p>
-<pre><code class="C++">int search(const char arr[], const char P[])
+<pre><code class="lang-C++">int search(const char arr[], const char P[])
 &#123;
     int t = 0, p = 0;
     int* next = getNext(P);
@@ -185,7 +183,7 @@
 &#125;
 </code></pre>
 <h4 id="4-kmp匹配优化"><a href="#4-kmp匹配优化" class="headerlink" title="4 kmp匹配优化"></a>4 kmp匹配优化</h4><p>在之前的实现中，模式串中每一个字符对应的next都会存储最大交集的信息，然而我们注意到，在一些情况下，我们会产生多余的匹配。<br>比如，当我们在getNext方法中遇到了p[i] == p[k]的情况，我们直接进行了next[++i] = ++k;然而如果在匹配过程中，我们在接下来的p[i+1]中匹配失败，那么如果getNext()中p[i+1]==p[k+1]，那么我们的下一次匹配也必然是失败的，匹配结束后才会递归进入next[next[i]],这样就产生了多余的匹配，我们可以将其避免。</p>
-<pre><code class="C++">int* getNext(const char p[])
+<pre><code class="lang-C++">int* getNext(const char p[])
 &#123;
     int pLen = strlen(p);
     int* next = new int[pLen];
@@ -210,7 +208,7 @@
 </code></pre>
 <h2 id="4-二叉树"><a href="#4-二叉树" class="headerlink" title="4 二叉树"></a>4 二叉树</h2><h3 id="二叉树的主要性质"><a href="#二叉树的主要性质" class="headerlink" title="二叉树的主要性质"></a>二叉树的主要性质</h3><p>1.在二叉树中，第i层上最多有2i个结点<br>2.深度为k的二叉树至多有 2k+1-1个结点（k≥0）。其中深度(depth)定义为二叉树中层数最大的叶结点的层数<br>3.任何一棵二叉树，若其终端结点数为n0 ，度为2的结点数为n2，则n0=n2+1<br>4.满二叉树定理：非空满二叉树树叶数目等于其分支结点数加1<br>5.满二叉树定理推论：一个非空二叉树的空子树数目等于其结点数加1<br>6.有n个结点（n&gt;0）的完全二叉树的高度为⌈〖”log” 〗_”2”  (“n” +”1” )⌉。 其中二叉树的高度(height)定义为二叉树中层数最大的叶结点的层数加1</p>
 <h4 id="二叉树的周游"><a href="#二叉树的周游" class="headerlink" title="二叉树的周游"></a>二叉树的周游</h4><h5 id="深度优先"><a href="#深度优先" class="headerlink" title="深度优先"></a>深度优先</h5><p>对于有n个结点的二叉树，周游完树的每一个元素都需要O(n)时间<br>所需要的辅助空间为周游过程中栈的最大容量，即树的高度</p>
-<h5 id="广度优先"><a href="#广度优先" class="headerlink" title="广度优先"></a>广度优先</h5><pre><code class="C++">void BinaryTree&lt;T&gt;::LevelOrder(BinaryTreeNode&lt;T&gt; *root) &#123;
+<h5 id="广度优先"><a href="#广度优先" class="headerlink" title="广度优先"></a>广度优先</h5><pre><code class="lang-C++">void BinaryTree&lt;T&gt;::LevelOrder(BinaryTreeNode&lt;T&gt; *root) &#123;
  using std::queue;                     // 使用STL的队列
  queue&lt;BinaryTreeNode&lt;T&gt;*&gt; aQueue;
  BinaryTreeNode&lt;T&gt; *pointer = root;
@@ -231,7 +229,7 @@
 <h4 id="二叉树的顺序存储"><a href="#二叉树的顺序存储" class="headerlink" title="二叉树的顺序存储"></a>二叉树的顺序存储</h4><p>对于任何一个二叉树结点，如果它存储在数组的第i个位置，那么它的左右子结点分别存放在2i + 1和2i + 2的位置，它的父结点的下标为⌊”(i−1) / 2” ⌋。</p>
 <h4 id="二叉搜索树"><a href="#二叉搜索树" class="headerlink" title="二叉搜索树"></a>二叉搜索树</h4><p>对二叉搜索树的检索，每一次只需与结点的一棵子树相比较<br>在执行插入操作时，也不必像在有序线性表中插入元素那样要移动大量的数据，而只需改动某个结点的空指针插入一个叶结点即可<br>与查找结点的操作一样，插入一个新结点操作的时间复杂度是根到插入位置的路径长度，因此在树形比较平衡时二叉搜索树的效率相当高</p>
 <h5 id="二叉搜索树的删除"><a href="#二叉搜索树的删除" class="headerlink" title="二叉搜索树的删除"></a>二叉搜索树的删除</h5><p>若结点pointer没有左子树，则用pointer右子树的根代替被删除的结点pointer；<br>若结点pointer有左子树，则<br> 在左子树里找到按中序周游的最后一个结点temppointer;<br> 把temppointer的右指针置成指向pointer的右子树的根;<br> 后用结点pointer左子树的根代替被删除的结点pointer。</p>
-<pre><code class="C++">//插入二叉搜索树节点
+<pre><code class="lang-C++">//插入二叉搜索树节点
 void BinarySearchTree::insert(int data, treeNode** node, treeNode* pare)
 &#123;
  if (!*node)
@@ -338,7 +336,7 @@ void BinarySearchTree::_deleteNode(int data, treeNode** node)
 <h4 id="建堆过程"><a href="#建堆过程" class="headerlink" title="建堆过程"></a>建堆过程</h4><p>首先将所有关键码放到一维数组中，这时形成的完全二叉树并不具备最小堆的特性，但是仅包含叶子结点的子树已经是堆<br>即在有n个结点的完全二叉树中，当i &gt;⌊”n/2” ⌋-1时，以关键码Ki为根的子树已经是堆。<br>这时从含有内部结点数最少的子树（这种子树在完全二叉树的倒数第二层，此时i =⌊”n/2” ⌋-1）开始，从右至左依次调整<br>对这一层调整完成之后，继续对上一层进行同样的工作，直到整个过程到达树根时，整棵完全二叉树就成为一个堆了</p>
 <h3 id="huffman树"><a href="#huffman树" class="headerlink" title="huffman树"></a>huffman树</h3><p>假设有n个权值分别为w0，w1，…，wn-1(n≥2)的结点，求带权外部路径长度就是要构造一棵具有n个外部结点的扩充二叉树，每一个外部结点ki取wi作为它的权，其中带权外部路径长度最小的二叉树称为Huffman树。</p>
 <h4 id="huffman树建立"><a href="#huffman树建立" class="headerlink" title="huffman树建立"></a>huffman树建立</h4><p>(1) 对于给定的n个权值w0，w1，…，wn-1(n≥2)，构成n棵二叉树的集合T = { T0，T1，T2，…，Tn－1}，使得每一棵扩充二叉树只具有一个带权为wi的根结点。<br>(2) 构造一棵新的扩充二叉树，在集合T中找出两个权值最小的树作为新树根结点的左右子树，把新树根结点的权值赋为其左右子树根结点的和。<br>(3) 在集合T中删除这两棵树，并把得到的新扩充二叉树加入到集合中。<br>(4) 重复步骤(2)、(3)的操作，直到集合T中只含有一棵树为止。</p>
-<h2 id="5-树"><a href="#5-树" class="headerlink" title="5 树"></a>5 树</h2><h3 id="5-1-树的定义和基本内容"><a href="#5-1-树的定义和基本内容" class="headerlink" title="5.1 树的定义和基本内容"></a>5.1 树的定义和基本内容</h3><h4 id="5-1-1-树"><a href="#5-1-1-树" class="headerlink" title="5.1.1 树"></a>5.1.1 树</h4><p>同一个父结点的子结点之间互称兄弟。树中没有父结点的结点称为根。没有子结点的结点称为树叶。<br>结点的子树数目称为结点的度，树的度是树中各结点度的最大值，二叉树的度是2。<br>若树中存在结点序列k0，k1，…，ks，使得&lt;k0，k1&gt;，&lt; k1，k2&gt;，…，&lt; ks-1，ks&gt;都是树中的边，则称从结点k0到结点ks存在一条路径。<br>若有一条由 k到达ks的路径，则称k是ks的祖先，ks是k的子孙。<br>结点的层数同样由树根开始定义的，根结点为第0层，非根结点的层数是其父结点的层数加1。</p>
+<h2 id="5-树"><a href="#5-树" class="headerlink" title="5 树"></a>5 树</h2><h3 id="5-1-树的定义和基本内容"><a href="#5-1-树的定义和基本内容" class="headerlink" title="5.1 树的定义和基本内容"></a>5.1 树的定义和基本内容</h3><h4 id="5-1-1-树"><a href="#5-1-1-树" class="headerlink" title="5.1.1 树"></a>5.1.1 树</h4><p>同一个父结点的子结点之间互称兄弟。树中没有父结点的结点称为根。没有子结点的结点称为树叶。<br>结点的子树数目称为结点的度，树的度是树中各结点度的最大值，二叉树的度是2。<br>若树中存在结点序列k0，k1，…，ks，使得<k0，k1>，&lt; k1，k2&gt;，…，&lt; ks-1，ks&gt;都是树中的边，则称从结点k0到结点ks存在一条路径。<br>若有一条由 k到达ks的路径，则称k是ks的祖先，ks是k的子孙。<br>结点的层数同样由树根开始定义的，根结点为第0层，非根结点的层数是其父结点的层数加1。</p>
 <h4 id="5-1-2-森林"><a href="#5-1-2-森林" class="headerlink" title="5.1.2 森林"></a>5.1.2 森林</h4><p>森林(forest)是零棵或多棵不相交的树的集合</p>
 <h4 id="5-1-3-树与二叉树的转换"><a href="#5-1-3-树与二叉树的转换" class="headerlink" title="5.1.3 树与二叉树的转换"></a>5.1.3 树与二叉树的转换</h4><p>连线：将兄弟结点用线连接起来。<br>切线：保留父结点与其第一个子结点的连线，将父结点到其它子结点的连线切掉。<br>旋转：以根为轴，平面向下顺时针方向旋转一定的角度。旋转只是为了调整画面，使得转化后的二叉树看起来比较规整。<br>
         <span class="lazyload-img-span">
@@ -349,11 +347,12 @@ void BinarySearchTree::_deleteNode(int data, treeNode** node)
 <h4 id="5-1-4-森林与二叉树的转换"><a href="#5-1-4-森林与二叉树的转换" class="headerlink" title="5.1.4 森林与二叉树的转换"></a>5.1.4 森林与二叉树的转换</h4><p>按给出的森林中树的次序，从最后一棵二叉树开始，每棵二叉树作为前一棵二叉树的根结点的右子树，依次类推，则第一棵树的根结点就是转换后生成的二叉树的根结点，如下图所示。</p>
 <h4 id="5-1-5-二叉树与树的转换"><a href="#5-1-5-二叉树与树的转换" class="headerlink" title="5.1.5 二叉树与树的转换"></a>5.1.5 二叉树与树的转换</h4><p>补线：若结点x是父结点y的左子结点，则把x的右子结点，右子结点的右孩子，依此类推，直到最右孩子，用连线与y连起来。<br>删线：去掉所有父结点到右孩子的连线。<br>旋转：以根为轴，平面逆时针方向旋转。</p>
 <h4 id="5-1-6-树的周游"><a href="#5-1-6-树的周游" class="headerlink" title="5.1.6 树的周游"></a>5.1.6 树的周游</h4><h3 id="5-2-树的链式存储结构"><a href="#5-2-树的链式存储结构" class="headerlink" title="5.2 树的链式存储结构"></a>5.2 树的链式存储结构</h3><h4 id="5-2-1-“子结点表”表示方法"><a href="#5-2-1-“子结点表”表示方法" class="headerlink" title="5.2.1  “子结点表”表示方法"></a>5.2.1  “子结点表”表示方法</h4><h4 id="5-2-2-静态“左孩子-右兄弟”表示法"><a href="#5-2-2-静态“左孩子-右兄弟”表示法" class="headerlink" title="5.2.2  静态“左孩子/右兄弟”表示法"></a>5.2.2  静态“左孩子/右兄弟”表示法</h4><h4 id="5-2-3-动态表示法"><a href="#5-2-3-动态表示法" class="headerlink" title="5.2.3  动态表示法"></a>5.2.3  动态表示法</h4><h4 id="5-2-4-动态“左孩子-右兄弟”二叉链表表示法"><a href="#5-2-4-动态“左孩子-右兄弟”二叉链表表示法" class="headerlink" title="5.2.4  动态“左孩子/右兄弟”二叉链表表示法"></a>5.2.4  动态“左孩子/右兄弟”二叉链表表示法</h4><h4 id="5-2-5-父指针表示法及在并查集中的应用"><a href="#5-2-5-父指针表示法及在并查集中的应用" class="headerlink" title="5.2.5  父指针表示法及在并查集中的应用"></a>5.2.5  父指针表示法及在并查集中的应用</h4><p>并查集是一种特殊的集合，由一些不相交子集构成，合并查集的基本操作是：<br>Find：判断两个结点是否在同一个集合中<br>Union：归并两个集合<br>像栈、队列一样，并查集也是一种重要的抽象数据类型，可以用于求解等价类问题</p>
-<pre><code class="C++">
+<pre><code class="lang-C++">
+
 </code></pre>
 <h3 id="5-3-树的顺序存储结构"><a href="#5-3-树的顺序存储结构" class="headerlink" title="5.3 树的顺序存储结构"></a>5.3 树的顺序存储结构</h3><h3 id="5-4-k叉树"><a href="#5-4-k叉树" class="headerlink" title="5.4 k叉树"></a>5.4 k叉树</h3><h2 id="6-图"><a href="#6-图" class="headerlink" title="6 图"></a>6 图</h2><h3 id="6-1-图的定义和术语"><a href="#6-1-图的定义和术语" class="headerlink" title="6.1 图的定义和术语"></a>6.1 图的定义和术语</h3><h3 id="6-2-图的抽象数据类型"><a href="#6-2-图的抽象数据类型" class="headerlink" title="6.2 图的抽象数据类型"></a>6.2 图的抽象数据类型</h3><h3 id="6-3-图的存储结构"><a href="#6-3-图的存储结构" class="headerlink" title="6.3 图的存储结构"></a>6.3 图的存储结构</h3><h4 id="6-3-1-邻接矩阵"><a href="#6-3-1-邻接矩阵" class="headerlink" title="6.3.1 邻接矩阵"></a>6.3.1 邻接矩阵</h4><p>对于有n个顶点的图，用一维数组vexs[n]存储顶点信息，用二维数组A[n][n]存储顶点之间关系的信息。该二维数组称为邻接矩阵。</p>
 <h4 id="6-3-2-邻接表"><a href="#6-3-2-邻接表" class="headerlink" title="6.3.2 邻接表"></a>6.3.2 邻接表</h4><p>当图中的边数较少时，相邻矩阵就会出现大量的零元素，存储这些零元素将耗费大量的存储空间。对于稀疏图，可以采用邻接表存储法。<br>邻接表(adjacency list)表示法是一种链式存储结构，由一个顺序存储的顶点表和n个链接存储的边表组成</p>
-<pre><code class="C++">struct vexNode
+<pre><code class="lang-C++">struct vexNode
 &#123;
  int data;
  arcNode* firstarc;
@@ -373,7 +372,7 @@ struct arcNode
         </sapn>
       </p>
 <h3 id="6-4-图的周游"><a href="#6-4-图的周游" class="headerlink" title="6.4 图的周游"></a>6.4 图的周游</h3><h4 id="6-4-1-深度优先周游"><a href="#6-4-1-深度优先周游" class="headerlink" title="6.4.1 深度优先周游"></a>6.4.1 深度优先周游</h4><p>当遇到一个所有邻接顶点都被访问过了的顶点w时，则回到已访问顶点序列中最后一个拥有未被访问的相邻顶点的顶点u</p>
-<pre><code class="C++">void DFS(Graph&amp; G, int v)  &#123;         // 深度优先搜索的递规实现
+<pre><code class="lang-C++">void DFS(Graph&amp; G, int v)  &#123;         // 深度优先搜索的递规实现
      G.Mark[v] = VISITED;         // 将标记位设置为VISITED
      Visit(G,v);    // 访问顶点v
 for (Edge e = G.FirstEdge(v);G.IsEdge(e);e = G.NextEdge(e))
@@ -382,7 +381,7 @@ for (Edge e = G.FirstEdge(v);G.IsEdge(e);e = G.NextEdge(e))
 &#125;
 </code></pre>
 <h4 id="6-4-2-广度优先周游"><a href="#6-4-2-广度优先周游" class="headerlink" title="6.4.2 广度优先周游"></a>6.4.2 广度优先周游</h4><p>在依次访问v的各个未被访问的邻接点之后，再从这些邻接点出发，依次访问与它们邻接的所有未曾访问过的顶点<br>重复上述过程直至图中所有与源点v有路径相通的顶点都被访问为止</p>
-<pre><code class="C++">void BFS(Graph&amp; G, int v)  &#123;
+<pre><code class="lang-C++">void BFS(Graph&amp; G, int v)  &#123;
     using std::queue;     // 使用STL中的队列
  queue&lt;int&gt; Q;
  Visit(G,v);                               // 访问顶点v
@@ -405,7 +404,7 @@ for (Edge e = G.FirstEdge(v);G.IsEdge(e);e = G.NextEdge(e))
 <h5 id="6-4-3-1-要求"><a href="#6-4-3-1-要求" class="headerlink" title="6.4.3.1 要求"></a>6.4.3.1 要求</h5><p>序列中包含每个顶点，且每个顶点只出现一次；<br>若A在序列中排在B的前面，则在图中不存在从B到A的路径。</p>
 <h5 id="6-4-3-2-卡恩算法"><a href="#6-4-3-2-卡恩算法" class="headerlink" title="6.4.3.2 卡恩算法"></a>6.4.3.2 卡恩算法</h5><p>卡恩于1962年提出了该算法。简单来说，假设L是存放结果的列表，先找到那些入度为零的节点，把这些节点放到L中，因为这些节点没有任何的父节点。然后把与这些节点相连的边从图中去掉，再寻找图中的入度为零的节点。对于新找到的这些入度为零的节点来说，他们的父节点已经都在L中了，所以也可以放入L。重复上述操作，直到找不到入度为零的节点。如果此时L中的元素个数和节点总数相同，说明排序完成；如果L中的元素个数和节点总数不同，说明原图中存在环，无法进行拓扑排序。</p>
 <h3 id="6-5-最短路径"><a href="#6-5-最短路径" class="headerlink" title="6.5 最短路径"></a>6.5 最短路径</h3><h4 id="6-5-1-Dijkstra"><a href="#6-5-1-Dijkstra" class="headerlink" title="6.5.1 Dijkstra"></a>6.5.1 Dijkstra</h4><p>贪心找出并更新每一个节点到头结点的距离<br>关键在于每轮遍历中距离头最近的节点确认为已经找到最短距离</p>
-<pre><code class="C++">void Dijkstra(int headNode,int tailNode) 
+<pre><code class="lang-C++">void Dijkstra(int headNode,int tailNode) 
  &#123;
   int* tag = new int[nodeNum]();//标记数组
   double* dist = new double[nodeNum];//距离数组
@@ -445,8 +444,8 @@ for (Edge e = G.FirstEdge(v);G.IsEdge(e);e = G.NextEdge(e))
 </code></pre>
 <h4 id="Floyd"><a href="#Floyd" class="headerlink" title="Floyd"></a>Floyd</h4><p><strong>待学</strong></p>
 <h3 id="最小生成树"><a href="#最小生成树" class="headerlink" title="最小生成树"></a>最小生成树</h3><p>带权连通图中代价最小的生成树称为最小生成树。</p>
-<h4 id="prim算法"><a href="#prim算法" class="headerlink" title="prim算法"></a>prim算法</h4><p>1).输入：一个加权连通图，其中顶点集合为V，边集合为E；<br>2).初始化：Vnew = {x}，其中x为集合V中的任一节点（起始点），Enew = {},为空；<br>3).重复下列操作，直到Vnew = V：<br>a.在集合E中选取权值最小的边&lt;u, v&gt;，其中u为集合Vnew中的元素，而v不在Vnew集合当中，并且v∈V（如果存在有多条满足前述条件即具有相同权值的边，则可任意选取其中之一）；<br>b.将v加入集合Vnew中，将&lt;u, v&gt;边加入集合Enew中；<br>4).输出：使用集合Vnew和Enew来描述所得到的最小生成树。</p>
-<pre><code class="C++">void MiniSpanTree_PRIM (MGraph G, VertexType u) &#123;
+<h4 id="prim算法"><a href="#prim算法" class="headerlink" title="prim算法"></a>prim算法</h4><p>1).输入：一个加权连通图，其中顶点集合为V，边集合为E；<br>2).初始化：Vnew = {x}，其中x为集合V中的任一节点（起始点），Enew = {},为空；<br>3).重复下列操作，直到Vnew = V：<br>a.在集合E中选取权值最小的边<u, v>，其中u为集合Vnew中的元素，而v不在Vnew集合当中，并且v∈V（如果存在有多条满足前述条件即具有相同权值的边，则可任意选取其中之一）；<br>b.将v加入集合Vnew中，将<u, v>边加入集合Enew中；<br>4).输出：使用集合Vnew和Enew来描述所得到的最小生成树。</p>
+<pre><code class="lang-C++">void MiniSpanTree_PRIM (MGraph G, VertexType u) &#123;
     /*  用普利姆算法從第u個頂點出發構造網G 的最小生成樹T,輸出T的各條邊。
         記錄從頂點集U到V-U的代價最小的邊的輔助數組定義：
         struct
@@ -455,7 +454,7 @@ for (Edge e = G.FirstEdge(v);G.IsEdge(e);e = G.NextEdge(e))
             VRtype lowcost;
         &#125;closedge[MAX_VERTEX_NUM];
     */
-    
+
     k = LocateVex(G, u);
     for (j = 0 ; j &lt; G.vexnum; j++) &#123;           //輔助數組初始化
         if (j != k)
@@ -468,7 +467,7 @@ for (Edge e = G.FirstEdge(v);G.IsEdge(e);e = G.NextEdge(e))
         printf(closedge[k].adjvex, G.vexs[k]);    //輸出生成樹的邊
         closedge[k].lowcost = 0;             //第k條邊併入U集
         for (j = 0; j &lt; G.vexnum; j++) &#123;
-        
+
             //新頂點併入U後重新選擇最小邊
             if (G.arcs[k][j].adj &lt; closedge[j].lowcost &amp;&amp; closedge[j].lowcost!=0) 
                 closedge[j] = &#123;G.vex[k], G.arcs[k][j].adj&#125;;
@@ -479,7 +478,7 @@ for (Edge e = G.FirstEdge(v);G.IsEdge(e);e = G.NextEdge(e))
 <h4 id="Kruskal算法"><a href="#Kruskal算法" class="headerlink" title="Kruskal算法"></a>Kruskal算法</h4><p>G=(V, E)是具有n个顶点的连通网，T=(U, TE)是其最小生成树。初值：U=V，TE={} 。<br>对G中的边按权值大小从小到大依次选取。<br>⑴   选取权值最小的边(vi，vj)，若边(vi，vj)加入到TE后形成回路，则舍弃该边(边(vi，vj) ；否则，将该边并入到TE中，即TE=TE∪{(vi，vj)} 。<br>⑵ 重复⑴ ，直到TE中包含有n-1条边为止。</p>
 <h5 id="判断是否形成回路"><a href="#判断是否形成回路" class="headerlink" title="判断是否形成回路"></a>判断是否形成回路</h5><p>定义一个一维数组Vset[n] ，存放图T中每个顶点所在的连通分量的编号。<br>初值：Vset[i]=i，表示每个顶点各自组成一个连通分量，连通分量的编号简单地使用顶点在图中的位置(编号)。<br>当往T中增加一条边(vi，vj) 时，先检查Vset[i]和Vset[j]值：<br>若Vset[i]=Vset[j]：表明vi和vj处在同一个连通分量中，加入此边会形成回路；<br>Vset[i]≠Vset[j]，则加入此边不会形成回路，将此边加入到生成树的边集中。<br>加入一条新边后，将两个不同的连通分量合并：将一个连通分量的编号换成另一个连通分量的编号。</p>
 <h2 id="7-内排序"><a href="#7-内排序" class="headerlink" title="7 内排序"></a>7 内排序</h2><h3 id="7-0-排序"><a href="#7-0-排序" class="headerlink" title="7.0 排序"></a>7.0 排序</h3><h4 id="7-0-1-排序的稳定性"><a href="#7-0-1-排序的稳定性" class="headerlink" title="7.0.1 排序的稳定性"></a>7.0.1 排序的稳定性</h4><p>存在多个相同排序码的记录，排序后这些记录相对次序保持不变</p>
-<h3 id="7-1-冒泡排序"><a href="#7-1-冒泡排序" class="headerlink" title="7.1 冒泡排序"></a>7.1 冒泡排序</h3><pre><code class="C++">for(int i = 0;i &lt; size-1;i++)
+<h3 id="7-1-冒泡排序"><a href="#7-1-冒泡排序" class="headerlink" title="7.1 冒泡排序"></a>7.1 冒泡排序</h3><pre><code class="lang-C++">for(int i = 0;i &lt; size-1;i++)
 &#123;
     for(int j = 0;j &lt; size-i-1;j++)
     &#123;
@@ -489,7 +488,7 @@ for (Edge e = G.FirstEdge(v);G.IsEdge(e);e = G.NextEdge(e))
 &#125;
 </code></pre>
 <h3 id="7-2-插入排序"><a href="#7-2-插入排序" class="headerlink" title="7.2 插入排序"></a>7.2 插入排序</h3><p><strong>稳定</strong></p>
-<pre><code class="C++">template &lt;class Record&gt;
+<pre><code class="lang-C++">template &lt;class Record&gt;
 void InsertSort (Record Array[], int n)  &#123;
     //Array[]为待排序数组，n为数组长度
  Record TempRecord; // 临时变量
@@ -505,10 +504,10 @@ void InsertSort (Record Array[], int n)  &#123;
   //此时j后面就是记录i的正确位置，回填 
      Array[j+1] = TempRecord;
  &#125;
-&#125; 
+&#125;
 </code></pre>
 <h3 id="7-3-希尔排序"><a href="#7-3-希尔排序" class="headerlink" title="7.3 希尔排序"></a>7.3 希尔排序</h3><p>希尔排序是一种对于插入排序的改进，将待排序数组按一定的步长进行分组，分别对每一个分组进行插入排序，到达部分有序；然后，缩小步长，重新分组，进行插入排序，直到步长为1，对基本有序的数组进行插入排序。<br><strong>不稳定</strong></p>
-<pre><code class="C++">void shellSort(int* record, int gap)
+<pre><code class="lang-C++">void shellSort(int* record, int gap)
 &#123;
  for (int i = MAXSIZE / gap; i &gt; 0; i /= gap)
  &#123;
@@ -518,7 +517,7 @@ void InsertSort (Record Array[], int n)  &#123;
 &#125;
 </code></pre>
 <h3 id="7-4-快速排序"><a href="#7-4-快速排序" class="headerlink" title="7.4 快速排序"></a>7.4 快速排序</h3><p>快速排序算法通过多次比较和交换来实现排序，其排序流程如下<br>(1)首先设定一个分界值，通过该分界值将数组分成左右两部分。<br>(2)将大于或等于分界值的数据集中到数组右边，小于分界值的数据集中到数组的左边。此时，左边部分中各元素都小于分界值，而右边部分中各元素都大于或等于分界值。<br>(3)然后，左边和右边的数据可以独立排序。对于左侧的数组数据，又可以取一个分界值，将该部分数据分成左右两部分，同样在左边放置较小值，右边放置较大值。右侧的数组数据也可以做类似处理。<br>(4)重复上述过程，可以看出，这是一个递归定义。通过递归将左侧部分排好序后，再递归排好右侧部分的顺序。当左、右两个部分各数据排序完成后，整个数组的排序也就完成了。<br><strong>不稳定</strong></p>
-<pre><code class="C++">//首位轴值的快排
+<pre><code class="lang-C++">//首位轴值的快排
 void quickSort1_(int* record, int begin, int end)
 &#123;
  if (begin &gt;= end)
@@ -570,7 +569,7 @@ void quickSort1_(int* record, int begin, int end)
 &#125;
 </code></pre>
 <h3 id="7-5-堆排序"><a href="#7-5-堆排序" class="headerlink" title="7.5 堆排序"></a>7.5 堆排序</h3><p>时间代价：O(nlogn)<br>若以升序排序说明，把阵列转换成最大堆积（Max-Heap Heap），这是一种满足最大堆积性质（Max-Heap Property）的二元树：对于除了根之外的每个节点i, A[parent(i)] ≥ A[i]。<br>重复从最大堆积取出数值最大的结点（把根结点和最后一个结点交换，把交换后的最后一个结点移出堆），并让残馀的堆积维持最大堆积性质。</p>
-<pre><code class="C++">void max_heapify(int arr[], int start, int end) &#123;
+<pre><code class="lang-C++">void max_heapify(int arr[], int start, int end) &#123;
     // 建立父節點指標和子節點指標
     int dad = start;
     int son = dad * 2 + 1;
@@ -599,7 +598,7 @@ void heap_sort(int arr[], int len) &#123;
 &#125;
 </code></pre>
 <h3 id="7-6-归并排序"><a href="#7-6-归并排序" class="headerlink" title="7.6 归并排序"></a>7.6 归并排序</h3><h3 id="7-7-桶排序"><a href="#7-7-桶排序" class="headerlink" title="7.7 桶排序"></a>7.7 桶排序</h3><h3 id="7-8-基数排序"><a href="#7-8-基数排序" class="headerlink" title="7.8 基数排序"></a>7.8 基数排序</h3><h2 id="8-外排序"><a href="#8-外排序" class="headerlink" title="8 外排序"></a>8 外排序</h2><h3 id="置换选择排序"><a href="#置换选择排序" class="headerlink" title="置换选择排序"></a>置换选择排序</h3><p>为了获得初始归并段，我们可以采用置换选择排序，其特点是选择最小关键值和输入、输出交叉或并行进行。<br>它的主要思路是：用堆从已经传递到内存中的记录中找到关键值最小（或最大）的记录，然后将此记录写入外存，再将外存中一个没有排序过的记录传递到内存，然后再用堆的一次调整过程找到最小关键值记录，再将此最小关键值记录调出，再调入新的记录。<br>1、 实现最小堆<br>我们需要堆能够进行自上而下和自下而上的调整<br>代码实现：</p>
-<pre><code class="C++">class minHeap
+<pre><code class="lang-C++">class minHeap
 &#123;
 private:
  int* nums;//存放堆元素
@@ -648,7 +647,7 @@ public:
 &#125;;
 </code></pre>
 <p>2、 利用堆模拟置换选择排序<br>我们的堆将逐次加入并输出一个关键值，当输入的关键值小于堆当前记录的最小值时，我们需要暂且将新加入的关键值搁置到一旁，输出堆中剩余元素的最小值并记录，直到堆中有效元素为0，这代表一个归并段构造完成。<br>代码实现：</p>
-<pre><code class="C++">//置换选择排序
+<pre><code class="lang-C++">//置换选择排序
  void Sort(std::vector&lt;int&gt; array)
  &#123;
   int last = size;
@@ -708,7 +707,7 @@ public:
  &#125;
 </code></pre>
 <h4 id="败者树实现归并"><a href="#败者树实现归并" class="headerlink" title="败者树实现归并"></a>败者树实现归并</h4><p>二、 败者树实现8路归并排序<br>败者树可以在归并段较多的情况下尽可能减少内部归并的压力。<br>败者树可以通过树枝和树叶两个数组进行存储，树枝节点存储对应树叶节点中的较大值即败者，树枝的根存储最终胜者。由于有树枝的记录，就可以在内部对有序对进行归并排序时减少进行比较的次数。<br>1、 调整败者树<br>对于新加入的树叶s，我们需要逐层与父节点比较决出胜负直到决出最后的胜利者，并在每一层对决中更新树枝记录的败者。</p>
-<pre><code class="C++">//调整败者树
+<pre><code class="lang-C++">//调整败者树
  void adjustLoserTree(int s)
  &#123;
   int t = (s + Size) / 2;
@@ -724,7 +723,7 @@ public:
  &#125;
 </code></pre>
 <p>2、 初始化败者树<br>      将每个归并段的首位关键码组成的树叶放到败者树里。</p>
-<pre><code class="C++">//初始化败者树
+<pre><code class="lang-C++">//初始化败者树
  void initLoserTree()
  &#123;  //设置loserTreeBranch数组中败者的初始值
   for (int i = 0; i &lt; Size; i++) &#123;
@@ -737,7 +736,7 @@ public:
  &#125;
 </code></pre>
 <p>3、 读入归并段<br>      对于第i个归并段，如果还没有完全被读取过，那就读取一位，否则对应的树叶调整为必败值。</p>
-<pre><code class="C++"> //读入归并段
+<pre><code class="lang-C++"> //读入归并段
  void inputMergeSegments(vector&lt;vector&lt;int&gt;&gt; Segment, int i)
  &#123;
   if (mergeSegmentRecord[i] &lt; Segment[i].size())
@@ -750,7 +749,7 @@ public:
  &#125;
 </code></pre>
 <p>4、 败者树建立以及内部归并</p>
-<pre><code class="C++"> void createLoserTree(vector&lt;vector&lt;int&gt;&gt; Segment)
+<pre><code class="lang-C++"> void createLoserTree(vector&lt;vector&lt;int&gt;&gt; Segment)
  &#123;
   for (int i = 0; i &lt; Size; i++)
   &#123;
@@ -791,8 +790,11 @@ public:
 <li>若溢出，则结点分裂，中间关键码连同新指针插入父结点</li>
 <li>若父结点也溢出，则继续分裂<br>分裂过程可能传达到根结点(则树升高一层)</li>
 </ol>
-<h6 id="一次插入操作最多读写次数"><a href="#一次插入操作最多读写次数" class="headerlink" title="一次插入操作最多读写次数"></a>一次插入操作最多读写次数</h6><p>总共h层，每层都需要分裂（包括根）<br>分裂一个非根结点要向磁盘写出 2 个结点，分裂根结点（最后一次）要写出 3 个结点<br>            = 找插入结点向下读盘次数 +<br>                + 分裂非根结点时写盘次数 +<br>                + 分裂根结点时写盘次数<br>            =  h+2(h-1)+3  =  3h+1</p>
-<h5 id="B树的删除"><a href="#B树的删除" class="headerlink" title="B树的删除"></a>B树的删除</h5><h6 id="删除的关键码不在叶节点层"><a href="#删除的关键码不在叶节点层" class="headerlink" title="删除的关键码不在叶节点层"></a>删除的关键码不在叶节点层</h6><p>先把此关键码与它在B树里的后继对换位置，然后再删除该关键码</p>
+<h6 id="一次插入操作最多读写次数"><a href="#一次插入操作最多读写次数" class="headerlink" title="一次插入操作最多读写次数"></a>一次插入操作最多读写次数</h6><p>总共h层，每层都需要分裂（包括根）<br>分裂一个非根结点要向磁盘写出 2 个结点，分裂根结点（最后一次）要写出 3 个结点<br>            = 找插入结点向下读盘次数 +</p>
+<pre><code>            + 分裂非根结点时写盘次数 +
+            + 分裂根结点时写盘次数
+        =  h+2(h-1)+3  =  3h+1
+</code></pre><h5 id="B树的删除"><a href="#B树的删除" class="headerlink" title="B树的删除"></a>B树的删除</h5><h6 id="删除的关键码不在叶节点层"><a href="#删除的关键码不在叶节点层" class="headerlink" title="删除的关键码不在叶节点层"></a>删除的关键码不在叶节点层</h6><p>先把此关键码与它在B树里的后继对换位置，然后再删除该关键码</p>
 <h6 id="删除的关键码在叶节点层"><a href="#删除的关键码在叶节点层" class="headerlink" title="删除的关键码在叶节点层"></a>删除的关键码在叶节点层</h6><p>删除后关键码个数不小于m/2-1直接删除<br>关键码个数小于m/2-1<br>如果兄弟结点关键码个数不等于m/21,从兄弟结点移若干个关键码到该结点中来(父结点中的一个关键码要做相应变化)。<br>如果兄弟结点关键码个数等于m/2-1,合并</p>
 <h4 id="B-tree-1"><a href="#B-tree-1" class="headerlink" title="B+tree"></a>B+tree</h4><p>有k个子结点的结点（分支节点）必有k个关键码。<br>B+树的叶结点一般链接起来，形成一个双链表</p>
 <h3 id="10-5-位索引技术"><a href="#10-5-位索引技术" class="headerlink" title="10.5 位索引技术"></a>10.5 位索引技术</h3><p>字段F的一个位图索引是一个长度为n的位向量的集合（n为文件的记录数）</p>
@@ -911,5 +913,20 @@ public:
       <script>hljs.initHighlightingOnLoad();</script>
     
 
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="//cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 </body>
 </html>

@@ -29,9 +29,7 @@
 
     
   
-<!-- hexo injector head_end start -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.2"></head>
+<meta name="generator" content="Hexo 5.4.2"></head>
 
 
 <body>
@@ -128,9 +126,10 @@
       <div class="post-content-main animate__animated  animate__fadeInUp">
         <!-- top型目录 -->
         
-        <h1 id="kmp算法"><a href="#kmp算法" class="headerlink" title="kmp算法"></a>kmp算法</h1><h2 id="kmp算法主要原理"><a href="#kmp算法主要原理" class="headerlink" title="kmp算法主要原理"></a>kmp算法主要原理</h2><p>利用next数组中存储的信息，将模式串移到合适的位置进行与主串的匹配</p>
+        <p>$1+1=asd$</p>
+<h1 id="kmp算法"><a href="#kmp算法" class="headerlink" title="kmp算法"></a>kmp算法</h1><h2 id="kmp算法主要原理"><a href="#kmp算法主要原理" class="headerlink" title="kmp算法主要原理"></a>kmp算法主要原理</h2><p>利用next数组中存储的信息，将模式串移到合适的位置进行与主串的匹配</p>
 <h2 id="构建getNext函数大致结构"><a href="#构建getNext函数大致结构" class="headerlink" title="构建getNext函数大致结构"></a>构建getNext函数大致结构</h2><p>next数组储存有能使模式串在接下来的匹配中能够进入适当位置的信息，我们在这里认为储存的信息是该处后缀与整个字符串前缀的最大交集max，那么此处的信息可以使得我们在该处匹配失败时，在下一次匹配中忽略字符串前缀max个数，因为此时这些数已经在刚刚的匹配中被成功匹配了</p>
-<pre><code class="C++">int* getNext(const char p[])
+<pre><code class="lang-C++">int* getNext(const char p[])
 &#123;
     int pLen = strlen(p);
     int* next = new int[pLen];
@@ -147,7 +146,7 @@
 &#125;
 </code></pre>
 <h2 id="构建匹配函数大致结构"><a href="#构建匹配函数大致结构" class="headerlink" title="构建匹配函数大致结构"></a>构建匹配函数大致结构</h2><p>对于在主串与模式串的匹配，每当匹配失败，模式串进入恰当的位置继续进行匹配，我们进入的新位置就是next储存的除去重复交集的位置</p>
-<pre><code class="C++">int search(const char arr[], const char P[])
+<pre><code class="lang-C++">int search(const char arr[], const char P[])
 &#123;
     int t = 0, p = 0;
     int* next = getNext(P);
@@ -168,7 +167,7 @@
 &#125;
 </code></pre>
 <h2 id="kmp匹配优化"><a href="#kmp匹配优化" class="headerlink" title="kmp匹配优化"></a>kmp匹配优化</h2><p>在之前的实现中，模式串中每一个字符对应的next都会存储最大交集的信息，然而我们注意到，在一些情况下，我们会产生多余的匹配。<br>比如，当我们在getNext方法中遇到了p[i] == p[k]的情况，我们直接进行了next[++i] = ++k;然而如果在匹配过程中，我们在接下来的p[i+1]中匹配失败，那么如果getNext()中p[i+1]==p[k+1]，那么我们的下一次匹配也必然是失败的，匹配结束后才会递归进入next[next[i]],这样就产生了多余的匹配，我们可以将其避免。</p>
-<pre><code class="C++">int* getNext(const char p[])
+<pre><code class="lang-C++">int* getNext(const char p[])
 &#123;
     int pLen = strlen(p);
     int* next = new int[pLen];
@@ -305,5 +304,20 @@
       <script>hljs.initHighlightingOnLoad();</script>
     
 
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="//cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 </body>
 </html>
