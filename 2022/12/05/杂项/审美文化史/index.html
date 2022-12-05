@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>  KMP |    o10d3blb</title>
+  <title>  中国审美文化史 |    o10d3blb</title>
   <meta name="description" content="永远相信美好的事情即将发生">
   <!-- 标签页图标 -->
   
@@ -115,8 +115,8 @@
 <article class="post-inner">
   <div class="post-content-outer">
     <div class="post-intro">
-      <div class="post-title animate__animated  animate__fadeInUp">KMP</div>
-      <div class="meta-intro animate__animated  animate__fadeInUp">Apr 13 2022</div>
+      <div class="post-title animate__animated  animate__fadeInUp">中国审美文化史</div>
+      <div class="meta-intro animate__animated  animate__fadeInUp">Dec 05 2022</div>
       
     </div>
     <div class="post-content-inner">
@@ -126,92 +126,42 @@
       <div class="post-content-main animate__animated  animate__fadeInUp">
         <!-- top型目录 -->
         
-        <h1 id="kmp算法"><a href="#kmp算法" class="headerlink" title="kmp算法"></a>kmp算法</h1><h2 id="kmp算法主要原理"><a href="#kmp算法主要原理" class="headerlink" title="kmp算法主要原理"></a>kmp算法主要原理</h2><p>利用next数组中存储的信息，将模式串移到合适的位置进行与主串的匹配</p>
-<h2 id="构建getNext函数大致结构"><a href="#构建getNext函数大致结构" class="headerlink" title="构建getNext函数大致结构"></a>构建getNext函数大致结构</h2><p>next数组储存有能使模式串在接下来的匹配中能够进入适当位置的信息，我们在这里认为储存的信息是该处后缀与整个字符串前缀的最大交集max，那么此处的信息可以使得我们在该处匹配失败时，在下一次匹配中忽略字符串前缀max个数，因为此时这些数已经在刚刚的匹配中被成功匹配了</p>
-<pre><code class="lang-C++">int* getNext(const char p[])
-&#123;
-    int pLen = strlen(p);
-    int* next = new int[pLen];
-    next[0] = -1;
-    int k = -1, i = 0;
-    while (i &lt; pLen - 1)
-    &#123;
-        if (p[i] == p[k] || k == -1)
-             next[++i] = ++k;
-        else
-             k = next[k];
-    &#125;
-    return next;
-&#125;
-</code></pre>
-<h2 id="构建匹配函数大致结构"><a href="#构建匹配函数大致结构" class="headerlink" title="构建匹配函数大致结构"></a>构建匹配函数大致结构</h2><p>对于在主串与模式串的匹配，每当匹配失败，模式串进入恰当的位置继续进行匹配，我们进入的新位置就是next储存的除去重复交集的位置</p>
-<pre><code class="lang-C++">int search(const char arr[], const char P[])
-&#123;
-    int t = 0, p = 0;
-    int* next = getNext(P);
-    int tLen = strlen(arr);
-    int pLen = strlen(P);
-    while (t &lt; tLen &amp;&amp; p &lt; pLen)
-    &#123;
-        if (arr[t] == P[p])
-             t++, p++;
-        else if (next[p] != -1)
-             p = next[p];
-        else
-             t++;
-        if (p == pLen)
-             return t - p;
-    &#125;
-    return -1;
-&#125;
-</code></pre>
-<h2 id="kmp匹配优化"><a href="#kmp匹配优化" class="headerlink" title="kmp匹配优化"></a>kmp匹配优化</h2><p>在之前的实现中，模式串中每一个字符对应的next都会存储最大交集的信息，然而我们注意到，在一些情况下，我们会产生多余的匹配。<br>比如，当我们在getNext方法中遇到了p[i] == p[k]的情况，我们直接进行了next[++i] = ++k;然而如果在匹配过程中，我们在接下来的p[i+1]中匹配失败，那么如果getNext()中p[i+1]==p[k+1]，那么我们的下一次匹配也必然是失败的，匹配结束后才会递归进入next[next[i]],这样就产生了多余的匹配，我们可以将其避免。</p>
-<pre><code class="lang-C++">int* getNext(const char p[])
-&#123;
-    int pLen = strlen(p);
-    int* next = new int[pLen];
-    next[0] = -1;
-    int k = -1, i = 0;
-    while (i &lt; pLen - 1)
-    &#123;
-        if (p[i] == p[k] || k == -1)
-        &#123;
-             i++, k++;
-             if (p[i] == p[k])
-            //因为不能出现p[i] = p[next[i]]，所以当出现时需要继续递归，k = next[k] = next[next[k]]
-                 next[i] = next[k];//  此处等价于next[i] = next[ next[i] ]
-             else
-                 next[i] = k;
-        &#125;
-        else
-             k = next[k];
-    &#125;
-    return next;
-&#125;
-</code></pre>
+        <h1 id="《周易》的智慧"><a href="#《周易》的智慧" class="headerlink" title="《周易》的智慧"></a>《周易》的智慧</h1><p>《周易》即《易经》，是传统经典之一，内容包括《经》和《传》两个部分。《经》主要是六十四卦和三百八十四爻，卦和爻各有说明（卦辞、爻辞），作为占卜之用。《传》包含解释卦辞和爻辞的七种文辞共十篇，统称《十翼》。</p>
+<p>《周易》是中国传统思想文化中自然哲学与人文实践的理论根源，是古代汉民族思想、智慧的结晶，被誉为“大道之源”。内容极其丰富，对中国几千年来的政治、经济、文化等各个领域都产生了极其深刻的影响。</p>
 
         <!-- 分类文章 -->
         
           <div class="post-categoris-bottom">
-            <div class="post-categoris-name">算法</div>
+            <div class="post-categoris-name">杂项</div>
             <ul>
             
             
               
-                <li class="me base">
-                  <a  href="/2022/04/13/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/kmp/" class="post-categoris-bottom-link">
-                  KMP
-                </a>
-                </li>
+            
+            
+            
               
+            
+            
+            
               
+            
+            
+            
+              
+            
+            
+            
+              
+            
+            
             
             
             
               
                 <li class="base">
-                  <a  href="/2022/06/14/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%A4%8D%E4%B9%A0/" class="post-categoris-bottom-link">
-                  数据结构复习
+                  <a  href="/2022/12/05/%E6%9D%82%E9%A1%B9/%E8%B5%84%E6%9C%AC%E4%B8%BB%E4%B9%89%E7%94%9F%E4%BA%A7%E6%97%A0%E9%99%90%E6%89%A9%E5%A4%A7%E4%B8%8E%E6%B6%88%E8%B4%B9%E9%9C%80%E6%B1%82%E6%9C%89%E9%99%90/" class="post-categoris-bottom-link">
+                  资本主义生产无限扩大与消费需求有限的矛盾
                 </a>
                 </li>
               
@@ -220,23 +170,12 @@
             
             
               
-            
-            
-            
+                <li class="me base">
+                  <a  href="/2022/12/05/%E6%9D%82%E9%A1%B9/%E5%AE%A1%E7%BE%8E%E6%96%87%E5%8C%96%E5%8F%B2/" class="post-categoris-bottom-link">
+                  中国审美文化史
+                </a>
+                </li>
               
-            
-            
-            
-              
-            
-            
-            
-            
-            
-              
-            
-            
-            
               
             
             
@@ -253,7 +192,7 @@
       <div class="post-content-inner-space">
         
           <div class="space-toc-main animate__animated  animate__fadeInUp">
-            <ol class="space-toc"><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#kmp%E7%AE%97%E6%B3%95%E4%B8%BB%E8%A6%81%E5%8E%9F%E7%90%86"><span class="space-toc-text">kmp算法主要原理</span></a></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#%E6%9E%84%E5%BB%BAgetNext%E5%87%BD%E6%95%B0%E5%A4%A7%E8%87%B4%E7%BB%93%E6%9E%84"><span class="space-toc-text">构建getNext函数大致结构</span></a></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#%E6%9E%84%E5%BB%BA%E5%8C%B9%E9%85%8D%E5%87%BD%E6%95%B0%E5%A4%A7%E8%87%B4%E7%BB%93%E6%9E%84"><span class="space-toc-text">构建匹配函数大致结构</span></a></li><li class="space-toc-item space-toc-level-2"><a class="space-toc-link" href="#kmp%E5%8C%B9%E9%85%8D%E4%BC%98%E5%8C%96"><span class="space-toc-text">kmp匹配优化</span></a></li></ol>
+            
            </div>
         
       </div>
