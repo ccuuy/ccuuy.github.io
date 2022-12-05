@@ -275,9 +275,91 @@
       <br>下面进行处理器实现时，所有的信号与模块都是与书中一一对应的，减轻了一些设计上的压力。</p>
 <h3 id="一些处理"><a href="#一些处理" class="headerlink" title="一些处理"></a>一些处理</h3><p>整个处理器的核心在于控制模块，控制模块获取<code>opcode[6:0]</code>信号就可以发出控制其余所有模块的信号。</p>
 <h4 id="ALU与func3"><a href="#ALU与func3" class="headerlink" title="ALU与func3"></a>ALU与func3</h4><p>为了简化操作，我们将ALU的操作码直接与指令的func3对应，在这个简化指令集中，这样实际上完全可行，但是问题是需要将sub和add进行区分，我们在这里实际上无需背离原版指令集，只要给ALUControl一个func7信号的一位让其区分add和sub即可，但是我选择不这么做，我认为区分add与sub的func3是个更优雅的选择。</p>
-<h3 id="分块拆解"><a href="#分块拆解" class="headerlink" title="分块拆解"></a>分块拆解</h3><p>直接实现未免过于困难，于是尝试先把每一个部分进行实现，最后整合成完整的数据通路。<br>下面列一下要实现的所有小模块。<br>|模块|说明|<br>|—————- | —————- |<br>InstrMem|指令存储器|<br>DataMem|数据存储器|<br>Rigisters|寄存器堆<br>PC|PC寄存器|<br>PCMux|PC多选器|<br>Control|主控制器<br>ALUMux|ALU来源多选器<br>ALU|ALU运算器<br>ALUControl|ALU运算控制<br>Branch_judge|判断指令是否跳转<br>ImmGen|立即数生成器<br>RigisterWriteMux|寄存器写入数据多选器</p>
+<h3 id="分块拆解"><a href="#分块拆解" class="headerlink" title="分块拆解"></a>分块拆解</h3><p>直接实现未免过于困难，于是尝试先把每一个部分进行实现，最后整合成完整的数据通路。<br>下面列一下要实现的所有小模块。</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>InstrMem</td>
+<td>指令存储器</td>
+</tr>
+<tr>
+<td>DataMem</td>
+<td>数据存储器</td>
+</tr>
+<tr>
+<td>Rigisters</td>
+<td>寄存器堆</td>
+</tr>
+<tr>
+<td>PC</td>
+<td>PC寄存器</td>
+</tr>
+<tr>
+<td>PCMux</td>
+<td>PC多选器</td>
+</tr>
+<tr>
+<td>Control</td>
+<td>主控制器</td>
+</tr>
+<tr>
+<td>ALUMux</td>
+<td>ALU来源多选器</td>
+</tr>
+<tr>
+<td>ALU</td>
+<td>ALU运算器</td>
+</tr>
+<tr>
+<td>ALUControl</td>
+<td>ALU运算控制</td>
+</tr>
+<tr>
+<td>Branch_judge</td>
+<td>判断指令是否跳转</td>
+</tr>
+<tr>
+<td>ImmGen</td>
+<td>立即数生成器</td>
+</tr>
+<tr>
+<td>RigisterWriteMux</td>
+<td>寄存器写入数据多选器</td>
+</tr>
+</tbody>
+</table>
+</div>
 <h2 id="处理器完整实现"><a href="#处理器完整实现" class="headerlink" title="处理器完整实现"></a>处理器完整实现</h2><h3 id="各分模块实现"><a href="#各分模块实现" class="headerlink" title="各分模块实现"></a>各分模块实现</h3><p>接下来我们一步步实现每一个模块</p>
-<h4 id="InstrMem"><a href="#InstrMem" class="headerlink" title="InstrMem"></a>InstrMem</h4><p>类型|信号|注释<br>| ——— | ——— | ——— |<br>input|[7:0]addr|指令地址(总共可存$2^8$个指令)|<br>output|[31:0]instr|地址对应的指令|</p>
+<h4 id="InstrMem"><a href="#InstrMem" class="headerlink" title="InstrMem"></a>InstrMem</h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>信号</th>
+<th>注释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>input</td>
+<td>[7:0]addr</td>
+<td>指令地址(总共可存$2^8$个指令)</td>
+</tr>
+<tr>
+<td>output</td>
+<td>[31:0]instr</td>
+<td>地址对应的指令</td>
+</tr>
+</tbody>
+</table>
+</div>
 <p>指令存储器相对比较容易实现，只要根据输入的地址取出相对应的指令即可。</p>
 <p>代码实现</p>
 <pre><code class="lang-verilog">module InstrMem(
@@ -297,7 +379,54 @@
 
 endmodule
 </code></pre>
-<h4 id="DataMem"><a href="#DataMem" class="headerlink" title="DataMem"></a>DataMem</h4><p>类型|信号|注释<br>|—-|—-|—-|<br>input|clk|时钟信号|<br>input|rst_n|复位信号|<br>input|MemWrite|写使能信号|<br>input|MemRead|读使能信号|<br>input|[7:0]Address|数据存储器地址|<br>input|[31:0] WriteData|写入数据|<br>output|[31:0] ReadData|读出数据|</p>
+<h4 id="DataMem"><a href="#DataMem" class="headerlink" title="DataMem"></a>DataMem</h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>信号</th>
+<th>注释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>input</td>
+<td>clk</td>
+<td>时钟信号</td>
+</tr>
+<tr>
+<td>input</td>
+<td>rst_n</td>
+<td>复位信号</td>
+</tr>
+<tr>
+<td>input</td>
+<td>MemWrite</td>
+<td>写使能信号</td>
+</tr>
+<tr>
+<td>input</td>
+<td>MemRead</td>
+<td>读使能信号</td>
+</tr>
+<tr>
+<td>input</td>
+<td>[7:0]Address</td>
+<td>数据存储器地址</td>
+</tr>
+<tr>
+<td>input</td>
+<td>[31:0] WriteData</td>
+<td>写入数据</td>
+</tr>
+<tr>
+<td>output</td>
+<td>[31:0] ReadData</td>
+<td>读出数据</td>
+</tr>
+</tbody>
+</table>
+</div>
 <p>根据控制器处理得到的的读写使能信号，决定写入还是读出数据。<br>写入数据来自寄存器堆读出的第二个寄存器数据。<br>数据存储器地址来自主ALU运算。</p>
 <p>代码实现：</p>
 <pre><code class="lang-verilog">module DataMem(
@@ -334,7 +463,58 @@ endmodule
 endmodule
 </code></pre>
 <h4 id="Control"><a href="#Control" class="headerlink" title="Control"></a>Control</h4><p>这里几乎是整个处理器的核心模块，既然是实验结束后复盘，可以先从这里写起，方便之后模块输入输出的描述。</p>
-<p>类型|信号|注释<br>|—-|—-|—-|<br>input|[6:0]opcode||<br>output|ALUSrc|决定ALU的第二个操作数来源|<br>output|[1:0] Branch|分辨beq, jal, 与其他指令。后面被输入到Branch_judge模块判断指令是否跳转|<br>output|MemWrite|数据存储器写使能信号|<br>output|MemRead|数据存储器读使能信号|<br>output|[7:0]Address|数据存储器地址|<br>output|[31:0] WriteData|写入数据|<br>output|[31:0] ReadData|读出数据|</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>信号</th>
+<th>注释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>input</td>
+<td>[6:0]opcode</td>
+</tr>
+<tr>
+<td>output</td>
+<td>ALUSrc</td>
+<td>决定ALU的第二个操作数来源</td>
+</tr>
+<tr>
+<td>output</td>
+<td>[1:0] Branch</td>
+<td>分辨beq, jal, 与其他指令。后面被输入到Branch_judge模块判断指令是否跳转</td>
+</tr>
+<tr>
+<td>output</td>
+<td>MemWrite</td>
+<td>数据存储器写使能信号</td>
+</tr>
+<tr>
+<td>output</td>
+<td>MemRead</td>
+<td>数据存储器读使能信号</td>
+</tr>
+<tr>
+<td>output</td>
+<td>[7:0]Address</td>
+<td>数据存储器地址</td>
+</tr>
+<tr>
+<td>output</td>
+<td>[31:0] WriteData</td>
+<td>写入数据</td>
+</tr>
+<tr>
+<td>output</td>
+<td>[31:0] ReadData</td>
+<td>读出数据</td>
+</tr>
+</tbody>
+</table>
+</div>
 <p>代码实现：</p>
 <pre><code class="lang-verilog">module Control(
     input [6:0] opcode,
@@ -408,7 +588,29 @@ always@(*) begin
 end                
 endmodule
 </code></pre>
-<h4 id="ImmGen"><a href="#ImmGen" class="headerlink" title="ImmGen"></a>ImmGen</h4><p>类型|信号|注释<br>|—-|—-|—-|<br>input|[31:0]instr|指令|<br>output|[31:0]imme|立即数|</p>
+<h4 id="ImmGen"><a href="#ImmGen" class="headerlink" title="ImmGen"></a>ImmGen</h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>信号</th>
+<th>注释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>input</td>
+<td>[31:0]instr</td>
+<td>指令</td>
+</tr>
+<tr>
+<td>output</td>
+<td>[31:0]imme</td>
+<td>立即数</td>
+</tr>
+</tbody>
+</table>
+</div>
 <p>输入指令输出符号扩展之后的立即数，这个模块事实上是第一个我实现的模块，这时候我还抱着完成完整指令集实现的心态，把所有指令的立即数都进行了生成，然而毫无疑问后来失败跑路了，但这个模块见证了我曾经的雄心壮志（笑</p>
 <pre><code class="lang-verilog">`define  lui   7&#39;b0110111
 `define  auipc   7&#39;b0010111
