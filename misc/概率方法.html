@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>概率方法</title>
+<link rel="stylesheet" type="text/css" href="C:\Users\31371\Desktop\blog\public\style.css"></head>
+<body>
+<div class="navibar"><a href="../index.html">index</a><a href="../misc.html" class="link">misc</a><a href="../Rust.html" class="link">Rust</a><a href="../日记.html" class="link">日记</a><a href="../算法.html" class="link">算法</a></div><div class="content"><h2 id="_1">概率方法小记</h2>
+<h3 id="ramsey-theory">Ramsey theory</h3>
+<p>定义$R(s,t)$为最小的正整数$n$，使得对$K_n$的边做任意的红蓝二着色时一定会存在红色的$K_s$或者蓝色的$K_t$。</p>
+<ul>
+<li>$R(2,t)=t$。</li>
+<li>$R(3,3)=6$。（任意六个人一定有三人互相认识或者三人互相不认识）</li>
+</ul>
+<p>$R(3,4)=9$。</p>
+<p>若在$K_9$中有一个红蓝二着色，不存在$K_3$和$K_4$，
+则每个顶点关联于3条红边5条蓝边，红色度数总计$9\times3 = 27$，不可能。</p>
+<p>下图为$K_8$上的一个不含$K_3$和$K_4$的边着色的例子。
+<img alt="alt text" src="images/概率方法/image.png" /></p>
+<h4 id="_2">拉姆塞数和概率方法</h4>
+<p><strong>Theorem</strong>：若参数$n,k$满足$\binom{n}{k}2^{1 - \binom{k}{2}} &lt; 1$，则$R(k,k)&gt;n$，亦即，存在$K_n$的一个边二着色，使得图中没有单色的$K_k$。</p>
+<p><strong>证明</strong>：随机对每条边着色（每条边独立地以概率1/2染某色），对任意$R\subseteq V$，$|R| = k$，记$A_R$为事件“$R$所诱导的子图为单色”。</p>
+<p>$Pr(\text{存在单色}K_k)=Pr\left(\bigcup_{R\in\binom{[n]}{k}}A_R\right)\leq\sum_{R}Pr[A_R]\leq\binom{n}{k}2^{1-\binom{k}{2}}&lt;1$，于是，$Pr(\text{不存在单色}K_k)&gt;0$。</p>
+<p>以上式子中(Pr(A_R)=\frac{2}{2^{\binom{k}{2}}}=2^{1-\binom{k}{2}})。</p>
+<p>最简单的概率方法的应用形式如下</p>
+<ol>
+<li>
+<p>为证明某种带有性质(P)的组合结构存在，随机构造一个组合结构，证明其有性质(P)的概率严格大于零（如Ramsey的例子）</p>
+</li>
+<li>
+<p>对于一个给定的函数(f)，若能证明(E[f(x)] = a)，则一定存在一个具体的样本(x')，使得(f(x') \geq a)（同理，(f(x') \leq a)）</p>
+</li>
+</ol>
+<h3 id="_3">图论中的概率方法</h3></div><script type="text/javascript" src="C:\Users\31371\Desktop\blog\public\script.js"></script><script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script></body>
+</html>

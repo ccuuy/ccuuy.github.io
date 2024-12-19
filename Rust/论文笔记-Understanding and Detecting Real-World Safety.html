@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>论文笔记-Understanding and Detecting Real-World Safety</title>
+<link rel="stylesheet" type="text/css" href="C:\Users\31371\Desktop\blog\public\style.css"></head>
+<body>
+<div class="navibar"><a href="../index.html">index</a><a href="../misc.html" class="link">misc</a><a href="../Rust.html" class="link">Rust</a><a href="../日记.html" class="link">日记</a><a href="../算法.html" class="link">算法</a></div><div class="content"><h2 id="understanding-and-detecting-real-world-safety-issues-in-rust">Understanding and Detecting Real-World Safety Issues in Rust</h2>
+<ul>
+<li>作者：秦伯钦</li>
+<li>发布时间：2024</li>
+<li>IEEE TSE</li>
+</ul>
+<p>研究涵盖了5个基于Rust的系统和应用程序（两个操作系统、一个浏览器、一个键值存储系统和一个区块链系统）、5个广泛使用的Rust库和两个在线漏洞数据库。共调查了总共70个内存安全问题、100个线程安全问题和110个恐慌性问题。</p>
+<ol>
+<li>
+<p>内存漏洞。通过检查选择的应用程序和库中的bug，以及检查2019年6月之前在CVE和RustSec上报告的所有Rust问题，来研究真实锈病程序中的内存安全问题。我们的分析不仅关注于理解这些虫子的行为，而且还深入研究了它们的根源是如何传播到它们的影响的。所有的内存安全漏洞都涉及Unsafe的代码，而且其中大多数也涉及安全代码。</p>
+</li>
+<li>
+<p>并发漏洞。非阻塞的bug可能发生在不安全和安全的代码中，而且研究过的所有阻塞的bug都可能发生在安全的代码中。尽管Rust中的许多bug模式遵循传统的并发bug模式（例如，双锁、原子性违反），但Rust中的很大一部分并发错误源于程序员对Rust生命周期和安全规则的误解。</p>
+</li>
+<li>
+<p>运行时意外的恐慌.几乎所有的错误都发生在安全代码中。其中的很大一部分可以归因于在使用Rust的库（结果和选项）来处理运行时错误时所犯的错误。此外，当执行各种算术操作时，Rust运行时检测到溢出，并相应地触发恐慌。</p>
+</li>
+</ol>
+<p>由此，开发了5个静态检测器进行了Rust bug检测。这些检测器专门针对无后使用bug、双锁bug、冲突排序死锁、原子性违规以及可能触发运行时恐慌的代码站点。</p>
+<p>将检测器应用于12个额外选择的锈程序。这些探测器在真正的锈病应用程序中发现了96个以前未知的错误，只有7个假阳性报告。</p>
+<p>源码位于 https://github.com/BurtonQin/lockbud.</p></div><script type="text/javascript" src="C:\Users\31371\Desktop\blog\public\script.js"></script><script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script></body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>rust_safety</title>
+<link rel="stylesheet" type="text/css" href="C:\Users\31371\Desktop\blog\public\style.css"></head>
+<body>
+<div class="navibar"><a href="../index.html">index</a><a href="../misc.html" class="link">misc</a><a href="../Rust.html" class="link">Rust</a><a href="../日记.html" class="link">日记</a><a href="../算法.html" class="link">算法</a></div><div class="content"><h1 id="rust-safety">Rust Safety</h1>
+<h2 id="_1">形式化验证</h2>
+<ol>
+<li><strong>"面向Rust的形式化验证方法研究综述"</strong><ul>
+<li><strong>发布时间</strong>：2024年</li>
+<li><strong>发布平台</strong>：软件学报</li>
+<li><strong>概括</strong>：对Rust形式化验证方法研究的综述</li>
+</ul>
+</li>
+</ol>
+<h2 id="_2">程序分析</h2>
+<ol>
+<li>
+<p><strong>"对现实Rust程序安全性的实证研究"</strong></p>
+<ul>
+<li><strong>发布时间</strong>：2021年</li>
+<li><strong>发布平台</strong>：博士论文</li>
+<li><strong>概括</strong>：对真实世界Rust程序中的内存和线程安全实践及问题进行实证研究。检查了安全与不安全代码的使用、内存安全问题、并发错误等方面，分析了相关原因、修复策略，并提出了改进建议。通过对多个开源项目和库的研究，发现了Rust程序中安全机制的有效性、不安全代码使用的原因和问题，以及并发错误的类型和原因，为Rust开发者和研究者提供了有价值的参考。</li>
+</ul>
+</li>
+<li>
+<p><strong>"Understanding Memory and Thread Safety Practices and Issues in Real - World Rust Programs"</strong></p>
+<ul>
+<li><strong>发布时间</strong>：2020年</li>
+<li><strong>发布平台</strong>：PLDI'20</li>
+<li><strong>概括</strong>：对真实世界Rust程序中的内存和线程安全实践及问题进行实证研究。检查了安全与不安全代码的使用、内存安全问题、并发错误等方面，分析了相关原因、修复策略，并提出了改进建议。通过对多个开源项目和库的研究，发现了Rust程序中安全机制的有效性、不安全代码使用的原因和问题，以及并发错误的类型和原因，为Rust开发者和研究者提供了有价值的参考。</li>
+</ul>
+</li>
+<li>
+<p><strong>"Understanding and Detecting Real - World Safety Issues in Rust"</strong></p>
+<ul>
+<li><strong>发布时间</strong>：2024年</li>
+<li><strong>概括</strong>：对Rust中的安全问题进行实证研究，涵盖内存安全、线程安全和意外恐慌问题。分析了各类安全问题的原因、修复策略，并开发了五个静态检测器来检测这些问题。研究发现Rust安全机制有效，但仍存在一些问题，如内存安全问题中的错误理解和并发错误中的不当使用，同时开发的检测器能有效发现未知错误，为提高Rust程序安全性提供了支持。</li>
+</ul>
+</li>
+<li>
+<p><strong>"RUDRA: Finding Memory Safety Bugs in Rust at the Ecosystem Scale"</strong></p>
+<ul>
+<li><strong>发布时间</strong>：2021年</li>
+<li><strong>概括</strong>：介绍了RUDRA工具，旨在检测Rust中不安全代码的内存安全漏洞。识别出三种不安全代码的漏洞模式，设计了两种新算法实现为RUDRA静态分析器。该工具能在6.5小时内扫描Rust包注册表中的43k个包，发现264个新内存安全漏洞，其中包括Rust标准库、官方futures库和编译器中的漏洞，部分算法已集成到官方Rust linter中。</li>
+</ul>
+</li>
+<li>
+<p><strong>"MirChecker: Detecting Bugs in Rust Programs via Static Analysis"</strong></p>
+<ul>
+<li><strong>发布时间</strong>：2021年</li>
+<li><strong>概括</strong>：提出MirChecker工具，通过静态分析检测Rust程序中的断言错误和内存错误。它利用Rust编译器的MIR，进行数值和符号分析，并应用约束求解来检测错误。实验评估表明，MirChecker在检测多种类型的错误方面表现出色，尤其在处理复杂的程序结构和类型系统相关的错误时具有优势，同时也指出了在实际应用中存在的一些局限性和未来改进的方向。</li>
+</ul>
+</li>
+<li>
+<p><strong>"Memory-Safety Challenge Considered Solved? An In-DepthStudy with All Rust CVEs"</strong></p>
+<ul>
+<li><strong>发布时间</strong>：2020年</li>
+</ul>
+</li>
+<li>
+<p><strong>"Is unsafe an Achilles’ Heel? A Comprehensive Study of Safety Requirements in Unsafe Rust Programming"</strong></p>
+<ul>
+<li><strong>发布时间</strong>：2023年</li>
+<li><strong>概括</strong>：该论文对Rust中不安全代码的安全需求进行了首次全面实证研究。通过分析标准库中的不安全API文档，定义了19种安全属性（SP），并对416个不安全API进行了数据标记和相关性分析。同时，对Rust的CVE进行分类，统计了crates.io生态系统中不安全API的使用情况，并通过用户调查评估了安全属性。研究发现不安全API文档缺乏统一和系统的安全描述，提出应明确安全需求以提升Rust安全性。</li>
+</ul>
+</li>
+<li>
+<p><strong>"A Closer Look at the Security Risks in the Rust Ecosystem"</strong></p>
+<ul>
+<li><strong>发布时间</strong>：2023年</li>
+<li><strong>概括</strong>：本文对Rust生态系统中的安全风险展开全面研究。收集了2014 - 2022年期间的433个漏洞、300个易受攻击的代码仓库和218个漏洞修复提交，分析了漏洞类型、生命周期、演化情况，以及易受攻击包的特征、漏洞修复模式等。研究表明内存安全和并发问题占比高，修复时间长，安全风险在不同包类别中差异大，开发者在修复漏洞时倾向于添加或修改安全代码。</li>
+</ul>
+</li>
+<li>
+<p><strong>"Rust语言安全研究综述"</strong></p>
+<ul>
+<li><strong>发布时间</strong>：2023</li>
+<li><strong>概括</strong>：对Rust语言安全相关研究进行综述，包括Rust的安全特性、内存管理、并发安全、不安全代码使用等方面的研究成果，以及安全分析工具和实证研究情况。总结了现有研究对Rust安全性的理解和提升方向，如发现内存安全和并发问题占主要安全问题类型，安全分析工具在检测和预防安全问题中发挥重要作用等，为进一步研究Rust语言安全提供了全面的参考。</li>
+</ul>
+</li>
+<li>
+<p><strong>"Surveying the Rust Verification Landscape"</strong></p>
+<ul>
+<li><strong>发布时间</strong>：2024</li>
+<li><strong>概括</strong>：</li>
+</ul>
+</li>
+<li>
+<p><strong>"SafeDrop: Detecting Memory Deallocation Bugs of Rust Programs via Static Data-Flow Analysis"</strong></p>
+<ul>
+<li><strong>发布时间</strong>：2020</li>
+<li><strong>概括</strong>：</li>
+</ul>
+</li>
+</ol></div><script type="text/javascript" src="C:\Users\31371\Desktop\blog\public\script.js"></script><script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script></body>
+</html>

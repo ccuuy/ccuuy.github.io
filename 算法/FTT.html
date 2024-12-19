@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>FTT</title>
+<link rel="stylesheet" type="text/css" href="C:\Users\31371\Desktop\blog\public\style.css"></head>
+<body>
+<div class="navibar"><a href="../index.html">index</a><a href="../misc.html" class="link">misc</a><a href="../Rust.html" class="link">Rust</a><a href="../日记.html" class="link">日记</a><a href="../算法.html" class="link">算法</a></div><div class="content"><div class="toc">
+<ul>
+<li><a href="#_1">多项式乘法</a><ul>
+<li><a href="#_2">多项式的点值乘法</a></li>
+</ul>
+</li>
+<li><a href="#_3">快速傅里叶变换</a><ul>
+<li><a href="#1">单位圆(复平面上圆心在原点且半径为1的点)</a></li>
+<li><a href="#_4">由系数求点值(正变换)</a></li>
+<li><a href="#_5">由点值求系数(逆变换)</a></li>
+<li><a href="#_6">迭代法</a><ul>
+<li><a href="#_7">位逆序变换</a></li>
+<li><a href="#_8">迭代法</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#_9">快速数论变换</a></li>
+</ul>
+</div>
+<p>$$test$$</p>
+<p>$test$</p>
+<p>$$test$$</p>
+<p>$test$</p>
+<p>(test)</p>
+<p>[test]</p>
+<h2 id="_1">多项式乘法</h2>
+<ol>
+<li>两个n-1次多项式相乘得到一个2n-2次多项式</li>
+<li>给定n个点可以确定n-1次多项式函数</li>
+</ol>
+<h3 id="_2">多项式的点值乘法</h3>
+<p>(1) 取 $x_0, x_1, x_2, \cdots x_{2n - 2}$ 分别代入，求点值
+- $A(x): y_0, y_1, y_2, \cdots, y_{2n - 2}$
+- $B(x): y_0', y_1', y_2', \cdots, y_{2n - 2}'$</p>
+<p>(2) 相乘 $C(x): y_0y_0', y_1y_1', y_2y_2', \cdots, y_{2n - 2}y_{2n - 2}'$</p>
+<p>(3) 插值 $C(x): c_0, c_1, c_2, \cdots, c_{2n - 2}$</p>
+<h2 id="_3">快速傅里叶变换</h2>
+<p>快速傅里叶变换可以把求点值和求系数均优化为O(nlogn)</p>
+<p><img alt="alt text" src="images/FTT/image.png" /></p>
+<h3 id="1">单位圆(复平面上圆心在原点且半径为1的点)</h3>
+<p>圆上的点：$z=cos\theta+isin\theta(0\leq\theta&lt;2\pi)$</p>
+<p>把圆分成 $n$ 等分，可得方程 $z^{n}=1$ 的 $n$ 个复数根</p>
+<p>单位根 $\omega_{n}^{k}=\cos\frac{2\pi k}{n}+i\sin\frac{2\pi k}{n}$</p>
+<p>$$ \omega_{n}^{k} \omega_{n}^{m} = \omega_{n}^{k + m}, \quad (\omega_{n}^{k})^{m} = \omega_{n}^{km} $$</p>
+<p><img alt="alt text" src="images/FTT/image-1.png" /></p>
+<p>$ \text{FFT要求} \quad n = 2^{b} \in \mathbb{N} $</p>
+<ol>
+<li>
+<p>周期性 $ \omega_{n}^{k + n} = \omega_{n}^{k} $</p>
+</li>
+<li>
+<p>对称性 $ \omega_{n}^{k+\frac{n}{2}} = -\omega_{n}^{k} $</p>
+</li>
+<li>
+<p>折半性 $ \omega_{n}^{2k} = \omega_{\frac{n}{2}}^{k} $</p>
+</li>
+</ol>
+<h3 id="_4">由系数求点值(正变换)</h3>
+<p>设$A(x)$的系数为$(a_0,a_1,a_2,\cdots,a_{n - 1})$，则</p>
+<p>$A(x)=a_0 + a_1x + a_2x^2 + a_3x^3+\cdots + a_{n - 1}x^{n - 1}$</p>
+<p>$$
+\begin{align<em>}
+A(x)&amp;=(a_0 + a_2x^2+\cdots + a_{n - 2}x^{n - 2})+ (a_1x + a_3x^3+\cdots + a_{n - 1}x^{n - 1})\
+&amp;=(a_0 + a_2x^2+\cdots + a_{n - 2}x^{n - 2}) \quad (\text{偶项})\
+&amp;+(a_1x + a_3x^3+\cdots + a_{n - 1}x^{n - 1}) \quad (\text{奇项})
+\end{align</em>}
+$$</p>
+<p>设
+$$
+\begin{align<em>}
+A_1(x)&amp;=a_0 + a_2x + a_4x^2+\cdots + a_{n - 2}x^{\frac{n - 2}{2}}\
+A_2(x)&amp;=a_1 + a_3x + a_5x^2+\cdots + a_{n - 1}x^{\frac{n - 2}{2}}
+\end{align</em>}
+$$</p>
+<p>则$A(x)=A_1(x^2)+A_2(x^2)x$</p>
+<p>将$\omega_{n}^{k}(k&lt;\frac{n}{2})$代入得：</p>
+<p>$$
+\begin{align<em>}
+A(\omega_{n}^{k})&amp;=A_1(\omega_{n}^{2k})+A_2(\omega_{n}^{2k})\omega_{n}^{k}\
+&amp;=A_1\left(\omega_{\frac{n}{2}}^{k}\right)+A_2\left(\omega_{\frac{n}{2}}^{k}\right)\omega_{n}^{k}
+\end{align</em>}
+$$</p>
+<p>将$\omega_{n}^{k+\frac{n}{2}}$代入得：</p>
+<p>$$
+\begin{align<em>}
+A\left(\omega_{n}^{k+\frac{n}{2}}\right)&amp;=A_1(\omega_{n}^{2k + n})+A_2(\omega_{n}^{2k + n})\omega_{n}^{k+\frac{n}{2}}\
+&amp;=A_1\left(\omega_{\frac{n}{2}}^{k}\right)-A_2\left(\omega_{\frac{n}{2}}^{k}\right)\omega_{n}^{k}
+\end{align</em>}
+$$</p>
+<p><img alt="alt text" src="images/FTT/image-2.png" /></p>
+<h3 id="_5">由点值求系数(逆变换)</h3>
+<p><img alt="alt text" src="images/FTT/image-3.png" /></p>
+<h3 id="_6">迭代法</h3>
+<h4 id="_7">位逆序变换</h4>
+<p><img alt="alt text" src="images/FTT/image-5.png" /></p>
+<h4 id="_8">迭代法</h4>
+<p><img alt="alt text" src="images/FTT/image-6.png" /></p>
+<h2 id="_9">快速数论变换</h2>
+<p>未完待续....</p></div><script type="text/javascript" src="C:\Users\31371\Desktop\blog\public\script.js"></script><script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script></body>
+</html>
