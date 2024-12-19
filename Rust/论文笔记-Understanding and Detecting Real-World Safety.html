@@ -25,5 +25,12 @@
 </ol>
 <p>由此，开发了5个静态检测器进行了Rust bug检测。这些检测器专门针对无后使用bug、双锁bug、冲突排序死锁、原子性违规以及可能触发运行时恐慌的代码站点。</p>
 <p>将检测器应用于12个额外选择的锈程序。这些探测器在真正的锈病应用程序中发现了96个以前未知的错误，只有7个假阳性报告。</p>
-<p>源码位于 https://github.com/BurtonQin/lockbud.</p></div><script type="text/javascript" src="../script.js"></script><script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js"></script><script type="text/javascript" src="../script.js"></script></body>
+<p>源码位于 https://github.com/BurtonQin/lockbud.</p></div><script type="text/javascript" src="../script.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      config: ["MMLorHTML.js"],
+      jax: ["input/TeX", "output/HTML-CSS", "output/NativeMML"],
+      extensions: ["MathMenu.js", "MathZoom.js"]
+    });
+</script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script></body>
 </html>
