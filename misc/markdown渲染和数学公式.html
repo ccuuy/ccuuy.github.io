@@ -6,5 +6,6 @@
 <link rel="stylesheet" type="text/css" href="../style.css"></head>
 <body>
 <div class="navibar"><a href="../index.html">index</a><a href="../misc.html" class="link">misc</a><a href="../Rust.html" class="link">Rust</a><a href="../日记.html" class="link">日记</a><a href="../算法.html" class="link">算法</a></div><div class="content"><p>这个博客使用的渲染器基于python的markdown库，这个库无法处理数学公式，于是我在前端引用了mathjax从而进行处理。</p>
-<p>但是此时出现问题，mathjax无法解析<code>\[\[</code>和<code>\(\)</code>中包裹的公式，因为其在之前的markdown渲染中就已经被删掉了反引号。</p></div><script type="text/javascript" src="../script.js"></script><script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js"></script></body>
+<p>但是此时出现问题，mathjax无法解析<code>\[\[</code>和<code>\(\)</code>中包裹的公式，因为其在之前的markdown渲染中就已经被删掉了反引号。</p>
+<p>参考https://blog.yixiangzhilv.com/blogs/20220205110353.html，使用python_markdown_math解决了问题。</p></div><script type="text/javascript" src="../script.js"></script><script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js"></script></body>
 </html>
