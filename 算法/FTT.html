@@ -31,62 +31,99 @@
 <li>给定n个点可以确定n-1次多项式函数</li>
 </ol>
 <h3 id="_2">多项式的点值乘法</h3>
-<p>(1) 取 $x_0, x_1, x_2, \cdots x_{2n - 2}$ 分别代入，求点值
-- $A(x): y_0, y_1, y_2, \cdots, y_{2n - 2}$
-- $B(x): y_0', y_1', y_2', \cdots, y_{2n - 2}'$</p>
-<p>(2) 相乘 $C(x): y_0y_0', y_1y_1', y_2y_2', \cdots, y_{2n - 2}y_{2n - 2}'$</p>
-<p>(3) 插值 $C(x): c_0, c_1, c_2, \cdots, c_{2n - 2}$</p>
+<p>(1) 取 <span><span class="MathJax_Preview">$x_0, x_1, x_2, \cdots x_{2n - 2}$</span><script type="math/tex">x_0, x_1, x_2, \cdots x_{2n - 2}</script></span> 分别代入，求点值
+- <span><span class="MathJax_Preview">$A(x): y_0, y_1, y_2, \cdots, y_{2n - 2}$</span><script type="math/tex">A(x): y_0, y_1, y_2, \cdots, y_{2n - 2}</script></span>
+- <span><span class="MathJax_Preview">$B(x): y_0', y_1', y_2', \cdots, y_{2n - 2}'$</span><script type="math/tex">B(x): y_0', y_1', y_2', \cdots, y_{2n - 2}'</script></span></p>
+<p>(2) 相乘 <span><span class="MathJax_Preview">$C(x): y_0y_0', y_1y_1', y_2y_2', \cdots, y_{2n - 2}y_{2n - 2}'$</span><script type="math/tex">C(x): y_0y_0', y_1y_1', y_2y_2', \cdots, y_{2n - 2}y_{2n - 2}'</script></span></p>
+<p>(3) 插值 <span><span class="MathJax_Preview">$C(x): c_0, c_1, c_2, \cdots, c_{2n - 2}$</span><script type="math/tex">C(x): c_0, c_1, c_2, \cdots, c_{2n - 2}</script></span></p>
 <h2 id="_3">快速傅里叶变换</h2>
 <p>快速傅里叶变换可以把求点值和求系数均优化为O(nlogn)</p>
 <p><img alt="alt text" src="images/FTT/image.png" /></p>
 <h3 id="1">单位圆(复平面上圆心在原点且半径为1的点)</h3>
-<p>圆上的点：$z=cos\theta+isin\theta(0\leq\theta&lt;2\pi)$</p>
-<p>把圆分成 $n$ 等分，可得方程 $z^{n}=1$ 的 $n$ 个复数根</p>
-<p>单位根 $\omega_{n}^{k}=\cos\frac{2\pi k}{n}+i\sin\frac{2\pi k}{n}$</p>
-<p>$$ \omega_{n}^{k} \omega_{n}^{m} = \omega_{n}^{k + m}, \quad (\omega_{n}^{k})^{m} = \omega_{n}^{km} $$</p>
+<p>圆上的点：<span><span class="MathJax_Preview">$z=cos\theta+isin\theta(0\leq\theta&lt;2\pi)$</span><script type="math/tex">z=cos\theta+isin\theta(0\leq\theta<2\pi)</script></span></p>
+<p>把圆分成 <span><span class="MathJax_Preview">$n$</span><script type="math/tex">n</script></span> 等分，可得方程 <span><span class="MathJax_Preview">$z^{n}=1$</span><script type="math/tex">z^{n}=1</script></span> 的 <span><span class="MathJax_Preview">$n$</span><script type="math/tex">n</script></span> 个复数根</p>
+<p>单位根 <span><span class="MathJax_Preview">$\omega_{n}^{k}=\cos\frac{2\pi k}{n}+i\sin\frac{2\pi k}{n}$</span><script type="math/tex">\omega_{n}^{k}=\cos\frac{2\pi k}{n}+i\sin\frac{2\pi k}{n}</script></span></p>
+<p>
+<div><span class="MathJax_Preview">$$ \omega_{n}^{k} \omega_{n}^{m} = \omega_{n}^{k + m}, \quad (\omega_{n}^{k})^{m} = \omega_{n}^{km} $$</span><script type="math/tex; mode=display"> \omega_{n}^{k} \omega_{n}^{m} = \omega_{n}^{k + m}, \quad (\omega_{n}^{k})^{m} = \omega_{n}^{km} </script>
+</div>
+</p>
 <p><img alt="alt text" src="images/FTT/image-1.png" /></p>
-<p>$ \text{FFT要求} \quad n = 2^{b} \in \mathbb{N} $</p>
+<p><span><span class="MathJax_Preview">$ \text{FFT要求} \quad n = 2^{b} \in \mathbb{N} $</span><script type="math/tex"> \text{FFT要求} \quad n = 2^{b} \in \mathbb{N} </script></span></p>
 <ol>
 <li>
-<p>周期性 $ \omega_{n}^{k + n} = \omega_{n}^{k} $</p>
+<p>周期性 <span><span class="MathJax_Preview">$ \omega_{n}^{k + n} = \omega_{n}^{k} $</span><script type="math/tex"> \omega_{n}^{k + n} = \omega_{n}^{k} </script></span></p>
 </li>
 <li>
-<p>对称性 $ \omega_{n}^{k+\frac{n}{2}} = -\omega_{n}^{k} $</p>
+<p>对称性 <span><span class="MathJax_Preview">$ \omega_{n}^{k+\frac{n}{2}} = -\omega_{n}^{k} $</span><script type="math/tex"> \omega_{n}^{k+\frac{n}{2}} = -\omega_{n}^{k} </script></span></p>
 </li>
 <li>
-<p>折半性 $ \omega_{n}^{2k} = \omega_{\frac{n}{2}}^{k} $</p>
+<p>折半性 <span><span class="MathJax_Preview">$ \omega_{n}^{2k} = \omega_{\frac{n}{2}}^{k} $</span><script type="math/tex"> \omega_{n}^{2k} = \omega_{\frac{n}{2}}^{k} </script></span></p>
 </li>
 </ol>
 <h3 id="_4">由系数求点值(正变换)</h3>
-<p>设$A(x)$的系数为$(a_0,a_1,a_2,\cdots,a_{n - 1})$，则</p>
-<p>$A(x)=a_0 + a_1x + a_2x^2 + a_3x^3+\cdots + a_{n - 1}x^{n - 1}$</p>
-<p>$$ \begin{align<em>}
-A(x)&amp;=(a_0 + a_2x^2+\cdots + a_{n - 2}x^{n - 2})+ (a_1x + a_3x^3+\cdots + a_{n - 1}x^{n - 1})\
-&amp;=(a_0 + a_2x^2+\cdots + a_{n - 2}x^{n - 2}) \quad (\text{偶项})\
+<p>设<span><span class="MathJax_Preview">$A(x)$</span><script type="math/tex">A(x)</script></span>的系数为<span><span class="MathJax_Preview">$(a_0,a_1,a_2,\cdots,a_{n - 1})$</span><script type="math/tex">(a_0,a_1,a_2,\cdots,a_{n - 1})</script></span>，则</p>
+<p><span><span class="MathJax_Preview">$A(x)=a_0 + a_1x + a_2x^2 + a_3x^3+\cdots + a_{n - 1}x^{n - 1}$</span><script type="math/tex">A(x)=a_0 + a_1x + a_2x^2 + a_3x^3+\cdots + a_{n - 1}x^{n - 1}</script></span></p>
+<p>
+<div><span class="MathJax_Preview">$$
+ \begin{align*}
+A(x)&amp;=(a_0 + a_2x^2+\cdots + a_{n - 2}x^{n - 2})+ (a_1x + a_3x^3+\cdots + a_{n - 1}x^{n - 1})\\
+&amp;=(a_0 + a_2x^2+\cdots + a_{n - 2}x^{n - 2}) \quad (\text{偶项})\\
 &amp;+(a_1x + a_3x^3+\cdots + a_{n - 1}x^{n - 1}) \quad (\text{奇项})
-\end{align</em>} $$</p>
+\end{align*} 
+$$</span><script type="math/tex; mode=display">
+ \begin{align*}
+A(x)&=(a_0 + a_2x^2+\cdots + a_{n - 2}x^{n - 2})+ (a_1x + a_3x^3+\cdots + a_{n - 1}x^{n - 1})\\
+&=(a_0 + a_2x^2+\cdots + a_{n - 2}x^{n - 2}) \quad (\text{偶项})\\
+&+(a_1x + a_3x^3+\cdots + a_{n - 1}x^{n - 1}) \quad (\text{奇项})
+\end{align*} 
+</script>
+</div>
+</p>
 <p>设
-$$
-\begin{align<em>}
-A_1(x)&amp;=a_0 + a_2x + a_4x^2+\cdots + a_{n - 2}x^{\frac{n - 2}{2}}\
+<div><span class="MathJax_Preview">$$
+\begin{align*}
+A_1(x)&amp;=a_0 + a_2x + a_4x^2+\cdots + a_{n - 2}x^{\frac{n - 2}{2}}\\
 A_2(x)&amp;=a_1 + a_3x + a_5x^2+\cdots + a_{n - 1}x^{\frac{n - 2}{2}}
-\end{align</em>}
-$$</p>
-<p>则$A(x)=A_1(x^2)+A_2(x^2)x$</p>
-<p>将$\omega_{n}^{k}(k&lt;\frac{n}{2})$代入得：</p>
-<p>$$
-\begin{align<em>}
-A(\omega_{n}^{k})&amp;=A_1(\omega_{n}^{2k})+A_2(\omega_{n}^{2k})\omega_{n}^{k}\
+\end{align*}
+$$</span><script type="math/tex; mode=display">
+\begin{align*}
+A_1(x)&=a_0 + a_2x + a_4x^2+\cdots + a_{n - 2}x^{\frac{n - 2}{2}}\\
+A_2(x)&=a_1 + a_3x + a_5x^2+\cdots + a_{n - 1}x^{\frac{n - 2}{2}}
+\end{align*}
+</script>
+</div>
+</p>
+<p>则<span><span class="MathJax_Preview">$A(x)=A_1(x^2)+A_2(x^2)x$</span><script type="math/tex">A(x)=A_1(x^2)+A_2(x^2)x</script></span></p>
+<p>将<span><span class="MathJax_Preview">$\omega_{n}^{k}(k&lt;\frac{n}{2})$</span><script type="math/tex">\omega_{n}^{k}(k<\frac{n}{2})</script></span>代入得：</p>
+<p>
+<div><span class="MathJax_Preview">$$
+\begin{align*}
+A(\omega_{n}^{k})&amp;=A_1(\omega_{n}^{2k})+A_2(\omega_{n}^{2k})\omega_{n}^{k}\\
 &amp;=A_1\left(\omega_{\frac{n}{2}}^{k}\right)+A_2\left(\omega_{\frac{n}{2}}^{k}\right)\omega_{n}^{k}
-\end{align</em>}
-$$</p>
-<p>将$\omega_{n}^{k+\frac{n}{2}}$代入得：</p>
-<p>$$
-\begin{align<em>}
-A\left(\omega_{n}^{k+\frac{n}{2}}\right)&amp;=A_1(\omega_{n}^{2k + n})+A_2(\omega_{n}^{2k + n})\omega_{n}^{k+\frac{n}{2}}\
+\end{align*}
+$$</span><script type="math/tex; mode=display">
+\begin{align*}
+A(\omega_{n}^{k})&=A_1(\omega_{n}^{2k})+A_2(\omega_{n}^{2k})\omega_{n}^{k}\\
+&=A_1\left(\omega_{\frac{n}{2}}^{k}\right)+A_2\left(\omega_{\frac{n}{2}}^{k}\right)\omega_{n}^{k}
+\end{align*}
+</script>
+</div>
+</p>
+<p>将<span><span class="MathJax_Preview">$\omega_{n}^{k+\frac{n}{2}}$</span><script type="math/tex">\omega_{n}^{k+\frac{n}{2}}</script></span>代入得：</p>
+<p>
+<div><span class="MathJax_Preview">$$
+\begin{align*}
+A\left(\omega_{n}^{k+\frac{n}{2}}\right)&amp;=A_1(\omega_{n}^{2k + n})+A_2(\omega_{n}^{2k + n})\omega_{n}^{k+\frac{n}{2}}\\
 &amp;=A_1\left(\omega_{\frac{n}{2}}^{k}\right)-A_2\left(\omega_{\frac{n}{2}}^{k}\right)\omega_{n}^{k}
-\end{align</em>}
-$$</p>
+\end{align*}
+$$</span><script type="math/tex; mode=display">
+\begin{align*}
+A\left(\omega_{n}^{k+\frac{n}{2}}\right)&=A_1(\omega_{n}^{2k + n})+A_2(\omega_{n}^{2k + n})\omega_{n}^{k+\frac{n}{2}}\\
+&=A_1\left(\omega_{\frac{n}{2}}^{k}\right)-A_2\left(\omega_{\frac{n}{2}}^{k}\right)\omega_{n}^{k}
+\end{align*}
+</script>
+</div>
+</p>
 <p><img alt="alt text" src="images/FTT/image-2.png" /></p>
 <h3 id="_5">由点值求系数(逆变换)</h3>
 <p><img alt="alt text" src="images/FTT/image-3.png" /></p>

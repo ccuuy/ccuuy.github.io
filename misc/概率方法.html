@@ -7,28 +7,28 @@
 <body>
 <div class="navibar"><a href="../index.html">index</a><a href="../misc.html" class="link">misc</a><a href="../Rust.html" class="link">Rust</a><a href="../日记.html" class="link">日记</a><a href="../算法.html" class="link">算法</a></div><div class="content"><h2 id="_1">概率方法小记</h2>
 <h3 id="ramsey-theory">Ramsey theory</h3>
-<p>定义$R(s,t)$为最小的正整数$n$，使得对$K_n$的边做任意的红蓝二着色时一定会存在红色的$K_s$或者蓝色的$K_t$。</p>
+<p>定义<span><span class="MathJax_Preview">$R(s,t)$</span><script type="math/tex">R(s,t)</script></span>为最小的正整数<span><span class="MathJax_Preview">$n$</span><script type="math/tex">n</script></span>，使得对<span><span class="MathJax_Preview">$K_n$</span><script type="math/tex">K_n</script></span>的边做任意的红蓝二着色时一定会存在红色的<span><span class="MathJax_Preview">$K_s$</span><script type="math/tex">K_s</script></span>或者蓝色的<span><span class="MathJax_Preview">$K_t$</span><script type="math/tex">K_t</script></span>。</p>
 <ul>
-<li>$R(2,t)=t$。</li>
-<li>$R(3,3)=6$。（任意六个人一定有三人互相认识或者三人互相不认识）</li>
+<li><span><span class="MathJax_Preview">$R(2,t)=t$</span><script type="math/tex">R(2,t)=t</script></span>。</li>
+<li><span><span class="MathJax_Preview">$R(3,3)=6$</span><script type="math/tex">R(3,3)=6</script></span>。（任意六个人一定有三人互相认识或者三人互相不认识）</li>
 </ul>
-<p>$R(3,4)=9$。</p>
-<p>若在$K_9$中有一个红蓝二着色，不存在$K_3$和$K_4$，
-则每个顶点关联于3条红边5条蓝边，红色度数总计$9\times3 = 27$，不可能。</p>
-<p>下图为$K_8$上的一个不含$K_3$和$K_4$的边着色的例子。
+<p><span><span class="MathJax_Preview">$R(3,4)=9$</span><script type="math/tex">R(3,4)=9</script></span>。</p>
+<p>若在<span><span class="MathJax_Preview">$K_9$</span><script type="math/tex">K_9</script></span>中有一个红蓝二着色，不存在<span><span class="MathJax_Preview">$K_3$</span><script type="math/tex">K_3</script></span>和<span><span class="MathJax_Preview">$K_4$</span><script type="math/tex">K_4</script></span>，
+则每个顶点关联于3条红边5条蓝边，红色度数总计<span><span class="MathJax_Preview">$9\times3 = 27$</span><script type="math/tex">9\times3 = 27</script></span>，不可能。</p>
+<p>下图为<span><span class="MathJax_Preview">$K_8$</span><script type="math/tex">K_8</script></span>上的一个不含<span><span class="MathJax_Preview">$K_3$</span><script type="math/tex">K_3</script></span>和<span><span class="MathJax_Preview">$K_4$</span><script type="math/tex">K_4</script></span>的边着色的例子。
 <img alt="alt text" src="images/概率方法/image.png" /></p>
 <h4 id="_2">拉姆塞数和概率方法</h4>
-<p><strong>Theorem</strong>：若参数$n,k$满足$\binom{n}{k}2^{1 - \binom{k}{2}} &lt; 1$，则$R(k,k)&gt;n$，亦即，存在$K_n$的一个边二着色，使得图中没有单色的$K_k$。</p>
-<p><strong>证明</strong>：随机对每条边着色（每条边独立地以概率1/2染某色），对任意$R\subseteq V$，$|R| = k$，记$A_R$为事件“$R$所诱导的子图为单色”。</p>
-<p>$Pr(\text{存在单色}K_k)=Pr\left(\bigcup_{R\in\binom{[n]}{k}}A_R\right)\leq\sum_{R}Pr[A_R]\leq\binom{n}{k}2^{1-\binom{k}{2}}&lt;1$，于是，$Pr(\text{不存在单色}K_k)&gt;0$。</p>
-<p>以上式子中$Pr(A_R)=\frac{2}{2^{\binom{k}{2}}}=2^{1-\binom{k}{2}}$。</p>
+<p><strong>Theorem</strong>：若参数<span><span class="MathJax_Preview">$n,k$</span><script type="math/tex">n,k</script></span>满足<span><span class="MathJax_Preview">$\binom{n}{k}2^{1 - \binom{k}{2}} &lt; 1$</span><script type="math/tex">\binom{n}{k}2^{1 - \binom{k}{2}} < 1</script></span>，则<span><span class="MathJax_Preview">$R(k,k)&gt;n$</span><script type="math/tex">R(k,k)>n</script></span>，亦即，存在<span><span class="MathJax_Preview">$K_n$</span><script type="math/tex">K_n</script></span>的一个边二着色，使得图中没有单色的<span><span class="MathJax_Preview">$K_k$</span><script type="math/tex">K_k</script></span>。</p>
+<p><strong>证明</strong>：随机对每条边着色（每条边独立地以概率1/2染某色），对任意<span><span class="MathJax_Preview">$R\subseteq V$</span><script type="math/tex">R\subseteq V</script></span>，<span><span class="MathJax_Preview">$|R| = k$</span><script type="math/tex">|R| = k</script></span>，记<span><span class="MathJax_Preview">$A_R$</span><script type="math/tex">A_R</script></span>为事件“<span><span class="MathJax_Preview">$R$</span><script type="math/tex">R</script></span>所诱导的子图为单色”。</p>
+<p><span><span class="MathJax_Preview">$Pr(\text{存在单色}K_k)=Pr\left(\bigcup_{R\in\binom{[n]}{k}}A_R\right)\leq\sum_{R}Pr[A_R]\leq\binom{n}{k}2^{1-\binom{k}{2}}&lt;1$</span><script type="math/tex">Pr(\text{存在单色}K_k)=Pr\left(\bigcup_{R\in\binom{[n]}{k}}A_R\right)\leq\sum_{R}Pr[A_R]\leq\binom{n}{k}2^{1-\binom{k}{2}}<1</script></span>，于是，<span><span class="MathJax_Preview">$Pr(\text{不存在单色}K_k)&gt;0$</span><script type="math/tex">Pr(\text{不存在单色}K_k)>0</script></span>。</p>
+<p>以上式子中<span><span class="MathJax_Preview">$Pr(A_R)=\frac{2}{2^{\binom{k}{2}}}=2^{1-\binom{k}{2}}$</span><script type="math/tex">Pr(A_R)=\frac{2}{2^{\binom{k}{2}}}=2^{1-\binom{k}{2}}</script></span>。</p>
 <p>最简单的概率方法的应用形式如下</p>
 <ol>
 <li>
-<p>为证明某种带有性质$P$的组合结构存在，随机构造一个组合结构，证明其有性质$P$的概率严格大于零（如Ramsey的例子）</p>
+<p>为证明某种带有性质<span><span class="MathJax_Preview">$P$</span><script type="math/tex">P</script></span>的组合结构存在，随机构造一个组合结构，证明其有性质<span><span class="MathJax_Preview">$P$</span><script type="math/tex">P</script></span>的概率严格大于零（如Ramsey的例子）</p>
 </li>
 <li>
-<p>对于一个给定的函数$f$，若能证明$E[f(x)] = a$，则一定存在一个具体的样本$x'$，使得$f(x') \geq a$（同理，$f(x') \leq a$）</p>
+<p>对于一个给定的函数<span><span class="MathJax_Preview">$f$</span><script type="math/tex">f</script></span>，若能证明<span><span class="MathJax_Preview">$E[f(x)] = a$</span><script type="math/tex">E[f(x)] = a</script></span>，则一定存在一个具体的样本<span><span class="MathJax_Preview">$x'$</span><script type="math/tex">x'</script></span>，使得<span><span class="MathJax_Preview">$f(x') \geq a$</span><script type="math/tex">f(x') \geq a</script></span>（同理，<span><span class="MathJax_Preview">$f(x') \leq a$</span><script type="math/tex">f(x') \leq a</script></span>）</p>
 </li>
 </ol>
 <h3 id="_3">图论中的概率方法</h3></div><script type="text/javascript" src="../script.js"></script><script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script></body>
