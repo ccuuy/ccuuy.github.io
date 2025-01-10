@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>初始向量传输方案</title>
+<link rel="stylesheet" type="text/css" href="../style.css"></head>
+<body>
+<div class="navibar"><a href="../index.html">index</a><a href="../misc.html" class="link">misc</a><a href="../Rust.html" class="link">Rust</a><a href="../日记.html" class="link">日记</a><a href="../算法.html" class="link">算法</a></div><div class="content"><p>密钥序列的产生主要由密钥源和密钥序列生成器决定。在实际系统中，密钥序列生成器的生成算法已经确定，而密钥源根据需要定期进行更换。因此为了保证系统的使用安全，在密钥源更换周期内，密钥序列生成器每次扩展产生密钥序列时所使用的初始状态（即初始向量IV，须随密文一起通过信道传输）需要满足一定的随机性或唯一性要求。</p>
+<p>卫星通信系统由于通信信道实际传输的载荷资源有限，无法为密码应用提供更多的信息传输空间，但如果不在信道上传输的满足一次一密需求的初始向量，将导致系统存在安全使用隐患．由此，研究并设计资源占比小且安全可行的序列密码初始向量构造方法，是保障用户在信道载荷资源受限等特定条件下的安全通信和使用的重要手段。</p></div><script type="text/javascript" src="../script.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      config: ["MMLorHTML.js"],
+      jax: ["input/TeX", "output/HTML-CSS", "output/NativeMML"],
+      extensions: ["MathMenu.js", "MathZoom.js"]
+    });
+</script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script></body>
+</html>

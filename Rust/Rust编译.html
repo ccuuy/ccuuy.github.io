@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Rust编译</title>
+<link rel="stylesheet" type="text/css" href="../style.css"></head>
+<body>
+<div class="navibar"><a href="../index.html">index</a><a href="../misc.html" class="link">misc</a><a href="../Rust.html" class="link">Rust</a><a href="../日记.html" class="link">日记</a><a href="../算法.html" class="link">算法</a></div><div class="content"><blockquote>
+<p>Rust反编译一直是比较困难的问题, Rust强调<strong>零成本抽象</strong>(没有繁重的运行时开销), 在使用高级特性（如泛型、闭包、迭代器等）时为了不引入额外的运行时开销, 编译器会生成高度优化且复杂的机器码, 从而难以直接恢复高层的抽象结构, 除此之外, Rust 的所有权系统及其借用检查器在编译过程中被彻底消解成运行时代码。这个过程生成了许多低级的内存管理代码, 这些代码在反编译时难以重新构建成高层次的所有权和生命周期语义。</p>
+</blockquote>
+<p><img alt="alt text" src="images/Rust编译/image.png" /></p>
+<h2 id="analysis">Analysis</h2>
+<h2 id="from-mir-to-binaries">From MIR to Binaries</h2>
+<ul>
+<li>lower the MIR to LLVM IR</li>
+<li>LLVM</li>
+</ul></div><script type="text/javascript" src="../script.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      config: ["MMLorHTML.js"],
+      jax: ["input/TeX", "output/HTML-CSS", "output/NativeMML"],
+      extensions: ["MathMenu.js", "MathZoom.js"]
+    });
+</script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script></body>
+</html>

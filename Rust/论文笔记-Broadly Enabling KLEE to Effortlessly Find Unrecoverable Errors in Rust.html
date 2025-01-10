@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>论文笔记-Broadly Enabling KLEE to Effortlessly Find Unrecoverable Errors in Rust</title>
+<link rel="stylesheet" type="text/css" href="../style.css"></head>
+<body>
+<div class="navibar"><a href="../index.html">index</a><a href="../misc.html" class="link">misc</a><a href="../Rust.html" class="link">Rust</a><a href="../日记.html" class="link">日记</a><a href="../算法.html" class="link">算法</a></div><div class="content"><p>“Broadly Enabling KLEE to Effortlessly Find Unrecoverable Errors in Rust”主要讲述了为解决在 Rust 程序中查找不可恢复错误困难的问题，创建了 PanicCheck 工具，利用 KLEE 进行验证，并通过实验评估其效果，同时分析了 KLEE 在 Rust 程序应用中的优势与局限。
+1. <strong>研究背景</strong>
+    - Rust 将错误分为可恢复和不可恢复两类，可恢复错误可通过 <code>Result&lt;T, E&gt;</code> 类型处理，而不可恢复错误（如越界访问、除零错误等）会导致程序突然终止，且难以识别。
+    - 先前利用 KLEE 验证 Rust 程序存在困难，如开发者需具备专业知识编写测试代码，且难以大规模评估，而 Rust 验证工具（RVT）虽能提供一定支持，但手动编写测试函数仍具挑战性。
+2. <strong>PanicCheck 工具介绍</strong>
+    - <strong>工具设计目的</strong>：简化使用 KLEE 验证 Rust 程序的过程，只需开发者在待验证函数上标注 <code>#[panic_check]</code>，即可自动完成编译、测试生成、符号执行和恐慌检查等操作。
+    - <strong>工作流程</strong>：分为四个阶段。在上下文提取阶段，使用 <code>syn</code> 库解析标注函数的令牌流，获取函数签名信息；符号变量创建阶段，为提取的参数创建 KLEE 可处理的符号变量，目前对 28 种数据类型提供部分或全部支持；测试生成阶段，基于模板生成测试函数的源代码和 LLVM 位码，源代码生成采用策略设计模式，位码生成过程会注入值检查和 <code>panic!</code> 宏；最后在 KLEE 执行阶段，用生成的可执行版本测试函数执行 KLEE 以检测恐慌。
+3. <strong>实验评估</strong>
+    - <strong>实验设置</strong>：针对 Rust 1.47.0 - nightly 版本实现 PanicCheck，采用 LLVM 10.0.0 和特定版本的 KLEE。构建开源数据集时，以 “parser” 为关键词在 crates.io 筛选项目，并依据 Rust 版本、函数数据类型和生命周期注释等标准选择 21 个开源项目，同时纳入 Rust 版 coreutils；在每个项目中选择入口函数标注 <code>#[panic_check]</code>，在开源项目中标注了 125 个，闭源项目（字节跳动的两个关键基础设施项目）中标注了 40 多个。
+    - <strong>实验结果</strong>：在 21 个开源项目的 125 个函数中，PanicCheck 发现 59 个函数存在恐慌，11 个因状态爆炸未验证，3 个完全验证通过，52 个因时间限制部分验证通过；在 2 个闭源项目中发现 2 个恐慌且均已修复。总共 61 个恐慌中 59 个已被开发者解决，表明工具输出质量高且相关性强。分析恐慌原因发现，45 个与使用无效 UTF - 8 码点调用 clap API 有关，9 个是对无效值调用 <code>unwrap()</code> 函数，且多数恐慌源于使用意外或无效值调用方法 API。此外，还指出 PanicCheck 在处理字符串和原始指针时因 KLEE 能力有限存在不足，部分项目因字符串枚举或原始指针操作导致状态爆炸。
+4. <strong>有效性威胁</strong>
+    - <strong>外部有效性</strong>：实验结果基于特定数据集，可能无法推广到其他 Rust 程序，未来需纳入更多项目。
+    - <strong>结构有效性</strong>：工具受限于 Rust 2018 版本及所使用的 KLEE/LLVM 版本，不支持新特性，未来计划更新 RVT 并扩展 PanicCheck。
+5. <strong>经验教训</strong>
+    - <strong>优势</strong>：KLEE 能生成有效测试输入，发现 Rust 程序中开发者忽视的不可恢复错误，且无假阳性报告，可补充开发者测试的不足。
+    - <strong>局限</strong>：KLEE 不适用于生成并发程序、内存分配大小符号化和指针相关的测试用例，且对某些函数验证耗时久，原因包括对内置集合类型支持有限和字符串变量处理困难。未来计划改进 PanicCheck，通过静态分析生成更多复合类型的符号变量，并允许开发者提供特定参数值以加速验证。
+6. <strong>相关工作</strong>
+    - <strong>KLEE 实证研究</strong>：已有多项关于 KLEE 的实证研究，但本文是将其应用于 Rust 程序验证，与以往研究不同。
+    - <strong>Rust 验证工具</strong>：介绍了多种 Rust 程序验证技术，如 CBMC、CRUST、MIRAI 等，本文的 PanicCheck 专注于利用 KLEE 进行验证，并可通过修改底层 trait 支持其他验证工具。
+7. <strong>研究结论与展望</strong>：开发的 PanicCheck 工具减轻了开发者编写测试用例的负担，实现了对 Rust 程序的大规模研究。实验发现 KLEE 能揭示 61 个恐慌且多数已解决，同时明确了恐慌原因和 KLEE 的局限性。未来计划进一步改进 PanicCheck，支持更多 Rust 特性并集成更多验证技术，以评估更多技术的有效性并为开发者提供建议。 </p></div><script type="text/javascript" src="../script.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      config: ["MMLorHTML.js"],
+      jax: ["input/TeX", "output/HTML-CSS", "output/NativeMML"],
+      extensions: ["MathMenu.js", "MathZoom.js"]
+    });
+</script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script></body>
+</html>

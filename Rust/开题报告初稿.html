@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>开题报告初稿</title>
+<link rel="stylesheet" type="text/css" href="../style.css"></head>
+<body>
+<div class="navibar"><a href="../index.html">index</a><a href="../misc.html" class="link">misc</a><a href="../Rust.html" class="link">Rust</a><a href="../日记.html" class="link">日记</a><a href="../算法.html" class="link">算法</a></div><div class="content"><h1 id="rust">《基于静态分析的 Rust 内存安全检测方法》开题报告</h1>
+<div class="toc">
+<ul>
+<li><a href="#rust">《基于静态分析的 Rust 内存安全检测方法》开题报告</a><ul>
+<li><a href="#_1">一、论文（设计）的主要内容、理论意义和应用价值</a><ul>
+<li><a href="#_2">（一）论文（设计）的主要内容</a><ul>
+<li><a href="#_3">研究背景与目标</a></li>
+<li><a href="#_4">相关研究</a><ul>
+<li><a href="#_5">实证研究</a></li>
+<li><a href="#_6">漏洞范围</a></li>
+<li><a href="#_7">检测技术</a></li>
+<li><a href="#_8">检测工作层次</a></li>
+</ul>
+</li>
+<li><a href="#_9">论文（设计）的主要工作</a></li>
+</ul>
+</li>
+<li><a href="#_10">（二）理论意义和应用价值</a></li>
+</ul>
+</li>
+<li><a href="#_11">二、主要参考书目</a></li>
+<li><a href="#_12">毕业论文（设计）写作计划</a></li>
+<li><a href="#_13">预计初稿完成日期</a></li>
+<li><a href="#_14">预计定稿日期</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="_1">一、论文（设计）的主要内容、理论意义和应用价值</h2>
+<h3 id="_2">（一）论文（设计）的主要内容</h3>
+<h4 id="_3">研究背景与目标</h4>
+<p>Rust 是由Mozilla开发的一种编程语言，以其内存安全和高性能的优秀设计，在系统编程等领域得到广泛应用。Rust 独特的所有权、借用与生命周期等创新概念，在编译阶段对内存使用进行严格把控，极大地增强了内存安全性。然而，实践表明，Rust 代码中仍可能存在潜在的内存安全隐患。Rust 允许使用unsafe代码来执行内存访问和指针操作等底层操作，可能导致代码中出现悬空指针引用、数据竞争等安全问题，这些问题在复杂的项目中尤其难以发现和调试。</p>
+<p>本毕业设计是基于静态分析的 Rust 内存安全检测方法。通过系统分析 Rust 的核心安全特性，如所有权机制，借用规则，生命周期保证以及Rust的Unsafe代码对于内存安全的影响等。对Rust程序中存在的内存安全问题加以研究和归纳，分析漏洞的成因和潜在威胁，从而运用静态分析技术，建立检测算法。本毕业设计将计划研究：</p>
+<ol>
+<li>Rust程序存在的内存安全问题</li>
+<li>Rust程序中内存安全问题的静态检测算法设计</li>
+</ol>
+<h4 id="_4">相关研究</h4>
+<h5 id="_5">实证研究</h5>
+<p>在过去一段时间，研究人员对Rust开展了实证研究，这类研究对Rust的安全漏洞进行了一定程度的归类，揭示了漏洞形成的原因，其中尤其强调了Unsafe区块与内存安全漏洞的联系。</p>
+<p>2021年，Qin在博士论文「对现实Rust应用程序的安全性的实证研究」中，将导致内存安全漏洞的原因归纳为两类: 错误的内存访问和违反变量的生命周期规则。Xu等在「Memory-Safety Challenge Considered Solved? An In-Depth Study with All Rust CVEs」将内存安全漏洞分成 4 类: 与 Rust 采用的所有权的资源管理副作用相关的自动内存回收漏洞；使用了不安全的函数或外部调用导致的漏洞；使用了不安全的 Rust 高级特性导致的漏洞；其他内存安全漏洞。他们在研究中发现「所有内存安全漏洞都来源于Unsafe区块」。</p>
+<p>2023年的「Rust语言安全研究综述」在以上两篇文章的基础上，认为 Rust 严格的安全检查机制可以保证用 Rust 的安全语言子集(即不使用 unsafe 机制的语言子集)构建的程序不会出现内存安全漏洞。</p>
+<p>2023年，「A Closer Look at the Security Risks in the Rust Ecosystem」对 Rust 生态系统中大量漏洞、易受攻击的包以及修复情况进行分析，研究了漏洞特征和修复特征，涉及多种漏洞类型并分析其与 unsafe 代码关系。</p>
+<p>2024年，「Counterexamples in Safe Rust」认为在安全的 Rust 代码中仍存在可绕过安全保证的情况。其中攻击模式来自于编译器的不健全性和构建时效应等多方面。并且评估了Rudra等多种工具，发现其对这种攻击检测能力有限。</p>
+<h5 id="_6">漏洞范围</h5>
+<p>在 Rust 程序中，内存安全漏洞的范围较为广泛且复杂。除了UAF和Double-Free等典型内存问题，运行时恐慌（Runtime Panic）可能导致程序执行流程意外中断，可能引发拒绝服务（DoS）攻击，同时还可能伴随内存状态的异常变化，导致某些资源未正确释放或数据处于不一致状态。生命周期损坏（Lifetime Corruption）等情况也会导致内存的非法访问，进而引发数据损坏或安全风险。</p>
+<p>此外，与函数高阶属性相关的问题也可能导致函数指针传递和调用过程中的安全隐患，而在多线程环境下，若对线程间数据共享和同步的安全性处理不当，如 Send 和 Sync trait的不正确使用，会引发数据竞争和内存一致性问题。在一些研究中，由于 Rust 与其他语言（如 C 语言）的内存管理机制差异，跨语言函数调用接口（FFI）也会存在内存泄漏、指针错误以及数据类型不匹配等问题。</p>
+<h5 id="_7">检测技术</h5>
+<p>已有的静态分析技术中，抽象解释技术通过对程序的语义进行抽象建模，在不实际执行程序的情况下，对程序的可能行为进行分析，从而发现潜在的内存安全问题。例如，它可以对程序中的变量取值范围进行估计，判断可能的出现数组越界访问等问题。约束求解技术将程序中的内存相关约束条件进行提取和表示，通过求解这些约束来确定是否存在违反内存安全规则的情况，能够有效分析指针的合法性和内存分配的一致性。污点分析技术通过跟踪数据的来源和传播路径。通过标记污点，并在程序执行过程中跟踪其传播，确保这些数据在使用过程中不会引发内存安全问题。数据流分析技术分析程序中数据的流动情况，通过构建数据流图，确定变量在不同程序点的定义和使用情况，从而检测出诸如未初始化变量的使用等情况。</p>
+<p>形式化验证技术基于严格的数学逻辑和形式系统，对 Rust 程序进行精确的建模和分析。通过定义 Rust 语言的形式语义，将程序的行为用数学公式和逻辑规则进行描述，然后利用定理证明器来验证程序是否满足特定的内存安全属性。模型检查技术通过构建程序的状态模型，并对所有可能的状态进行遍历和检查，以确定是否存在违反内存安全的状态。</p>
+<p>此外，还有基于人工智能的检测技术。利用深度学习模型对代码的语法和语义特征进行学习，预测可能出现的安全风险，例如，RustC4检测器就使用了利用大语言模型协助检测 Rust 代码注释不一致。</p>
+<h5 id="_8">检测工作层次</h5>
+<p>Rust在编译过程中在通过词法分析、语法分析、宏展开等步骤后会被解析成抽象语法树(AST)，经过脱糖后转换为HIR。 然后，使用 HIR 进行类型推断、trait 求解和类型检查后，HIR被进一步降级为MIR。该步骤会将函数中的语句及表达逻辑转换为控制流图 CFG，以便对 Rust 的所有权和借用检查规则进行更深层次的优化。在 MIR 上会进行 Rust 的静态分析借用检查。此后，将对MIR进行相应的逻辑转换，生成 LLVM IR 代码，再使用 LLVM生成汇编代码，最后进行编译链接生成二进制代码。</p>
+<p>Rust的静态分析器工作于编译过程中的中间表示或二进制代码上。</p>
+<p>HIR包含目标程序中每个定义的ID（例如，函数、trait实现）及其相关的表达式，即保留了原始的代码结构，包括unsafe块的位置等非语义信息。然而，因为 HIR 相对复杂，直接在这个层次进行全面的内存安全检测比较困难，所以相关研究较少，部分检测器如Rudra，Rupair和YUGA会通过HIR获取Unsafe区块位置、结构体定义和函数签名等信息，为MIR层次的检测提供信息。</p>
+<p>MIR侧重于语义信息。其中函数体以控制流图的形式清晰呈现，它具有比HIR更简单、更易于分析器使用的结构的同时保留了语言的关键特性，比如 Rust 所有权和借用概念以及泛型定义等。绝大部分的Rust静态检测和形式化验证研究都在 MIR 层次上进行工作。原因是 MIR 对控制流和数据流的清晰表示以及语言特性的保留使得进行诸如数据流分析、生命周期分析等操作变得容易。</p>
+<p>LLVM IR作为更低级的表示，Rust的高级特性（如泛型、闭包、迭代器等）在这个层次上已经不存在，部分静态检测器如FFIChecker和PanicCheck在这个层次工作，FFIChecker工作在这一层次是因为涉及到跨语言调用安全，而PanicCheck直接基于KLEE这个LLVM bitcode的符号执行引擎。</p>
+<p>Rust使用LLVM作为后端，因此许多为C、C++设计的静态检测技术也可以运用于Rust，但通过机器码对Rust进行内存安全检测的研究较少。「Validating Memory Safety in Rust Binaries」是直接进行二进制分析的文章，其主要探讨的是对攻击者修改Rust机器码的检测。</p>
+<p>另外，Rust进行逆向分析可行性较低，由于Rust强调零成本抽象，在使用高级特性时为了不引入额外的运行时开销，编译器会生成高度优化且复杂的机器码，难以直接恢复高层的抽象结构。</p>
+<h4 id="_9">论文（设计）的主要工作</h4>
+<p>本设计将在已有研究的基础上，探究 Rust 的安全机制，广泛采集近年来漏洞库中 Rust 安全漏洞的相关信息，并结合现有的 Rust 安全实证研究成果，通过静态分析技术完成Rust内存安全检测方法。</p>
+<p>对于 Rust 语言特性，将细致剖析所有权、借用和生命周期等关键概念的作用机制。如通过分析所有权的转移规则，研究借用的限制条件，以及生命周期的标注与实际内存有效区间的关联，从而为后续检测静态检测算法的设计提供理论基础。</p>
+<p>研究Rust的编译过程，深入地理解Rust在编译过程中各个层次中间表示的特点和内容语法，如HIR的原始结构信息和MIR的控制流和语言特性保留等，从而更好地决定检测器的工作层次。</p>
+<p>对Rust程序中存在的内存安全问题加以研究和归纳，分析漏洞的成因和潜在威胁，将漏洞进行归类，通过对大量漏洞案例的对比分析，总结出具有普遍性的特征和模式，从而更好地设计检测方法，提高检测的准确性、全面性，降低检测的误报率。</p>
+<p>学习理解多种静态分析技术和原理，包括但不限于抽象解释、约束求解、污点分析、数据流分析等经典技术。深入研究每种技术的优势和局限性，结合 Rust 语言的特点和内存安全检测的需求，选择合适的技术路线，确保检测器开发工作的顺利进行，优化检测性能。</p>
+<p>开发完成后，应选取具有代表性的测试集和 Rust 开源项目作，对工具进行实验验证，通过与现有工具对比，从多个维度评估本工具的表现。提高准确率，降低误报率。同时，还将评估分析效率，包括工具的运行时间、内存占用等指标，确保工具在实际应用中具有可行性和实用性。</p>
+<h3 id="_10">（二）理论意义和应用价值</h3>
+<ul>
+<li><strong>理论意义</strong>：</li>
+</ul>
+<p>在Rust语言的研究中，对其内存安全检测方法的研究有助于深入理解Rust语言的特性，如所有权、生命周期等概念。例如，在程序分析相关的研究中，通过分析变量的生命周期、所有权等信息，可以构建更完善的理论模型来解释和防范内存安全漏洞。同时为从理论上验证Rust程序的正确性提供了多种途径，有助于深入探究Rust程序的语义和逻辑关系，丰富程序分析理论。</p>
+<ul>
+<li><strong>应用价值</strong>：</li>
+</ul>
+<p>在实际应用方面，建立有效的基于静态分析的Rust内存安全检测方法能够显著提高Rust程序的质量和稳定性。许多Rust程序应用于系统编程、网络编程等关键领域，在构建操作系统组件、网络服务器等方面，有效的内存安全检测可以避免因内存漏洞导致的程序崩溃、数据泄露等严重问题，提高软件的可靠性。</p>
+<p>从开发流程来看，这种检测方法可以集成到开发工具链中。开发人员可以在编写代码时就能及时发现内存安全问题，减少调试时间和成本。在代码审查阶段，通过自动化的静态分析工具，可以快速定位可能存在的内存安全隐患，提高开发效率，提高代码的可维护性和可扩展性。</p>
+<h2 id="_11">二、主要参考书目</h2>
+<ol>
+<li>The Rust Programming Language</li>
+<li>Rust Compiler Development Guide</li>
+<li>面向 Rust 语言的形式化验证方法研究综述</li>
+<li>Rust语言安全研究综述</li>
+<li>对现实Rust应用程序安全性的实证研究</li>
+<li>RUDRA: Finding Memory Safety Bugs in Rust at the Ecosystem Scale</li>
+<li>MirChecker: Detecting Bugs in Rust Programs via Static Analysis</li>
+<li>Memory-Safety Challenge Considered Solved? An In-Depth Study with All Rust CVEs</li>
+<li>A Closer Look at the Security Risks in the Rust Ecosystem</li>
+<li>Surveying the Rust Verification Landscape</li>
+<li>SafeDrop: Detecting Memory Deallocation Bugs of Rust Programs via Static Data - Flow Analysis</li>
+<li>Counterexamples in Safe Rust</li>
+<li>RustBelt: Securing the Foundations of the Rust Programming Language</li>
+<li>Validating Memory Safety in Rust Binaries</li>
+<li>Broadly Enabling KLEE to Effortlessly Find Unrecoverable Errors in Rust</li>
+<li>Is unsafe an Achilles’ Heel? A Comprehensive Study of SafetyRequirements in Unsafe Rust Programming</li>
+<li>Rupair: Towards Automatic Buffer Overflow Detection and Rectification for Rust</li>
+<li>YUGA: Automatically Detecting Lifetime Annotation Bugs in the Rust Language</li>
+<li>rCanary: Detecting Memory Leaks Across Semi-automated Memory Management Boundary in Rust</li>
+<li>Detecting Cross-Language Memory Management Issues in Rust</li>
+<li>Understanding and Detecting Real-World Safety Issues in Rust</li>
+</ol>
+<p>[1] Steve Klabnik, Carol Nichols, et al. The Rust Programming Language[EB/OL]. (2024-06-13)[2024-12-27]. https://doc.rust-lang.org/book/.
+[2] Rust Compiler Development Guide. Getting Started - Rust Compiler Development Guide[EB/OL]. (2024-12-27)[2024-12-27]. https://rustc-dev-guide.rust-lang.org/.
+[3]胡霜,华保健,欧阳婉容,等.Rust语言安全研究综述[J].信息安全学报,2023,8(06):64-83.DOI:10.19363/J.cnki.cn10-1380/tn.2023.11.06.
+[4] 张卓若，常瑞，杨申毅，陈芳. 面向Rust语言的形式化验证方法研究综述[J]. 软件学报，2025,36(8):0. DOI: 10.13328/j.cnki.jos.007353.
+[5]秦伯钦.对现实Rust应用程序安全性的实证研究[D].北京邮电大学,2021.DOI:10.26969/d.cnki.gbydu.2021.000068.</p>
+<p>[6]Yechan Bae, Youngsuk Kim, Ammar Askar, Jungwon Lim, and Taesoo Kim. 2021. Rudra: Finding Memory Safety Bugs in Rust at the Ecosystem Scale. In Proceedings of the ACM SIGOPS 28th Symposium on Operating Systems Principles (SOSP '21). Association for Computing Machinery, New York, NY, USA, 84–99. https://doi.org/10.1145/3477132.3483570</p>
+<p>[7]Zhuohua Li, Jincheng Wang, Mingshen Sun, and John C.S. Lui. 2021. MirChecker: Detecting Bugs in Rust Programs via Static Analysis. In Proceedings of the 2021 ACM SIGSAC Conference on Computer and Communications Security (CCS '21). Association for Computing Machinery, New York, NY, USA, 2183–2196. https://doi.org/10.1145/3460120.3484541</p>
+<p>[8]Hui Xu, Zhuangbin Chen, Mingshen Sun, Yangfan Zhou, and Michael R. Lyu. 2021. Memory-Safety Challenge Considered Solved? An In-Depth Study with All Rust CVEs. ACM Trans. Softw. Eng. Methodol. 31, 1, Article 3 (January 2022), 25 pages. https://doi.org/10.1145/3466642</p>
+<p>[9]Xiaoye Zheng, Zhiyuan Wan, Yun Zhang, Rui Chang, and David Lo. 2023. A Closer Look at the Security Risks in the Rust Ecosystem. ACM Trans. Softw. Eng. Methodol. 33, 2, Article 34 (February 2024), 30 pages. https://doi.org/10.1145/3624738</p>
+<p>[10]@misc{blanc2024surveyingrustverificationlandscape,
+      title={Surveying the Rust Verification Landscape}, 
+      author={Alex Le Blanc and Patrick Lam},
+      year={2024},
+      eprint={2410.01981},
+      archivePrefix={arXiv},
+      primaryClass={cs.PL},
+      url={https://arxiv.org/abs/2410.01981}, 
+}</p>
+<p>[11]Mohan Cui, Chengjun Chen, Hui Xu, and Yangfan Zhou. 2023. SafeDrop: Detecting Memory Deallocation Bugs of Rust Programs via Static Data-flow Analysis. ACM Trans. Softw. Eng. Methodol. 32, 4, Article 82 (July 2023), 21 pages. https://doi.org/10.1145/3542948
+[12]Muhammad Hassnain and Caleb Stanford. 2024. Counterexamples in Safe Rust. In Proceedings of the 39th IEEE/ACM International Conference on Automated Software Engineering Workshops (ASEW '24). Association for Computing Machinery, New York, NY, USA, 128–135. https://doi.org/10.1145/3691621.3694943
+[13]Ralf Jung, Jacques-Henri Jourdan, Robbert Krebbers, and Derek Dreyer. 2017. RustBelt: securing the foundations of the Rust programming language. Proc. ACM Program. Lang. 2, POPL, Article 66 (January 2018), 34 pages. https://doi.org/10.1145/3158154
+[14]Antonis Louka, Antreas Dionysiou, and Elias Athanasopoulos. 2024. Validating Memory Safety in Rust Binaries. In Proceedings of the 17th European Workshop on Systems Security (EuroSec '24). Association for Computing Machinery, New York, NY, USA, 8–14. https://doi.org/10.1145/3642974.3652281
+[15]Ying Zhang, Peng Li, Yu Ding, Lingxiang Wang, Dan Williams, and Na Meng. 2024. Broadly Enabling KLEE to Effortlessly Find Unrecoverable Errors in Rust. In Proceedings of the 46th International Conference on Software Engineering: Software Engineering in Practice (ICSE-SEIP '24). Association for Computing Machinery, New York, NY, USA, 441–451. https://doi.org/10.1145/3639477.3639714
+[16]
+Mohan Cui, Shuran Sun, Hui Xu, and Yangfan Zhou. 2024. Is unsafe an Achilles' Heel? A Comprehensive Study of Safety Requirements in Unsafe Rust Programming. In Proceedings of the IEEE/ACM 46th International Conference on Software Engineering (ICSE '24). Association for Computing Machinery, New York, NY, USA, Article 106, 1–13. https://doi.org/10.1145/3597503.3639136
+[17]Baojian Hua, Wanrong Ouyang, Chengman Jiang, Qiliang Fan, and Zhizhong Pan. 2021. Rupair: Towards Automatic Buffer Overflow Detection and Rectification for Rust. In Proceedings of the 37th Annual Computer Security Applications Conference (ACSAC '21). Association for Computing Machinery, New York, NY, USA, 812–823. https://doi.org/10.1145/3485832.3485841
+[18]Vikram Nitin, Anne Mulhern, Sanjay Arora, and Baishakhi Ray. 2024. Yuga: Automatically Detecting Lifetime Annotation Bugs in the Rust Language. IEEE Trans. Softw. Eng. 50, 10 (Oct. 2024), 2602–2613. https://doi.org/10.1109/TSE.2024.3447671
+[19]Mohan Cui, Hui Xu, Hongliang Tian, and Yangfan Zhou. 2024. rCanary: Detecting Memory Leaks Across Semi-Automated Memory Management Boundary in Rust. IEEE Trans. Softw. Eng. 50, 9 (Sept. 2024), 2472–2484. https://doi.org/10.1109/TSE.2024.3443624
+[20]Zhuohua Li, Jincheng Wang, Mingshen Sun, and John C. S. Lui. 2022. Detecting Cross-language Memory Management Issues in&nbsp;Rust. In Computer Security – ESORICS 2022: 27th European Symposium on Research in Computer Security, Copenhagen, Denmark, September 26–30, 2022, Proceedings, Part III. Springer-Verlag, Berlin, Heidelberg, 680–700. https://doi.org/10.1007/978-3-031-17143-7_33
+[21]Boqin Qin, Yilun Chen, Haopeng Liu, Hua Zhang, Qiaoyan Wen, Linhai Song, and Yiying Zhang. 2024. Understanding and Detecting Real-World Safety Issues in Rust. IEEE Trans. Softw. Eng. 50, 6 (June 2024), 1306–1324. https://doi.org/10.1109/TSE.2024.3380393</p>
+<p>[1] Steve Klabnik, Carol Nichols, et al. The Rust Programming Language[EB/OL]. (2024-06-13)[2024-12-27]. https://doc.rust-lang.org/book/.
+[2] Rust community.Rust Compiler Development Guide. Getting Started - Rust Compiler Development Guide[EB/OL]. (2024-12-27)[2024-12-27]. https://rustc-dev-guide.rust-lang.org/.
+[3]胡霜,华保健,欧阳婉容,等.Rust语言安全研究综述[J].信息安全学报,2023,8(06):64-83.DOI:10.19363/J.cnki.cn10-1380/tn.2023.11.06.
+[4] 张卓若，常瑞，杨申毅，陈芳. 面向Rust语言的形式化验证方法研究综述[J]. 软件学报，2025,36(8):0. DOI: 10.13328/j.cnki.jos.007353.
+[5]秦伯钦.对现实Rust应用程序安全性的实证研究[D].北京邮电大学,2021.DOI:10.26969/d.cnki.gbydu.2021.000068.
+[6] Bae Y, Kim Y, Askar A, Lim J, Kim T. Rudra: Finding Memory Safety Bugs in Rust at the Ecosystem Scale[C]. Proceedings of the ACM SIGOPS 28th Symposium on Operating Systems Principles (SOSP '21). New York, NY, USA: Association for Computing Machinery, 2021:84–99. DOI:10.1145/3477132.3483570.
+[7] Li Z, Wang J, Sun M, Lui J C S. MirChecker: Detecting Bugs in Rust Programs via Static Analysis[C]. Proceedings of the 2021 ACM SIGSAC Conference on Computer and Communications Security (CCS '21). New York, NY, USA: Association for Computing Machinery, 2021:2183–2196. DOI:10.1145/3460120.3484541.
+[8] Xu H, Chen Z, Sun M, Zhou Y, Lyu M R. Memory - Safety Challenge Considered Solved? An In - Depth Study with All Rust CVEs[J]. ACM Trans. Softw. Eng. Methodol., 2022, 31(1):Article 3. DOI:10.1145/3466642.
+[9] Zheng X, Wan Z, Zhang Y, Chang R, Lo D. A Closer Look at the Security Risks in the Rust Ecosystem[J]. ACM Trans. Softw. Eng. Methodol., 2024, 33(2):Article 34. DOI:10.1145/3624738.
+[10] Le Blanc A, Lam P. Surveying the Rust Verification Landscape[EB/OL]. (2024)[2024 - 12 - 27]. https://arxiv.org/abs/2410.01981. </p>
+<p>[11] Cui M, Chen C, Xu H, Zhou Y. SafeDrop: Detecting Memory Deallocation Bugs of Rust Programs via Static Data - flow Analysis[J]. ACM Trans. Softw. Eng. Methodol., 2023, 32(4):Article 82. DOI:10.1145/3542948.
+[12] Hassnain M, Stanford C. Counterexamples in Safe Rust[C]. Proceedings of the 39th IEEE/ACM International Conference on Automated Software Engineering Workshops (ASEW '24). New York, NY, USA: Association for Computing Machinery, 2024:128–135. DOI:10.1145/3691621.3694943.
+[13] Jung R, Jourdan J - H, Krebbers R, Dreyer D. RustBelt: securing the foundations of the Rust programming language[J]. Proc. ACM Program. Lang., 2018, 2(POPL):Article 66. DOI:10.1145/3158154.
+[14] Louka A, Dionysiou A, Athanasopoulos E. Validating Memory Safety in Rust Binaries[C]. Proceedings of the 17th European Workshop on Systems Security (EuroSec '24). New York, NY, USA: Association for Computing Machinery, 2024:8–14. DOI:10.1145/3642974.3652281.
+[15] Zhang Y, Li P, Ding Y, Wang L, Williams D, Meng N. Broadly Enabling KLEE to Effortlessly Find Unrecoverable Errors in Rust[C]. Proceedings of the 46th International Conference on Software Engineering: Software Engineering in Practice (ICSE - SEIP '24). New York, NY, USA: Association for Computing Machinery, 2024:441–451. DOI:10.1145/3639477.3639714.
+[16] Cui M, Sun S, Xu H, Zhou Y. Is unsafe an Achilles' Heel? A Comprehensive Study of Safety Requirements in Unsafe Rust Programming[C]. Proceedings of the IEEE/ACM 46th International Conference on Software Engineering (ICSE '24). New York, NY, USA: Association for Computing Machinery, 2024:Article 106, 1–13. DOI:10.1145/3597503.3639136.
+[17] Hua B, Ouyang W, Jiang C, Fan Q, Pan Z. Rupair: Towards Automatic Buffer Overflow Detection and Rectification for Rust[C]. Proceedings of the 37th Annual Computer Security Applications Conference (ACSAC '21). New York, NY, USA: Association for Computing Machinery, 2021:812–823. DOI:10.1145/3485832.3485841.
+[18] Nitin V, Mulhern A, Arora S, Ray B. Yuga: Automatically Detecting Lifetime Annotation Bugs in the Rust Language[J]. IEEE Trans. Softw. Eng., 2024, 50(10):2602–2613. DOI:10.1109/TSE.2024.3447671.
+[19] Cui M, Xu H, Tian H, Zhou Y. rCanary: Detecting Memory Leaks Across Semi - Automated Memory Management Boundary in Rust[J]. IEEE Trans. Softw. Eng., 2024, 50(9):2472–2484. DOI:10.1109/TSE.2024.3443624.
+[20] Li Z, Wang J, Sun M, Lui J C S. Detecting Cross - language Memory Management Issues in Rust[C]. Computer Security – ESORICS 2022: 27th European Symposium on Research in Computer Security, Copenhagen, Denmark, September 26–30, 2022, Proceedings, Part III. Berlin, Heidelberg: Springer - Verlag, 2022:680–700. DOI:10.1007/978 - 3 - 031 - 17143 - 7_33.
+[21] Qin B, Chen Y, Liu H, Zhang H, Wen Q, Song L, Zhang Y. Understanding and Detecting Real - World Safety Issues in Rust[J]. IEEE Trans. Softw. Eng., 2024, 50(6):1306–1324. DOI:10.1109/TSE.2024.3380393.</p>
+<h2 id="_12">毕业论文（设计）写作计划</h2>
+<ul>
+<li>
+<p>第一阶段（2024.11-2025.1）：完成相关技术文献的收集与整理，深入研究 Rust 语言内存管理和现有静态分析技术，完成文献综述。通过阅读 Rust 官方文档、相关书籍以及学术论文，采集Rust漏洞库信息，了解 Rust 内存管理的原理、所有权系统、借用规则和生命周期等关键概念，同时熟悉静态分析技术在内存安全检测方面的应用现状。对收集到的文献进行分类、总结和分析，撰写文献综述，梳理已有研究的成果与不足，为后续研究奠定基础。</p>
+</li>
+<li>
+<p>第二阶段（2025.1-2025.3）：设计静态分析方法的详细架构和算法，包括规则制定、模型构建等，并进行初步的工具实现。基于对 Rust 内存安全规则的理解和静态分析技术的掌握，制定针对 Rust 代码内存安全检测的具体规则，如悬空指针检测规则、数据竞争检测规则等。构建静态分析模型，确定分析流程和数据结构，实现一个初步的检测工具，能够对简单的 Rust 代码进行内存安全检测。</p>
+</li>
+<li>
+<p>第三阶段（2025.3-2025.4）：利用测试数据集对工具进行实验验证，收集和分析实验结果，与现有工具进行对比评估。准备包含各种内存安全漏洞类型的测试数据集，使用开发的检测工具对其进行检测。记录工具的检测结果，包括发现的漏洞数量、类型以及误报和漏报情况。将实验结果与现有成熟的 Rust 内存安全检测工具进行对比，分析本工具在检测准确率、效率等方面的优势和不足。根据实验结果，撰写详细的实验结果分析章节，为方法的改进提供依据。</p>
+</li>
+<li>
+<p>第四阶段（2025.3-2025.4）：整合各部分内容，撰写论文初稿，并进行初步修改完善。按照学术论文的规范结构，将前期的研究内容进行系统整合。描述静态分析方法的架构、算法和工具实现细节，呈现实验数据和分析，总结研究成果、指出不足并展望未来研究方向。完成初稿后，对论文的内容完整性、逻辑连贯性进行初步检查和修改。</p>
+</li>
+<li>
+<p>第五阶段（2025.4-2025.5）：根据导师和评审意见，对论文进行深度修改，重点优化方法设计和实验结果分析部分，确保论文逻辑严谨、内容充实，完成定稿。认真听取导师和评审人员的意见和建议，针对提出的问题对论文进行全面修改。对论文的格式、语言表达等方面进行细致调整，确保论文符合学术规范，最终完成定稿。</p>
+</li>
+</ul>
+<h2 id="_13">预计初稿完成日期</h2>
+<p>[2025.4.10]</p>
+<h2 id="_14">预计定稿日期</h2>
+<p>[2.25.4.20]</p></div><script type="text/javascript" src="../script.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      config: ["MMLorHTML.js"],
+      jax: ["input/TeX", "output/HTML-CSS", "output/NativeMML"],
+      extensions: ["MathMenu.js", "MathZoom.js"]
+    });
+</script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script></body>
+</html>

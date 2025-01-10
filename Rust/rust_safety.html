@@ -6,96 +6,180 @@
 <link rel="stylesheet" type="text/css" href="../style.css"></head>
 <body>
 <div class="navibar"><a href="../index.html">index</a><a href="../misc.html" class="link">misc</a><a href="../Rust.html" class="link">Rust</a><a href="../日记.html" class="link">日记</a><a href="../算法.html" class="link">算法</a></div><div class="content"><h1 id="rust-safety">Rust Safety</h1>
-<h2 id="_1">形式化验证</h2>
-<ol>
-<li><strong>"面向Rust的形式化验证方法研究综述"</strong><ul>
-<li><strong>发布时间</strong>：2024年</li>
+<ul>
+<li><strong>Rust 语言安全研究综述</strong><ul>
+<li><strong>时间</strong>：2023 年</li>
+<li><strong>作者</strong>：胡霜、华保健、欧阳婉容、樊淇梁（中国科学技术大学软件学院）</li>
+<li><strong>发布平台</strong>：《信息安全学报》（Journal of Cyber Security）第 8 卷第 6 期</li>
+<li><strong>主要内容</strong>：系统分析了 Rust 语言的安全特性，包括函数式编程范式、强多态类型系统、基于所有权模型的自动内存管理、对非安全代码的显式标记和隔离等。将 Rust 语言安全研究分为安全实证研究、漏洞检测研究、安全增强研究和形式化验证研究四个方向，并对每个方向的相关研究进行了综述、分析和总结，同时指出了各研究方向的内在联系。还梳理了 Rust 语言安全研究领域待解决的科学问题，并对未来可能的研究方向进行了展望，提出了 Rust 常见漏洞的自动修复理论与技术研究、通用 Rust 中间表示和程序分析基础框架的研究与构建、Rust 全语言形式化验证模型的研究和构建、从 C 到 Rust 的自动转换原理及实现技术研究四个潜在方向。</li>
+<li><strong>成果</strong>：全面调研分析了 46 篇 Rust 语言安全研究领域的已发表文献，为该领域研究提供了系统分类和深入分析，为后续研究提供了有价值的参考和方向指引。</li>
+</ul>
+</li>
+<li><strong>MirChecker: Detecting Bugs in Rust Programs via Static Analysis</strong><ul>
+<li><strong>时间</strong>：2021 年</li>
+<li><strong>作者</strong>：Zhuohua Li、Jincheng Wang、Mingshen Sun、John C.S. Lui（香港中文大学等）</li>
+<li><strong>发布平台</strong>：Proceedings of the 2021 ACM SIGSAC Conference on Computer and Communications Security (CCS ’21)</li>
+<li><strong>主要内容</strong>：提出 MirChecker，一种基于 Rust 中级中间表示（MIR）进行静态分析的自动化漏洞检测框架。通过结合数值和符号静态分析，利用抽象解释和约束求解技术，检测 Rust 程序中的潜在运行时崩溃和内存安全错误。其分析过程基于构建的抽象域，在用户界面、静态分析器和漏洞检测三个阶段进行，能利用 Rust 类型系统和 MIR 信息，减少误报并提高检测效率。</li>
+<li><strong>成果</strong>：在人工数据集和真实世界 Rust 代码库上进行评估，成功揭示 33 个先前未知的漏洞，包括 16 个内存安全问题，证明了该工具在检测 Rust 程序漏洞方面的有效性，且开源了系统和数据集。</li>
+</ul>
+</li>
+<li>
+<p><strong>RUDRA: Finding Memory Safety Bugs in Rust at the Ecosystem Scale</strong></p>
+<ul>
+<li><strong>时间</strong>：2021 年</li>
+<li><strong>作者</strong>：Yechan Bae、Youngsuk Kim、Ammar Askar、Jungwon Lim、Taesoo Kim（佐治亚理工学院）</li>
+<li><strong>发布平台</strong>：Proceedings of the ACM SIGOPS 28th Symposium on Operating Systems Principles (SOSP ’21)</li>
+<li><strong>主要内容</strong>：介绍了 RUDRA，一种用于分析和报告 Rust 中不安全代码潜在内存安全漏洞的程序。针对 Rust 中不安全代码威胁程序安全且现有研究难以大规模检测的问题，RUDRA 基于 Rust 编译器的 HIR 和 MIR 实现混合分析，设计了不安全数据流检查器和 Send/Sync 方差检查器算法，可识别三种不安全漏洞模式，并通过调整精度平衡分析效果和执行时间。</li>
+<li><strong>成果</strong>：能在 6.5 小时内扫描 Rust 包注册表中的 43k 个包，发现 264 个先前未知的内存安全漏洞，其中许多在 Rust 标准库等重要代码中，这些漏洞导致 76 个 CVE 和 112 个 RustSec 通告，部分算法已集成到官方 Rust 检查器 Clippy 中，为保障 Rust 生态安全做出重要贡献。 </li>
+</ul>
+</li>
+<li>
+<p><strong>A Closer Look at the Security Risks in the Rust Ecosystem</strong></p>
+<ul>
+<li><strong>时间</strong>：2023 年</li>
+<li><strong>作者</strong>：Xiaoye Zheng、Zhiyuan Wan、Yun Zhang、Rui Chang、David Lo（分别来自浙江大学、杭州城市大学、新加坡管理大学）</li>
+<li><strong>发布平台</strong>：ACM Transactions on Software Engineering Methodology</li>
+<li><strong>主要内容</strong>：对 Rust 生态系统的安全风险进行大规模实证研究，收集 2014 年 11 月至 2022 年 5 月 433 个漏洞、300 个易受攻击代码仓库和 218 个漏洞修复提交。从漏洞特征（类型、生命周期、演变）、易受攻击包特征（流行度、分类、受影响版本、漏洞位置）和漏洞修复特征（复杂性、位置、模式）三个方面展开分析。</li>
+<li><strong>成果</strong>：发现内存安全和并发问题占漏洞多数，公开披露平均超 2 年，部分无修复；易受攻击包中热门包漏洞多、不受欢迎包受影响版本多，内存管理类问题突出；修复提交代码量有限，96%涉及安全函数，总结出三种修复模式。为 Rust 生态安全研究提供数据和方向，助力开发者和研究者了解风险与应对策略。</li>
+</ul>
+</li>
+<li><strong>Is unsafe an Achilles’ Heel? A Comprehensive Study of Safety Requirements in Unsafe Rust Programming</strong><ul>
+<li><strong>时间</strong>：2023 年</li>
+<li><strong>作者</strong>：Mohan Cui、Suran Sun、Hui Xu、Yangfan Zhou（复旦大学计算机科学学院）</li>
+<li><strong>发布平台</strong>：arXiv 预印本</li>
+<li><strong>主要内容</strong>：首次对 Unsafe Rust 编程安全需求进行全面实证研究，提取 Rust 标准库中 416 个 unsafe API 文档，定义 19 种安全属性（SP）并分类为前置和后置条件，标注数据并分析相关性。分类现有 Rust CVE，统计 crates.io 生态中 unsafe API 使用频率，调查经验丰富开发者对安全属性看法。</li>
+<li><strong>成果</strong>：识别定义 19 种 SP 并分类标注分析，发现 6 种与解引用相关关键 SP；基于 SP 分类 CVE 形成基准，统计 unsafe API 使用；调查确认分类有统计学意义，为 Rust 社区 Unsafe Rust 文档标准化提供支撑，助开发者安全使用、研究者开发检测工具。</li>
+</ul>
+</li>
+<li>
+<p><strong>Understanding and Detecting Real - World Safety Issues in Rust</strong></p>
+<ul>
+<li><strong>时间</strong>：2024 年</li>
+<li><strong>作者</strong>：Boqin Qin、Yilun Chen、Haopeng Liu 等多人（来自宾夕法尼亚州立大学、中国电信云技术有限公司等）</li>
+<li><strong>发布平台</strong>：无（文中未提及）</li>
+<li><strong>主要内容</strong>：对现实世界 Rust 程序安全问题实证研究，分析五个开源 Rust 项目、五个常用库和两个数据库中 70 个内存错误、100 个并发错误和 110 个意外恐慌问题，包括原因、影响和修复策略。基于研究设计实现五个静态检测器，在多个项目中检测未知漏洞并评估有效性、准确性和性能，与 Rudra、MirChecker 对比。</li>
+<li><strong>成果</strong>：发现内存安全问题多涉 unsafe 代码与生命周期理解，并发错误与 Rust 机制误解有关，意外恐慌常因错误处理和算术运算。总结多方面见解建议，如安全机制有效但 unsafe 不可避免等。检测器发现 96 个未知漏洞，准确性高、开销小，补充现有检测工具，加深 Rust 安全理解，为编程和工具设计提供指导。 </li>
+</ul>
+</li>
+<li>
+<p><strong>Understanding Memory and Thread Safety Practices and Issues in Real-World Rust Programs</strong></p>
+<ul>
+<li><strong>时间</strong>：2020 年</li>
+<li><strong>作者</strong>：Boqin Qin、Yilun Chen 等，来自宾夕法尼亚州立大学、普渡大学等</li>
+<li><strong>发布平台</strong>：Proceedings of the 41st ACM SIGPLAN International Conference on Programming Language Design and Implementation (PLDI ’20)</li>
+<li><strong>主要内容</strong>：对现实世界 Rust 程序安全问题进行实证研究，分析五个开源 Rust 项目、五个常用库和两个数据库中的内存错误、并发错误和意外恐慌问题，包括原因、影响和修复策略。基于研究设计实现五个静态检测器，并在多个项目中检测未知漏洞，评估其有效性、准确性和性能，且与 Rudra、MirChecker 等工具对比。</li>
+<li><strong>成果</strong>：发现内存安全问题多与 unsafe 代码和生命周期理解相关，并发错误源于对 Rust 机制的误解，意外恐慌常由错误处理和算术运算引起。总结多方面见解和建议，如安全机制有效但 unsafe 不可避免等。所设计的检测器发现 96 个未知漏洞，准确性高、开销小，补充了现有检测工具，加深了对 Rust 安全的理解，为编程和工具设计提供指导，研究结果和检测器代码可在 GitHub 上获取。</li>
+</ul>
+</li>
+<li><strong>Surveying the Rust Verification Landscape</strong><ul>
+<li><strong>时间</strong>：2024 年</li>
+<li><strong>作者</strong>：Alex Le Blanc、Patrick Lam，来自滑铁卢大学</li>
+<li><strong>发布平台</strong>：arXiv 预印本</li>
+<li><strong>主要内容</strong>：探讨 Rust 验证相关问题，包括应验证的属性（通用安全和特定领域属性）、验证技术（调查 C/C++/Java 及 Rust 现有工具和技术）、验证对象（分析 Rust 生态各部分，建议优先验证标准库），提出用 Kani 工具验证标准库的方法及面临挑战，还涉及对规范语言、开发者使用习惯等人类相关因素的研究。</li>
+<li><strong>成果</strong>：明确 Rust 验证的关键问题和方向，分析现有工具技术优劣，选定 Kani 工具并指出其改进方向，为 Rust 验证研究提供全面参考，有助于推动 Rust 程序安全性提升及相关技术发展，其研究基于 Amazon Research Award 支持，未来将与社区进一步探讨相关挑战和解决方案。</li>
+</ul>
+</li>
+<li>
+<p><strong>Memory-Safety Challenge Considered Solved? An In-Depth Study with All Rust CVEs</strong></p>
+<ul>
+<li><strong>时间</strong>：2021 年</li>
+<li><strong>作者</strong>：Hui Xu、Zhuangbin Chen 等，来自复旦大学、香港中文大学等</li>
+<li><strong>发布平台</strong>：ACM Transactions on Software Engineering and Methodology</li>
+<li><strong>主要内容</strong>：通过分析 2020 - 12 - 31 前收集的 186 个 Rust 内存安全漏洞（涵盖所有相关 CVEs），研究 Rust 在内存安全方面的有效性，手动分析每个漏洞的原因和模式，并分类总结。</li>
+<li><strong>成果</strong>：发现除一个编译器 bug 外，所有内存安全 bug 都需要 unsafe 代码，且许多是因 API 不健全导致的轻度问题。总结出自动内存回收、不健全函数、不健全泛型或 trait 三类典型内存安全 bug，并针对不安全代码相关 bug 提出扩展编译器静态分析和遵循最佳实践（如正确声明泛型边界、避免错误的内存释放、正确声明函数安全性）等改进建议，为 Rust 安全开发提供参考。 </li>
+</ul>
+</li>
+<li>
+<p><strong>SafeDrop: Detecting Memory Deallocation Bugs of Rust Programs via Static Data - Flow Analysis</strong></p>
+<ul>
+<li><strong>时间</strong>：2021 年</li>
+<li><strong>作者</strong>：Mohan Cui、Chengjun Chen、Hui Xu、Yangfan Zhou（复旦大学）</li>
+<li><strong>发布平台</strong>：arxiv 预印本</li>
+<li><strong>主要内容</strong>：针对 Rust 因自动内存回收机制可能产生的内存释放错误，提出 SafeDrop，这是一种静态路径敏感数据流分析方法。通过分析 Rust  crate 的每个 API，遍历控制流图提取路径，进行别名分析并检测无效内存释放，采用改进的 Tarjan 算法和缓存策略提升性能。</li>
+<li><strong>成果</strong>：成功检测出所有相关现有 CVE 中的错误，误报数量有限，分析开销在一定范围内。应用于多个真实 Rust crate 后，发现 8 个存在此前未知的无效内存释放问题的 crate，证明了该方法在检测此类问题上的有效性、适用性和高效性。</li>
+</ul>
+</li>
+<li><strong>Counterexamples in Safe Rust</strong><ul>
+<li><strong>时间</strong>：2024 年</li>
+<li><strong>作者</strong>：Muhammad Hassnain、Caleb Stanford（加利福尼亚大学戴维斯分校）</li>
+<li><strong>发布平台</strong>：39th IEEE/ACM International Conference on Automated Software Engineering Workshops (ASEW ’24)</li>
+<li><strong>主要内容</strong>：指出即使在安全的 Rust 代码中也可能存在违反内存安全的情况，识别出五种攻击模式，包括文件系统访问、命令执行、编译器不健全、构建时效应和环境变量，并给出相应的反例。通过实验研究现有工具对这些攻击模式的检测能力、在真实 Rust 代码库中的出现频率以及在 Rust 安全公告中的体现情况。</li>
+<li><strong>成果</strong>：发现现有工具对依赖操作系统外部交互的攻击模式检测能力有限，部分攻击模式在真实 Rust 代码库和安全公告中较为常见，如命令执行和环境变量操纵。研究为重新思考 Rust 安全机制提供了依据，启发未来工作进一步强化 Rust 安全性，应对更广泛的攻击威胁。：</li>
+</ul>
+</li>
+<li><strong>RustBelt: Securing the Foundations of the Rust Programming Language</strong><ul>
+<li><strong>时间</strong>：2018 年</li>
+<li><strong>作者</strong>：Ralf Jung（MPI - SWS, Germany）、Jacques - Henri Jourdan（MPI - SWS, Germany）、Robbert Krebbers（Delft University of Technology, The Netherlands）、Derek Dreyer（MPI - SWS, Germany）</li>
+<li><strong>发布平台</strong>：Proceedings of the ACM on Programming Languages (POPL)</li>
+<li><strong>主要内容</strong>：由于 Rust 虽有安全特性但缺乏正式安全证明，且其标准库使用 unsafe 操作扩展功能，本文提出 RustBelt 对 Rust 子集进行形式化语义研究与验证。介绍了 Rust 核心特性如所有权转移、引用（可变、共享）、生命周期、内部可变性等，并定义了形式化语言<span><span class="MathJax_Preview">\(\lambda_{Rust}\)</span><script type="math/tex">\lambda_{Rust}</script></span> 及其语法、操作语义和类型系统，利用 Iris 构建逻辑关系语义模型 RustBelt，对<span><span class="MathJax_Preview">\(\lambda_{Rust}\)</span><script type="math/tex">\lambda_{Rust}</script></span> 类型和类型判断进行解释，针对如 Cell、Mutex 等具有内部可变性类型给出特殊共享谓词定义，并证明相关定理确保类型系统可靠性。</li>
+<li><strong>成果</strong>：首次为 Rust 子集提供正式（机器检查）安全证明，证明了如 Arc、Cell 等多个重要库使用 unsafe 代码的安全性，发现并修复 Rust 标准库中一个漏洞，表明模型具有实用性，为后续 Rust 形式化验证研究奠定基础，展示了通过语义模型验证 Rust 程序安全性的可行性与有效性，推动了 Rust 语言理论发展。</li>
+</ul>
+</li>
+<li><strong>面向 Rust 语言的形式化验证方法研究综述</strong><ul>
+<li><strong>时间</strong>：2024 年</li>
+<li><strong>作者</strong>：张卓若、常瑞、杨申毅、陈芳（浙江大学计算机科学与技术学院）</li>
 <li><strong>发布平台</strong>：软件学报</li>
-<li><strong>概括</strong>：对Rust形式化验证方法研究的综述</li>
+<li><strong>主要内容</strong>：全面分析 Rust 形式化验证工作。介绍 Rust 核心（所有权、借用检查、多态性、并发安全等）及复杂特性和编译过程，探讨基于类型系统和纯操作语义的形式化语义研究，对比半自动化、定理证明、模型检测等自动化验证工具，总结 Rust 系统及安全关键应用验证实例与工具使用建议，分析 Rust 验证面临的语言规范缺失、标准库依赖、安全与不安全代码联合验证等挑战，并对 Rust 全语言语义建模、工具优化、非安全代码验证、并发代码验证、编译器验证、大模型驱动验证等未来研究方向进行展望。</li>
+<li><strong>成果</strong>：系统梳理 Rust 形式化验证领域研究现状，为研究人员和开发者提供全面参考，指出当前问题与挑战，明确未来研究方向，有助于推动 Rust 形式化验证技术发展，促进 Rust 在安全关键领域更可靠应用，对 Rust 社区安全基础建设和形式化验证实践具有重要指导意义。  </li>
 </ul>
 </li>
-</ol>
-<h2 id="_2">程序分析</h2>
-<ol>
-<li>
-<p><strong>"对现实Rust程序安全性的实证研究"</strong></p>
-<ul>
-<li><strong>发布时间</strong>：2021年</li>
-<li><strong>发布平台</strong>：博士论文</li>
-<li><strong>概括</strong>：对真实世界Rust程序中的内存和线程安全实践及问题进行实证研究。检查了安全与不安全代码的使用、内存安全问题、并发错误等方面，分析了相关原因、修复策略，并提出了改进建议。通过对多个开源项目和库的研究，发现了Rust程序中安全机制的有效性、不安全代码使用的原因和问题，以及并发错误的类型和原因，为Rust开发者和研究者提供了有价值的参考。</li>
+<li><strong>Validating Memory Safety in Rust Binaries</strong><ul>
+<li><strong>时间</strong>：2024 年</li>
+<li><strong>作者</strong>：Antonis Louka、Antreas Dionysiou、Elias Athanasopoulos（University of Cyprus, Nicosia, Cyprus）</li>
+<li><strong>发布平台</strong>：The 17th European Workshop on Systems Security (EuroSec ’24)</li>
+<li><strong>主要内容</strong>：本文探讨了攻击者篡改 Rust 二进制文件致使内存安全机制失效的可能性。由于 Rust 编译器在编译时保障内存安全，但运行时缺乏相应检查机制，使得二进制文件可能被恶意修改。文中通过修改缓冲区溢出检查和借用检查的示例，展示了如何使 Rust 程序产生内存安全漏洞。同时，介绍了一种基于启发式的方法，包括利用特定的启发式规则定位缓冲区溢出检查，通过二进制重写技术修改检查以引入漏洞，以及开发验证器来评估二进制文件中相关检查是否被篡改，验证器通过分析二进制文件、定位和跟踪缓冲区、验证缓冲区检查和引用等步骤来判断程序的安全性。</li>
+<li><strong>成果</strong>：实现了一个能够自动修改 Rust 二进制文件中缓冲区溢出检查的工具，以及一个可评估 Rust 编译器引入的检查是否被修改的验证器。在对 66 个二进制文件（42 个有效，24 个恶意）的评估中，验证器成功检测出 12 个包中的 34 个漏洞，准确率达 98%，证明了该方法在检测 Rust 二进制文件内存安全问题方面的有效性，为保障 Rust 程序运行时安全提供了新的思路和工具支持。</li>
 </ul>
 </li>
-<li>
-<p><strong>"Understanding Memory and Thread Safety Practices and Issues in Real - World Rust Programs"</strong></p>
-<ul>
-<li><strong>发布时间</strong>：2020年</li>
-<li><strong>发布平台</strong>：PLDI'20</li>
-<li><strong>概括</strong>：对真实世界Rust程序中的内存和线程安全实践及问题进行实证研究。检查了安全与不安全代码的使用、内存安全问题、并发错误等方面，分析了相关原因、修复策略，并提出了改进建议。通过对多个开源项目和库的研究，发现了Rust程序中安全机制的有效性、不安全代码使用的原因和问题，以及并发错误的类型和原因，为Rust开发者和研究者提供了有价值的参考。</li>
+<li><strong>Detecting Cross - Language Memory Management Issues in Rust</strong><ul>
+<li><strong>时间</strong>：无（文中未提及）</li>
+<li><strong>作者</strong>：Zhuohua Li、Jincheng Wang、Mingshen Sun、John C.S. Lui（The Chinese University of Hong Kong）</li>
+<li><strong>发布平台</strong>：无（文中未提及）</li>
+<li><strong>主要内容</strong>：Rust 虽可通过 FFI 与 C/C++等语言结合，但这种跨语言调用存在内存管理风险，因 Rust 编译器无法对外部代码进行安全检查。本文针对此问题，基于抽象解释理论设计了增强的污点分析算法，通过跟踪堆内存状态来检测跨 FFI 边界的潜在内存管理错误。该方法首先将 Rust 和 C/C++代码编译为 LLVM IR，然后在 LLVM IR 上进行静态分析，确定堆内存是被借用还是移动，若内存传递到 FFI 边界，进一步分析其在外部代码中是否被正确释放，并根据内存的状态生成诊断信息。文中详细介绍了 FFIChecker 工具的设计与实现，包括用户界面、入口点和外部函数收集、静态分析和错误检测等组件，以及抽象域和传递函数的定义、主要算法的设计等。</li>
+<li><strong>成果</strong>：开发了 FFIChecker 工具，并对从官方包注册表爬取的 987 个 Rust 包进行评估，检测到 12 个包中的 34 个错误（19 个内存泄漏、3 个异常相关错误、12 个未定义行为），所有检测到的错误均经手动确认，且在撰写本文时已有 15 个被修复，证明了该工具在检测 Rust 与 C/C++跨语言内存管理问题方面的实用性和有效性，为保障 Rust 与其他语言混合编程的安全性提供了有力支持。</li>
 </ul>
 </li>
-<li>
-<p><strong>"Understanding and Detecting Real - World Safety Issues in Rust"</strong></p>
-<ul>
-<li><strong>发布时间</strong>：2024年</li>
-<li><strong>概括</strong>：对Rust中的安全问题进行实证研究，涵盖内存安全、线程安全和意外恐慌问题。分析了各类安全问题的原因、修复策略，并开发了五个静态检测器来检测这些问题。研究发现Rust安全机制有效，但仍存在一些问题，如内存安全问题中的错误理解和并发错误中的不当使用，同时开发的检测器能有效发现未知错误，为提高Rust程序安全性提供了支持。</li>
+<li><strong>Broadly Enabling KLEE to Effortlessly Find Unrecoverable Errors in Rust</strong><ul>
+<li><strong>时间</strong>：2024 年</li>
+<li><strong>作者</strong>：Ying Zhang、Peng Li、Yu Ding 等（Virginia Tech、Zoox、Google、Microsoft 等）</li>
+<li><strong>发布平台</strong>：46th International Conference on Software Engineering: Software Engineering in Practice (ICSE - SEIP ’24)</li>
+<li><strong>主要内容</strong>：Rust 将错误分为可恢复和不可恢复两类，不可恢复错误（如恐慌）会导致程序突然终止，且难以识别。以往利用 KLEE 验证 Rust 程序存在困难，需要工程师具备专业知识编写测试代码，且未对其在实际 Rust 代码中的有效性进行大规模评估。为此，本文开发了 PanicCheck 工具，工程师只需用#[panic_check]标注待验证函数，PanicCheck 就会自动完成编译、测试生成、符号执行和恐慌检查等过程。它通过提取函数信息、创建符号变量、生成测试代码并转换为 LLVM 位码，最后利用 KLEE 执行测试来查找可能引发恐慌的测试输入。在实验中，对 21 个开源和 2 个闭源 Rust 项目进行了应用。</li>
+<li><strong>成果</strong>：PanicCheck 工具成功揭示了 6 个项目中的 61 个恐慌情况，其中 59 个已被开发者处理。通过实验分析了 KLEE 在 Rust 程序验证中的优势和局限性，如能发现被开发者忽略的错误，但在处理并发程序、符号化内存分配大小和指针等方面存在不足，为后续改进工具和深入研究 Rust 程序验证提供了重要参考和依据。 </li>
 </ul>
 </li>
-<li>
-<p><strong>"RUDRA: Finding Memory Safety Bugs in Rust at the Ecosystem Scale"</strong></p>
-<ul>
-<li><strong>发布时间</strong>：2021年</li>
-<li><strong>概括</strong>：介绍了RUDRA工具，旨在检测Rust中不安全代码的内存安全漏洞。识别出三种不安全代码的漏洞模式，设计了两种新算法实现为RUDRA静态分析器。该工具能在6.5小时内扫描Rust包注册表中的43k个包，发现264个新内存安全漏洞，其中包括Rust标准库、官方futures库和编译器中的漏洞，部分算法已集成到官方Rust linter中。</li>
+<li><strong>Cocoon: Static Information Flow Control in Rust</strong><ul>
+<li><strong>时间</strong>：2024 年</li>
+<li><strong>作者</strong>：Ada Lamba、Max Taylor、Vincent Beardsley 等（Ohio State University）</li>
+<li><strong>发布平台</strong>：Proc. ACM Program. Lang.</li>
+<li><strong>主要内容</strong>：信息流动控制（IFC）对保障计算系统机密性至关重要，以往细粒度 IFC 方案存在诸多问题。本文提出 Cocoon，这是首个针对主流命令式语言且无需修改语言和编译器的静态类型 IFC 方法。它基于 Rust 语言和标准编译器，利用 Rust 类型系统和过程宏构建效应系统来强制实施非干扰性。通过引入秘密值和保密标签，规定只能在秘密块中访问秘密值，并利用一系列操作和限制确保程序符合 IFC 规则，如限制秘密块内的副作用、处理不同类型的表达式转换等。</li>
+<li><strong>成果</strong>：对 Spotify TUI 和 Servo 等应用的案例研究表明，Cocoon 能有效实施安全策略，对应用运行时性能无明显影响，仅在编译时会因处理秘密值代码量增加而产生一定开销，为 Rust 程序的信息流控制提供了有效解决方案，推进了该领域技术发展。</li>
 </ul>
 </li>
-<li>
-<p><strong>"MirChecker: Detecting Bugs in Rust Programs via Static Analysis"</strong></p>
-<ul>
-<li><strong>发布时间</strong>：2021年</li>
-<li><strong>概括</strong>：提出MirChecker工具，通过静态分析检测Rust程序中的断言错误和内存错误。它利用Rust编译器的MIR，进行数值和符号分析，并应用约束求解来检测错误。实验评估表明，MirChecker在检测多种类型的错误方面表现出色，尤其在处理复杂的程序结构和类型系统相关的错误时具有优势，同时也指出了在实际应用中存在的一些局限性和未来改进的方向。</li>
+<li><strong>rCanary: Detecting Memory Leaks Across Semi - automated Memory Management Boundary in Rust</strong><ul>
+<li><strong>时间</strong>：2024 年</li>
+<li><strong>作者</strong>：Mohan Cui、Hui Xu、Hongliang Tian、Yangfan Zhou（复旦大学、蚂蚁集团）</li>
+<li><strong>发布平台</strong>：Proceedings of arxiv pre - print versions (arxiv)</li>
+<li><strong>主要内容</strong>：Rust 虽有所有权模型保障内存安全，但半自动内存管理模式可能引发内存泄漏。本文提出 rCanary，这是一种基于布尔可满足性的静态、非侵入式且全自动的模型检查器，用于检测此类内存泄漏。它主要包括编码器和无泄漏模型两个关键组件，编码器依据类型对数据进行抽象并转换为位向量，无泄漏模型由基于布尔可满足性的形式规则构成，通过分析程序语句更新映射和约束集来检测泄漏。</li>
+<li><strong>成果</strong>：在评估中，rCanary 能有效检测基准测试中的相关缺陷且误报率可接受，对 1200 多个真实世界 Rust crate 进行分析后发现 19 个存在内存泄漏的 crate，平均每个包分析耗时 8.4 秒，证明了其在检测 Rust 半自动内存管理边界内存泄漏问题上的有效性和高效性。</li>
 </ul>
 </li>
-<li>
-<p><strong>"Memory-Safety Challenge Considered Solved? An In-DepthStudy with All Rust CVEs"</strong></p>
-<ul>
-<li><strong>发布时间</strong>：2020年</li>
+<li><strong>YUGA: Automatically Detecting Lifetime Annotation Bugs in the Rust Language</strong><ul>
+<li><strong>时间</strong>：2024 年</li>
+<li><strong>作者</strong>：Vikram Nitin、Anne Mulhern、Sanjay Arora、Baishakhi Ray（哥伦比亚大学、RedHat Research）</li>
+<li><strong>发布平台</strong>：arXiv</li>
+<li><strong>主要内容</strong>：Rust 语言的安全漏洞常源于不安全 Rust 代码中不正确的生命周期注释（LA），现有工具难以检测此类问题。本文提出 YUGA，它采用多阶段分析方法，先通过模式匹配算法识别潜在有问题的组件，再进行流和字段敏感的别名分析确认错误。其工作流程包括提取函数签名中值的生命周期、检查生命周期错误模式、进行别名分析和应用浅层过滤器减少误报。</li>
+<li><strong>成果</strong>：在对 23 个真实漏洞函数、合成漏洞数据集和 372 个 Rust crate 库的评估中，YUGA 在已知漏洞数据集上精度达 87.5%，能检测出一些未报告的漏洞，在合成数据集上召回率为 59.3%，在真实世界 crate 扫描中发现 3 个可利用漏洞和 82 个潜在问题模式，表明 YUGA 能有效检测 Rust 中生命周期注释错误，优于现有工具。 </li>
 </ul>
 </li>
-<li>
-<p><strong>"Is unsafe an Achilles’ Heel? A Comprehensive Study of Safety Requirements in Unsafe Rust Programming"</strong></p>
-<ul>
-<li><strong>发布时间</strong>：2023年</li>
-<li><strong>概括</strong>：该论文对Rust中不安全代码的安全需求进行了首次全面实证研究。通过分析标准库中的不安全API文档，定义了19种安全属性（SP），并对416个不安全API进行了数据标记和相关性分析。同时，对Rust的CVE进行分类，统计了crates.io生态系统中不安全API的使用情况，并通过用户调查评估了安全属性。研究发现不安全API文档缺乏统一和系统的安全描述，提出应明确安全需求以提升Rust安全性。</li>
+<li><strong>Rupair: Towards Automatic Buffer Overflow Detection and Rectification for Rust</strong><ul>
+<li><strong>时间</strong>：2021 年</li>
+<li><strong>作者</strong>：Baojian Hua、Wanrong Ouyang、Chengman Jiang 等（来自中国科学技术大学软件工程学院）</li>
+<li><strong>发布平台</strong>：Annual Computer Security Applications Conference(ACSAC ’21)</li>
+<li><strong>主要内容</strong>：Rust 虽旨在安全高效，但因包含 unsafe 子集仍有漏洞。本文提出 Rupair 系统检测修复 Rust 缓冲区溢出漏洞。其关键是跨安全/非安全子语言边界的轻量级数据流分析算法。先收集相关 CVE 和开源项目构建数据集，再用算法识别漏洞，用 SMT 求解技术确认，经语义保留转换修复，对有副作用程序给开发者建议。</li>
+<li><strong>成果</strong>：对 4 个 CVE 和 36 个项目实验，成功检测修复已知漏洞、发现 14 个新漏洞，修复后程序无错且能抵御攻击，平均仅引入 3.6%开销，证明系统有效高效，是 Rust 首个此类系统，为后续研究奠定基础。 </li>
 </ul>
 </li>
-<li>
-<p><strong>"A Closer Look at the Security Risks in the Rust Ecosystem"</strong></p>
-<ul>
-<li><strong>发布时间</strong>：2023年</li>
-<li><strong>概括</strong>：本文对Rust生态系统中的安全风险展开全面研究。收集了2014 - 2022年期间的433个漏洞、300个易受攻击的代码仓库和218个漏洞修复提交，分析了漏洞类型、生命周期、演化情况，以及易受攻击包的特征、漏洞修复模式等。研究表明内存安全和并发问题占比高，修复时间长，安全风险在不同包类别中差异大，开发者在修复漏洞时倾向于添加或修改安全代码。</li>
-</ul>
-</li>
-<li>
-<p><strong>"Rust语言安全研究综述"</strong></p>
-<ul>
-<li><strong>发布时间</strong>：2023</li>
-<li><strong>概括</strong>：对Rust语言安全相关研究进行综述，包括Rust的安全特性、内存管理、并发安全、不安全代码使用等方面的研究成果，以及安全分析工具和实证研究情况。总结了现有研究对Rust安全性的理解和提升方向，如发现内存安全和并发问题占主要安全问题类型，安全分析工具在检测和预防安全问题中发挥重要作用等，为进一步研究Rust语言安全提供了全面的参考。</li>
-</ul>
-</li>
-<li>
-<p><strong>"Surveying the Rust Verification Landscape"</strong></p>
-<ul>
-<li><strong>发布时间</strong>：2024</li>
-<li><strong>概括</strong>：</li>
-</ul>
-</li>
-<li>
-<p><strong>"SafeDrop: Detecting Memory Deallocation Bugs of Rust Programs via Static Data-Flow Analysis"</strong></p>
-<ul>
-<li><strong>发布时间</strong>：2020</li>
-<li><strong>概括</strong>：</li>
-</ul>
-</li>
-</ol></div><script type="text/javascript" src="../script.js"></script><script type="text/x-mathjax-config">
+</ul></div><script type="text/javascript" src="../script.js"></script><script type="text/x-mathjax-config">
     MathJax.Hub.Config({
       config: ["MMLorHTML.js"],
       jax: ["input/TeX", "output/HTML-CSS", "output/NativeMML"],

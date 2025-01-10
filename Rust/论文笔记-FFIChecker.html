@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>论文笔记-FFIChecker</title>
+<link rel="stylesheet" type="text/css" href="../style.css"></head>
+<body>
+<div class="navibar"><a href="../index.html">index</a><a href="../misc.html" class="link">misc</a><a href="../Rust.html" class="link">Rust</a><a href="../日记.html" class="link">日记</a><a href="../算法.html" class="link">算法</a></div><div class="content"><p>“Detecting Cross - Language Memory Management Issues in Rust”主要探讨了 Rust 语言通过 FFI 与 C/C++ 交互时产生的跨语言内存管理问题，并介绍了相应的检测工具 FFIChecker。
+1. <strong>研究背景</strong>
+    - Rust 是一种新兴编程语言，因其强大的安全保证和高性能而受到关注。许多公司和开源社区正在逐步用 Rust 重写软件，但在与 C/C++ 等其他语言通过 FFI 交互时存在安全隐患。
+    - 尽管 Rust 本身有严格的类型系统和所有权内存管理机制，但 FFI 调用外部代码本质上是不安全的，且现有研究表明 FFI 的不正确使用是导致内存安全漏洞的重要原因之一。同时，Rust 生态系统中大量包依赖包含不安全 FFI 调用的包，使得研究跨语言内存管理问题至关重要。
+2. <strong>背景知识</strong>
+    - <strong>Rust 编程语言</strong>：以高性能和安全著称，其所有权系统是基于线性逻辑和线性类型的自动内存管理策略。每个值有唯一所有者，所有者变量生命周期决定值的生命周期，变量作用域在编译时确定，无需引用计数和垃圾回收。值传递方式包括复制/克隆、移动和借用，且编译器通过规则保证内存安全，防止悬空指针和并发读写等安全问题。
+    - <strong>FFI 和内存管理</strong>：Rust 可通过 FFI 与其他语言协作，本文主要关注与 C/C++ 的情况。虽然这种集成很普遍，但由于 Rust 编译器无法对外部代码进行安全检查，使用 FFI 极易出错。在内存管理方面，堆内存可通过借用或移动所有权的方式跨 FFI 传递，不同方式下内存管理责任不同，且 C/C++ 的手动内存管理与 Rust 所有权系统结合易产生问题。
+3. <strong>通过 FFI 产生的安全与内存管理问题</strong>
+    - <strong>内存损坏</strong>：如在 <code>emd</code> 包中，使用 <code>Box::into_raw</code> 传递堆内存指针给 FFI 后，若开发者未手动释放内存，会导致内存泄漏，因为所有权系统已“忘记”该内存。
+    - <strong>异常安全</strong>：以 <code>libtaos</code> 包为例，在传递堆内存给 FFI 并与外部代码协作时，若出现错误提前返回，可能导致清理程序未执行，从而引发内存泄漏等安全问题，因为 Rust 的异常处理机制在这种跨语言场景下可能失效。
+    - <strong>混合内存管理机制</strong>：在 <code>jyt</code> 包中，在 Rust 侧使用 <code>CString::new</code> 分配内存，却在 C 侧使用 <code>free</code> 释放，这是非法的，因为 Rust 和 C 可能使用不同内存分配器且内存管理机制不同，这种混合操作会导致未定义行为。
+    - <strong>方法论</strong>：鉴于上述问题，提出使用静态分析方法检测这些错误。先将 Rust 和 C/C++ 代码编译为 LLVM IR，然后在 IR 上进行静态分析，跟踪堆内存分配状态，判断其在跨 FFI 传递时是否被正确管理，并生成诊断信息。
+4. <strong>系统设计</strong>
+    - <strong>用户界面</strong>：获取待分析的 Rust 包，利用 Cargo 解决依赖并下载相关包，将不同源文件分发给相应编译器生成 LLVM 位码，为静态分析器准备输入，其设计类似 Rust 开发者常用工具，便于集成到日常开发流程。
+    - <strong>入口点和外部函数收集器</strong>：收集 Rust 程序的公共函数/方法以及调用的 C/C++ 函数信息。通过定制的 Rust 编译器回调函数实现，访问编译器内部数据结构（如 HIR）来提取所需函数名并传递给静态分析器。
+    - <strong>静态分析和错误检测</strong>：以 LLVM 位码、入口点和外部函数为输入，遍历控制流图执行分析，分析完成后由错误检测模块生成诊断消息，经用户指定规则过滤误报后输出给用户，用户据此检查源代码确定潜在错误。
+5. <strong>抽象解释</strong>
+    - <strong>LLVM IR、抽象值和抽象域</strong>：在 LLVM IR 中，函数以控制流图（CFG）表示。为捕获堆内存所有权状态，定义 <code>MState</code> 为包含 5 个元素的格，用于表示变量是否存储堆内存及在所有权系统中的状态，同时定义 <code>AState</code> 为从变量到 <code>MState</code> 的映射格，抽象域则是从所有基本块到 <code>AState</code> 的映射。
+    - <strong>转移函数</strong>：根据 LLVM 指令语义为其分配转移函数，重点关注影响数据流和调用其他函数的指令，通过这些函数更新抽象状态并进行上下文敏感的过程间分析。
+6. <strong>算法</strong>
+    - <strong>定点算法</strong>：采用经典的工作列表算法遍历 CFG，迭代执行转移函数更新抽象状态直至达到定点。工作列表初始包含 CFG 所有基本块，每次选择一个块分析，根据前驱状态更新当前块状态，若状态改变则将后继块插入工作列表重新分析，直至工作列表为空。
+    - <strong>函数调用分析</strong>：对不同类型函数分类处理。对于分配堆内存函数标记为 <code>Alloc</code>；借用或移动所有权函数相应改变堆内存抽象状态；外部函数重点分析是否存在错误；对 LLVM 内部函数和 Rust 标准库函数提供特殊处理程序；其他函数则启动新的定点算法实例进行上下文敏感的过程间分析。
+    - <strong>错误检测和误报抑制</strong>：定点算法结束后，检查传递给 FFI 的堆内存变量，对相关外部函数进一步分析其在外部代码中是否释放内存，并根据堆内存所有权状态生成警告，同时根据分析过程中的信息可用性为警告标记置信水平，用户可通过配置精度过滤器控制输出警告。
+7. <strong>实现</strong>：FFIChecker 用 Rust 编写，包含用户界面、入口点/外部函数收集器和静态分析器三个二进制文件。用户界面作为 cargo 子命令集成到官方构建系统，方便用户使用；入口点/外部函数收集器通过定制 Rust 编译器实现；静态分析器可通过用户界面配置精度过滤器。还提供了 Python 脚本用于下载包和运行评估。
+8. <strong>评估</strong>
+    - <strong>有效性和性能</strong>：在包含 987 个 Rust 包的数据集上运行 FFIChecker，生成 222 个警告，经手动检查确认 12 个包中存在 34 个错误（19 个内存泄漏、3 个异常相关错误、12 个未定义行为），并向包维护者报告，部分已修复。在性能方面，8 个并行线程下，5.2 小时内完成分析，内存消耗最多 4.1GB，平均每个包分析耗时 116.9 CPU 秒，消耗 1056.6MB 内存，表明其具有一定可扩展性。
+    - <strong>误报和漏报分析</strong>：误报原因主要是外部函数的 LLVM IR 不可用或 Rust 编译器优化导致无法准确区分变量借用和移动；漏报是因为 Rust 编译器对未实例化的泛型函数不生成代码，FFIChecker 无法找到其 LLVM IR。但通过为警告设置置信水平，用户可配置过滤器减少误报影响。
+9. <strong>讨论</strong>
+    - <strong>Rust 安全保证的思考</strong>：发现的大多数错误是内存泄漏，这反映出 Rust 安全保证的局限性，因为 Rust 标准库中一些导致内存泄漏的函数（如 <code>mem::forget</code>）未被标记为不安全，可能导致安全问题。
+    - <strong>未来工作</strong>：FFIChecker 的思想和威胁模型可扩展到其他跨语言场景，通过修改系统中 Rust 特定部分，可适用于支持 LLVM 后端的其他语言。
+10. <strong>相关工作</strong>：介绍了 Rust 静态分析和跨语言错误检测与预防的相关研究，指出本文工作重点在于 Rust 和 C/C++ 之间的内存管理问题，现有研究未涉及 Rust 所有权系统和 C/C++ 交互产生的新错误模式。
+11. <strong>结论</strong>：Rust 使用 FFI 调用外部 C/C++ 代码虽方便，但存在安全问题。为此设计实现了 FFIChecker 工具，通过对 987 个真实世界 Rust 包的分析，成功发现 12 个包中的 34 个未知错误，并开源了该工具及相关示例和测试脚本。 </p></div><script type="text/javascript" src="../script.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      config: ["MMLorHTML.js"],
+      jax: ["input/TeX", "output/HTML-CSS", "output/NativeMML"],
+      extensions: ["MathMenu.js", "MathZoom.js"]
+    });
+</script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script></body>
+</html>

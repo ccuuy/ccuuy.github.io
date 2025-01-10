@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>论文笔记-Validating Memory Safety in Rust Binaries</title>
+<link rel="stylesheet" type="text/css" href="../style.css"></head>
+<body>
+<div class="navibar"><a href="../index.html">index</a><a href="../misc.html" class="link">misc</a><a href="../Rust.html" class="link">Rust</a><a href="../日记.html" class="link">日记</a><a href="../算法.html" class="link">算法</a></div><div class="content"><h1 id="validating-memory-safety-in-rust-binaries">Validating Memory Safety in Rust Binaries</h1>
+<ul>
+<li>2024</li>
+<li>EuroSec ’24</li>
+</ul>
+<h2 id="_1">主要工作</h2>
+<p>在本文中，我们探讨了攻击者故意修改Rust编译器产生的机器代码的可能性，从而不再保持内存安全性的可能性。通过我们的攻击，我们认为在编译时进行审查的安全性，比如由Rust编译器强加的安全性，也应该在运行时进行审查。原则上，我们认为Rust的机器代码应该在执行之前进行验证，以确保二进制文件确实是内存安全的。</p>
+<p>文章围绕 Rust 二进制文件内存安全验证展开，主要工作如下：
+1. <strong>探究攻击可能性与方法</strong>
+    - 研究攻击者修改 Rust 编译器生成的机器码，破坏内存安全机制的可行性。针对 Rust 的空间安全，通过缓冲区溢出攻击，利用两个缓冲区操作触发编译器检查后修改检查指令，使索引超出缓冲区长度，造成内存 corruption，并植入 shellcode 改变执行流。同时，详细阐述了检测缓冲区溢出检查的启发式方法及定位器工具的工作原理和性能评估，定位器能依据特定函数调用和指令特征在二进制文件中查找检查，在测试的 36 个二进制文件中对未剥离版本检测率达 100%，剥离版本平均偏差 28.1%。
+    - 对于 Rust 的时间安全，通过二进制重写操作，改变变量引用地址或使变量成为悬空指针，违反借用和所有权规则，展示了破坏时间安全的途径。
+2. <strong>设计并实现验证器</strong>
+    - 提出验证器的验证流程，包括读取定位器生成的日志文件并分析二进制文件、依据编译器初始化模式定位缓冲区、跟踪缓冲区在函数间的传递、重构并对比检查、在二进制汇编层面验证引用是否合规等步骤，各步骤紧密协作以全面检测二进制文件的内存安全状态。
+    - 利用包含 42 个有效和 24 个恶意二进制文件的数据集对验证器进行评估，验证器成功将 41 个标记为良性、25 个为恶意，准确率达 98%，有效检测出给定二进制文件中的无效代码，但也存在无法处理特定函数场景和依赖定位器准确性等局限性。
+3. <strong>总结贡献与局限</strong>：明确指出研究揭示了 Rust 二进制文件可能被篡改致内存不安全的问题，提供的修改、检测方法及验证器原型为后续深入研究奠定基础，同时也坦诚验证器原型存在的处理场景限制和性能优化需求等不足，为未来研究指明方向。 </p>
+<h2 id="_2">检测</h2>
+<p>在论文中，对于 Rust 二进制文件的检测主要通过以下方式实现：
+- <strong>缓冲区溢出检查检测</strong>
+    - <strong>启发式规则</strong>
+      - 利用“Buffer bounds check has a branch to a panic exception function called panic_bounds_check”这一规则，通过定位对 <code>panic_bounds_check</code> 函数的调用，确定与缓冲区边界检查相关的指令。因为在 Rust 中，当出现数组或切片越界访问时会调用此函数，所以以此为线索可以找到可能的缓冲区溢出检查点。
+      - 关注在调用异常函数前的 2 - 3 条指令的参数准备过程，收集这些指令的地址创建“destination address list”。然后在分析每个函数的反汇编代码时，查找分支并检查分支目标地址是否在该列表中，以此进一步筛选出与缓冲区溢出检查相关的指令。
+      - 依据“Each unoptimized check typically comprises a maximum of five instructions”，对于未优化的检查，通过检测指向“destination address list”中地址的分支指令，并回溯最多 5 条指令，直到找到比较（<code>cmp</code>）指令，从而确定负责边界检查的指令。
+    - <strong>定位器工具工作流程</strong>
+      - 首先在二进制文件中定位所有函数。
+      - 接着通过检查所有函数来定位 <code>panic_bounds_check</code> 函数地址，这一步骤基于上述的启发式规则 1。
+      - 然后再次检查所有函数并创建“destination address list”，对应启发式规则 2。
+      - 之后在二进制文件中定位所有分支，并筛选出目标地址不在“destination address list”中的分支。
+      - 对于目标地址在“destination address list”中的每个分支，按照启发式规则 3 进行回溯操作，以确定最终的检查指令。
+      - 定位器还能根据指令特征对检测到的检查进行分类，如按照指令数量将检查分为优化和常规两类，每类再根据具体指令类型进一步细分。
+- <strong>时间安全相关检测（引用验证）</strong>
+    - 首先确定函数内每个不同缓冲区的起始地址。
+    - 维护关于活动寄存器和引用的元数据，包括为活动寄存器建立键值对映射（键为寄存器，值为寄存器加载的地址），以及为引用建立三个不同集合：先前使用的引用集、只读引用集和读写引用集。
+    - 在执行过程中，通过创建正则表达式来跟踪地址在寄存器和内存之间的移动以及引用的转移情况。例如，当一个地址被移动到寄存器时，将寄存器 - 地址对添加到活动寄存器映射中；当寄存器作为目的操作数时，从活动寄存器映射中移除；当寄存器作为源操作数且另一个寄存器作为目的操作数时，将新寄存器添加到活动寄存器映射中等等一系列规则来更新这些结构，模拟数据流向，从而验证引用是否符合 Rust 的借用和所有权规则。
+    - 当遇到分支指令时，由于分支可能导致上下文变化，所以会分别跟踪每个分支。通过“visited addresses”和“to - be - visited addresses”两个结构，以 Last - In - First - Out（LIFO）方式评估地址，确保上下文的相关性，以准确判断引用是否合法。</p>
+<p>在验证器的整体检测过程中，还涉及到对缓冲区的定位、跟踪以及对缓冲区检查的验证等多个环节，这些环节相互配合，共同实现对 Rust 二进制文件内存安全的检测。 </p></div><script type="text/javascript" src="../script.js"></script><script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      config: ["MMLorHTML.js"],
+      jax: ["input/TeX", "output/HTML-CSS", "output/NativeMML"],
+      extensions: ["MathMenu.js", "MathZoom.js"]
+    });
+</script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML"></script></body>
+</html>
