@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>时间记录器</title>
-    <link id="favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏰</text></svg>">
+    <link id="favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏳</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
@@ -13,6 +13,25 @@
         // Tailwind CSS Dark Mode Configuration
         tailwind.config = {
             darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': {
+                            '50': '#eff6ff',
+                            '100': '#dbeafe',
+                            '200': '#bfdbfe',
+                            '300': '#93c5fd',
+                            '400': '#60a5fa',
+                            '500': '#3b82f6',
+                            '600': '#2563eb',
+                            '700': '#1d4ed8',
+                            '800': '#1e40af',
+                            '900': '#1e3a8a',
+                            '950': '#172554',
+                        },
+                    }
+                }
+            }
         }
     </script>
     <style>
@@ -22,59 +41,69 @@
             -moz-osx-font-smoothing: grayscale;
         }
         .tab-button.active {
-            border-color: #3b82f6;
             color: #3b82f6;
+            background-color: #dbeafe;
         }
         html.dark .tab-button.active {
-            border-color: #60a5fa;
-            color: #60a5fa;
+            color: #dbeafe;
+            background-color: #1e40af;
         }
         .btn-press:active {
             transform: scale(0.98);
             transition: transform 0.1s ease-in-out;
         }
-        .regular-active-indicator {
-            border-color: #3b82f6 !important; /* blue-500 */
+        .task-card.running-regular {
+            border-left-color: #3b82f6 !important;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06);
         }
-        html.dark .regular-active-indicator {
-            border-color: #60a5fa !important; /* blue-400 */
+        html.dark .task-card.running-regular {
+            border-left-color: #60a5fa !important;
+            box-shadow: 0 4px 6px -1px rgba(96, 165, 250, 0.1), 0 2px 4px -1px rgba(96, 165, 250, 0.06);
         }
-        .countdown-active-indicator {
-            border-color: #f59e0b !important; /* amber-500 */
+        .task-card.running-countdown {
+            border-left-color: #f59e0b !important;
+            box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.1), 0 2px 4px -1px rgba(245, 158, 11, 0.06);
         }
-        html.dark .countdown-active-indicator {
-            border-color: #fcd34d !important; /* amber-300 */
+        html.dark .task-card.running-countdown {
+            border-left-color: #fcd34d !important;
+            box-shadow: 0 4px 6px -1px rgba(252, 211, 77, 0.1), 0 2px 4px -1px rgba(252, 211, 77, 0.06);
+        }
+        .modal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-content {
+            transition: transform 0.3s ease;
         }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
 
-    <div class="w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        <!-- Header -->
+    <div id="app-container" class="w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 hidden">
         <header class="flex justify-between items-center mb-8">
-             <h1 class="text-3xl sm:text-4xl font-bold">时间<span class="text-blue-500">记录器</span></h1>
-            <div class="flex items-center space-x-2">
-                <button id="import-btn" title="导入数据" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700 focus:outline-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                </button>
-                <input type="file" id="import-file-input" class="hidden" accept=".json">
-                <button id="export-btn" title="导出数据" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700 focus:outline-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                </button>
-                <button id="theme-toggle-btn" title="切换主题" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700 focus:outline-none">
-                    <!-- Icons will be injected by JS -->
+            <div class="flex items-center space-x-3">
+                <div class="text-2xl">⏳</div>
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white">时间<span class="text-primary-500">记录器</span></h1>
+            </div>
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <div id="user-info" class="hidden sm:flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-800 flex items-center justify-center text-primary-500 dark:text-primary-300 font-bold" id="user-avatar"></div>
+                    <span class="text-sm font-medium text-gray-600 dark:text-gray-300" id="user-email"></span>
+                </div>
+                <button id="theme-toggle-btn" title="切换主题" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none transition-colors">
+                    </button>
+                <button id="logout-btn" title="登出" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                 </button>
             </div>
         </header>
 
         <main class="grid grid-cols-1 lg:grid-cols-5 gap-8">
-            <!-- Left Column: Tasks and Input -->
             <div class="lg:col-span-3 space-y-8">
-                <section>
+                <section class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm">
                     <h2 class="text-xl font-bold mb-4">添加新任务</h2>
                     <form id="add-task-form" class="flex items-center space-x-3">
-                        <input type="text" id="new-task-input" placeholder="例如：学习 Rust 或阅读《美丽新世界》" required class="flex-grow px-4 py-3 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200">
-                        <button type="submit" class="btn-press px-5 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                        <input type="text" id="new-task-input" placeholder="例如：学习 Rust 或阅读《美丽新世界》" required class="flex-grow px-4 py-3 bg-gray-100 dark:bg-gray-700 border-2 border-transparent focus:border-primary-500 focus:ring-0 rounded-lg transition duration-200">
+                        <button type="submit" class="btn-press px-5 py-3 bg-primary-500 text-white font-semibold rounded-lg shadow-md hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-800 transition-colors duration-200">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
                             <span class="hidden sm:inline ml-2">添加</span>
                         </button>
@@ -82,54 +111,70 @@
                 </section>
 
                 <section>
-                    <h2 class="text-xl font-bold mb-4">我的任务</h2>
+                    <div class="flex justify-between items-center mb-4">
+                         <h2 class="text-xl font-bold">我的任务</h2>
+                    </div>
                     <div id="tasks-container" class="space-y-3"></div>
                 </section>
+
+                <footer id="quote-footer" class="text-center pt-4 text-sm text-gray-400 dark:text-gray-500 transition-opacity duration-500">
+                </footer>
             </div>
 
-            <!-- Right Column: Stats -->
             <div class="lg:col-span-2">
-                <section class="sticky top-8">
+                <section class="sticky top-8 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm">
                     <h2 class="text-xl font-bold text-center mb-4">时间统计</h2>
-                    <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-md">
-                        <div class="border-b border-gray-200 dark:border-slate-600">
-                            <nav class="-mb-px flex justify-center space-x-2 sm:space-x-4" aria-label="Tabs">
-                                <button class="tab-button whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:border-gray-300 transition-colors" onclick="changeTab('daily')">今日</button>
-                                <button class="tab-button whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:border-gray-300 transition-colors" onclick="changeTab('weekly')">本周</button>
-                                <button class="tab-button whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:border-gray-300 transition-colors" onclick="changeTab('monthly')">本月</button>
-                                <button class="tab-button whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:border-gray-300 transition-colors" onclick="changeTab('yearly')">年度</button>
-                                <button class="tab-button whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:border-gray-300 transition-colors" onclick="changeTab('total')">总计</button>
-                            </nav>
-                        </div>
-                        <div id="stats-summary" class="mt-6 text-center"></div>
-                        <div id="stats-container" class="mt-4 space-y-4"></div>
+                    <div class="border-b border-gray-200 dark:border-gray-700">
+                        <nav class="flex justify-center space-x-1" aria-label="Tabs">
+                            <button class="tab-button whitespace-nowrap py-2 px-3 rounded-md font-medium text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onclick="changeTab('daily')">今日</button>
+                            <button class="tab-button whitespace-nowrap py-2 px-3 rounded-md font-medium text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onclick="changeTab('weekly')">本周</button>
+                            <button class="tab-button whitespace-nowrap py-2 px-3 rounded-md font-medium text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onclick="changeTab('monthly')">本月</button>
+                            <button class="tab-button whitespace-nowrap py-2 px-3 rounded-md font-medium text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onclick="changeTab('total')">总计</button>
+                        </nav>
                     </div>
+                    <div id="stats-summary" class="mt-6 text-center"></div>
+                    <div id="stats-container" class="mt-4 space-y-4"></div>
                 </section>
             </div>
         </main>
     </div>
 
-    <!-- Countdown Input Modal -->
-    <div id="countdown-input-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
-        <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-2xl w-11/12 max-w-sm text-center">
-            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">设置倒计时</h3>
-            <form id="countdown-input-form">
-                <label for="countdown-minutes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">分钟</label>
-                <input type="number" id="countdown-minutes" name="minutes" value="25" min="1" required class="w-full px-4 py-3 text-center text-lg bg-gray-100 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200">
-                <div class="mt-6 flex justify-center space-x-4">
-                     <button type="button" id="countdown-cancel-btn" class="btn-press px-6 py-2 bg-gray-300 dark:bg-slate-600 text-gray-800 dark:text-gray-100 font-semibold rounded-lg hover:bg-gray-400 dark:hover:bg-slate-500">取消</button>
-                    <button type="submit" class="btn-press px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600">开始</button>
+    <div id="auth-modal" class="modal hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 opacity-0 invisible">
+        <div class="modal-content bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-11/12 max-w-sm text-center transform scale-95">
+            <div class="text-5xl mb-4">⏳</div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">欢迎回来</h3>
+            <p id="login-quote" class="text-gray-500 dark:text-gray-400 mb-6 text-sm">让每一秒，都有它的意义。</p>
+            <form id="auth-form">
+                <input type="email" id="email-input" placeholder="电子邮箱" required class="w-full px-4 py-3 mb-4 bg-gray-100 dark:bg-gray-700 border-2 border-transparent focus:border-primary-500 focus:ring-0 rounded-lg transition duration-200">
+                <input type="password" id="password-input" placeholder="密码 (至少6位)" required class="w-full px-4 py-3 mb-4 bg-gray-100 dark:bg-gray-700 border-2 border-transparent focus:border-primary-500 focus:ring-0 rounded-lg transition duration-200">
+                <p id="auth-error" class="text-red-500 text-sm mb-4 h-5"></p>
+                <div class="mt-2 flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                    <button type="button" id="login-btn" class="btn-press w-full px-6 py-3 bg-primary-500 text-white font-semibold rounded-lg shadow-md hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-800 transition-all">登录</button>
+                    <button type="button" id="signup-btn" class="btn-press w-full px-6 py-3 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all">注册</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Countdown Display Modal -->
-    <div id="countdown-display-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 transition-opacity duration-300">
-        <div id="countdown-card" class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-2xl w-11/12 max-w-sm text-center transform transition-all duration-300 scale-95 opacity-0">
+    <div id="countdown-input-modal" class="modal hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 opacity-0 invisible">
+        <div class="modal-content bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-11/12 max-w-sm text-center transform scale-95">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">设置倒计时</h3>
+            <form id="countdown-input-form">
+                <label for="countdown-minutes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">分钟</label>
+                <input type="number" id="countdown-minutes" name="minutes" value="25" min="1" required class="w-full px-4 py-3 text-center text-lg bg-gray-100 dark:bg-gray-700 border-2 border-transparent focus:border-primary-500 focus:ring-0 rounded-lg transition duration-200">
+                <div class="mt-6 flex justify-center space-x-4">
+                     <button type="button" id="countdown-cancel-btn" class="btn-press px-6 py-2 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">取消</button>
+                    <button type="submit" class="btn-press px-6 py-2 bg-primary-500 text-white font-semibold rounded-lg shadow-md hover:bg-primary-600">开始</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="countdown-display-modal" class="modal hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 opacity-0 invisible">
+        <div id="countdown-card" class="modal-content bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-11/12 max-w-sm text-center transform scale-95">
             <p id="countdown-task-name" class="text-xl font-bold mb-4"></p>
-            <p id="countdown-phase" class="text-lg font-semibold mb-4">专注中</p>
-            <div id="countdown-timer" class="text-7xl font-mono font-bold text-green-500 dark:text-green-400 my-6"></div>
+            <p id="countdown-phase" class="text-lg font-semibold mb-4 text-amber-500">专注中</p>
+            <div id="countdown-timer" class="text-7xl font-mono font-bold text-amber-500 dark:text-amber-400 my-6"></div>
             <button id="countdown-stop-btn" class="btn-press w-full px-6 py-3 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd" /></svg>
                 停止
@@ -137,21 +182,53 @@
         </div>
     </div>
 
-    <!-- Delete/Import Confirmation Modal -->
-    <div id="confirm-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white dark:bg-slate-800 p-8 rounded-lg shadow-xl w-11/12 max-w-md text-center">
+    <div id="confirm-modal" class="modal hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 opacity-0 invisible">
+        <div class="modal-content bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl w-11/12 max-w-md text-center transform scale-95">
             <h3 id="confirm-title" class="text-xl font-bold text-gray-900 dark:text-gray-100"></h3>
             <p id="confirm-message" class="text-gray-600 dark:text-gray-300 my-4"></p>
             <div class="flex justify-center space-x-4">
-                <button id="confirm-cancel-btn" class="btn-press px-6 py-2 bg-gray-300 dark:bg-slate-600 text-gray-800 dark:text-gray-100 font-semibold rounded-lg hover:bg-gray-400 dark:hover:bg-slate-500">取消</button>
+                <button id="confirm-cancel-btn" class="btn-press px-6 py-2 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">取消</button>
                 <button id="confirm-action-btn" class="btn-press px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700"></button>
             </div>
         </div>
     </div>
 
 
-<script>
+<script type="module">
+    // --- Firebase SDK Imports ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { 
+        getAuth, 
+        onAuthStateChanged,
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        signOut
+    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import {
+        getFirestore,
+        doc,
+        setDoc,
+        getDoc
+    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    // --- Firebase Configuration ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyBsZi3vnMTkkBz9K_2SV0IBC-BekVgvJBo",
+        authDomain: "timer-backend.firebaseapp.com",
+        projectId: "timer-backend",
+        storageBucket: "timer-backend.appspot.com",
+        messagingSenderId: "848990917419",
+        appId: "1:848990917419:web:f0d5b58e901cbaad802b6e",
+        measurementId: "G-S5G0Y35C3P"
+    };
+
+    // --- Initialize Firebase ---
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
     // --- DOM Elements ---
+    const appContainer = document.getElementById('app-container');
     const addTaskForm = document.getElementById('add-task-form');
     const newTaskInput = document.getElementById('new-task-input');
     const tasksContainer = document.getElementById('tasks-container');
@@ -161,7 +238,20 @@
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
     const favicon = document.getElementById('favicon');
     
+    // Auth Elements
+    const authModal = document.getElementById('auth-modal');
+    const emailInput = document.getElementById('email-input');
+    const passwordInput = document.getElementById('password-input');
+    const loginBtn = document.getElementById('login-btn');
+    const signupBtn = document.getElementById('signup-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const userEmailEl = document.getElementById('user-email');
+    const userAvatarEl = document.getElementById('user-avatar');
+    const authError = document.getElementById('auth-error');
+    const quoteFooter = document.getElementById('quote-footer');
+
     // Modals
+    const allModals = document.querySelectorAll('.modal');
     const confirmModal = document.getElementById('confirm-modal');
     const confirmTitle = document.getElementById('confirm-title');
     const confirmMessage = document.getElementById('confirm-message');
@@ -172,85 +262,174 @@
     const countdownInputForm = document.getElementById('countdown-input-form');
     const countdownCancelBtn = document.getElementById('countdown-cancel-btn');
     const countdownDisplayModal = document.getElementById('countdown-display-modal');
-    const countdownCard = document.getElementById('countdown-card');
     const countdownTaskName = document.getElementById('countdown-task-name');
     const countdownTimer = document.getElementById('countdown-timer');
     const countdownStopBtn = document.getElementById('countdown-stop-btn');
     
-    // Import/Export
-    const importBtn = document.getElementById('import-btn');
-    const exportBtn = document.getElementById('export-btn');
-    const importFileInput = document.getElementById('import-file-input');
-
     // --- State Variables ---
     let tasks = [];
     let settings = {};
     let currentTab = 'daily';
-    let timerInterval = null;
-    let taskToDeleteId = null;
+    let globalTimerInterval = null;
     let taskForCountdownId = null;
     let confirmActionCallback = null;
+    let currentUserId = null;
 
-    // --- Icons ---
+    // --- Constants ---
+    const motivationalQuotes = [
+      "今日的专注，是明日的成就。",
+      "让每一秒，都有它的意义。",
+      "时间之流，因专注而深刻。",
+      "始于足下，成于专注。",
+      "每一次记录，都是向前的足迹。",
+      "投入的每一分钟，都在塑造未来。"
+    ];
     const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>`;
     const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>`;
     
-    const STORAGE_KEY_TASKS = 'tasks_v7';
-    const STORAGE_KEY_SETTINGS = 'settings_v7';
-
-    // --- Data & Settings ---
-    function loadData() {
-        tasks = JSON.parse(localStorage.getItem(STORAGE_KEY_TASKS)) || [];
-        settings = JSON.parse(localStorage.getItem(STORAGE_KEY_SETTINGS)) || { theme: 'light' };
+    // --- Modal Helpers ---
+    function showModal(modalElement) {
+        modalElement.classList.remove('hidden');
+        setTimeout(() => {
+            modalElement.classList.remove('opacity-0', 'invisible');
+            modalElement.querySelector('.modal-content').classList.remove('scale-95');
+        }, 10);
     }
-    function saveData() {
-        localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(tasks));
-        localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
+
+    function hideModal(modalElement) {
+        modalElement.classList.add('opacity-0');
+        modalElement.querySelector('.modal-content').classList.add('scale-95');
+        setTimeout(() => {
+            modalElement.classList.add('invisible', 'hidden');
+        }, 300);
+    }
+    
+    // --- Firebase Auth Logic ---
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            currentUserId = user.uid;
+            hideModal(authModal);
+            appContainer.classList.remove('hidden');
+            userEmailEl.textContent = user.email;
+            userAvatarEl.textContent = user.email.charAt(0).toUpperCase();
+            
+            const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+            quoteFooter.textContent = `"${randomQuote}"`;
+
+            await loadData();
+            applySettings();
+            restoreInterruptedTimer();
+            renderAll();
+            changeTab('daily');
+        } else {
+            currentUserId = null;
+            showModal(authModal);
+            appContainer.classList.add('hidden');
+            tasks = [];
+            settings = { theme: 'light' };
+            if (globalTimerInterval) clearInterval(globalTimerInterval);
+            resetTitleAndFavicon();
+            renderAll();
+        }
+    });
+
+    loginBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        authError.textContent = '';
+        try {
+            await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+        } catch (error) {
+            authError.textContent = '登录失败，请检查邮箱或密码。';
+        }
+    });
+
+    signupBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        authError.textContent = '';
+        try {
+            await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+        } catch (error) {
+            authError.textContent = '注册失败，或邮箱已被使用。';
+        }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+        signOut(auth);
+    });
+
+    // --- Data & Settings (Firestore) ---
+    async function loadData() {
+        if (!currentUserId) return;
+        const docRef = doc(db, "users", currentUserId);
+        try {
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                tasks = data.tasks || [];
+                settings = data.settings || { theme: 'light' };
+            } else {
+                tasks = [];
+                settings = { theme: 'light' };
+                await saveData();
+            }
+        } catch (error) {
+            console.error("Error loading data:", error);
+            tasks = [];
+            settings = { theme: 'light' };
+        }
+    }
+
+    async function saveData() {
+        if (!currentUserId) return;
+        const docRef = doc(db, "users", currentUserId);
+        try {
+            const tasksToSave = tasks.map(t => {
+                const { isRunning, elapsedSeconds, ...rest } = t;
+                return rest;
+            });
+            await setDoc(docRef, { tasks: tasksToSave, settings: settings });
+        } catch (error) {
+            console.error("Error saving data:", error);
+        }
     }
 
     // --- Initialization ---
     document.addEventListener('DOMContentLoaded', () => {
-        loadData();
         applySettings();
-        restoreInterruptedTimer();
-        renderAll();
-        changeTab('daily');
-        if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-            Notification.requestPermission();
-        }
     });
 
     // --- Event Listeners ---
     addTaskForm.addEventListener('submit', handleAddTask);
     themeToggleBtn.addEventListener('click', toggleTheme);
     
-    // Modals
-    confirmCancelBtn.addEventListener('click', () => confirmModal.classList.add('hidden'));
+    allModals.forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                hideModal(modal);
+            }
+        });
+    });
+    confirmCancelBtn.addEventListener('click', () => hideModal(confirmModal));
     confirmActionBtn.addEventListener('click', () => {
         if (typeof confirmActionCallback === 'function') {
             confirmActionCallback();
         }
-        confirmModal.classList.add('hidden');
+        hideModal(confirmModal);
     });
 
     countdownStopBtn.addEventListener('click', () => {
-        const runningTask = tasks.find(t => t.countdown);
+        const runningTask = tasks.find(t => t.isRunning);
         if (runningTask) stopTimer(runningTask.id);
     });
-    countdownCancelBtn.addEventListener('click', () => countdownInputModal.classList.add('hidden'));
+    countdownCancelBtn.addEventListener('click', () => hideModal(countdownInputModal));
     countdownInputForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const minutes = parseInt(e.target.minutes.value, 10);
         if (taskForCountdownId && minutes > 0) {
             startCountdown(taskForCountdownId, minutes);
-            countdownInputModal.classList.add('hidden');
+            hideModal(countdownInputModal);
         }
     });
-
-    // Import/Export Listeners
-    exportBtn.addEventListener('click', handleExport);
-    importBtn.addEventListener('click', () => importFileInput.click());
-    importFileInput.addEventListener('change', handleImport);
 
     // --- Settings ---
     function applySettings() {
@@ -282,14 +461,20 @@
             tasks.push({
                 id: Date.now(),
                 name: taskName,
-                isRunning: false,
-                elapsedSeconds: 0,
-                countdown: null,
+                timerState: null,
                 records: [],
-                isActive: true
+                isActive: true,
+                isRunning: false, 
+                elapsedSeconds: 0 
             });
         } else {
-            alert("一个同名的活动任务已存在！");
+            openConfirmationModal({
+                title: '任务已存在',
+                message: '一个同名的活动任务已存在！',
+                actionText: '好的',
+                action: () => {},
+                isDestructive: false
+            });
             return;
         }
 
@@ -306,10 +491,10 @@
         
         confirmActionBtn.classList.toggle('bg-red-600', isDestructive);
         confirmActionBtn.classList.toggle('hover:bg-red-700', isDestructive);
-        confirmActionBtn.classList.toggle('bg-blue-500', !isDestructive);
-        confirmActionBtn.classList.toggle('hover:bg-blue-600', !isDestructive);
+        confirmActionBtn.classList.toggle('bg-primary-500', !isDestructive);
+        confirmActionBtn.classList.toggle('hover:bg-primary-600', !isDestructive);
 
-        confirmModal.classList.remove('hidden');
+        showModal(confirmModal);
     }
 
     function openDeleteModal(taskId) {
@@ -324,7 +509,7 @@
     function handleArchiveTask(taskId) {
         const task = tasks.find(t => t.id === taskId);
         if (!task) return;
-        if (task.isRunning || task.countdown) stopTimer(taskId);
+        if (task.isRunning) stopTimer(taskId);
         task.isActive = false;
         saveData();
         renderAll();
@@ -350,12 +535,12 @@
 
     // --- Timer Core ---
     function stopAllTimers(exceptTaskId = null) {
-        if (timerInterval) {
-            clearInterval(timerInterval);
-            timerInterval = null;
+        if (globalTimerInterval) {
+            clearInterval(globalTimerInterval);
+            globalTimerInterval = null;
         }
         tasks.forEach(task => {
-            if (task.id !== exceptTaskId && (task.isRunning || task.countdown)) {
+            if (task.id !== exceptTaskId && task.isRunning) {
                 stopTimer(task.id, false);
             }
         });
@@ -364,91 +549,87 @@
     function handleToggleTimer(taskId) {
         const task = tasks.find(t => t.id === taskId);
         if (!task) return;
-
         stopAllTimers(taskId);
-
-        if (task.isRunning) {
-            stopTimer(taskId);
-        } else {
-            startTimer(taskId);
-        }
+        if (task.isRunning) stopTimer(taskId);
+        else startTimer(taskId);
     }
     
     function handleCountdown(taskId) {
         const task = tasks.find(t => t.id === taskId);
         if (!task) return;
-        
         stopAllTimers(taskId);
-
-        if (task.countdown) {
+        if (task.isRunning) {
             stopTimer(taskId);
         } else {
             taskForCountdownId = taskId;
-            countdownInputModal.classList.remove('hidden');
+            showModal(countdownInputModal);
             document.getElementById('countdown-minutes').focus();
         }
+    }
+
+    function startMasterTimer() {
+        if (globalTimerInterval) return;
+        globalTimerInterval = setInterval(() => {
+            const runningTask = tasks.find(t => t.isRunning);
+            if (runningTask) {
+                const state = runningTask.timerState;
+                if (state.type === 'regular') {
+                    runningTask.elapsedSeconds = Math.floor((Date.now() - state.startTime) / 1000);
+                } else if (state.type === 'countdown') {
+                    const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+                    runningTask.elapsedSeconds = state.initialDuration - elapsed;
+                    if (runningTask.elapsedSeconds < 0) {
+                        stopTimer(runningTask.id);
+                    }
+                }
+                renderTask(runningTask.id);
+                updateTitleAndFavicon(runningTask);
+            } else {
+                clearInterval(globalTimerInterval);
+                globalTimerInterval = null;
+            }
+        }, 1000);
     }
 
     function startTimer(taskId) {
         const task = tasks.find(t => t.id === taskId);
         task.isRunning = true;
-        task.countdown = null;
-        
-        timerInterval = setInterval(() => {
-            task.elapsedSeconds++;
-            renderTask(task.id);
-            updateTitleAndFavicon(task);
-            saveData();
-        }, 1000);
+        task.timerState = { type: 'regular', startTime: Date.now() };
+        saveData();
         renderAll();
+        startMasterTimer();
     }
     
     function startCountdown(taskId, minutes) {
         const task = tasks.find(t => t.id === taskId);
         const duration = minutes * 60;
-        task.isRunning = false;
-        task.countdown = { timeLeft: duration, initialDuration: duration };
-        showCountdownDisplayModal(task);
-
-        timerInterval = setInterval(() => {
-            task.countdown.timeLeft--;
-            if (task.countdown.timeLeft < 0) {
-                showNotification("倒计时结束！", `任务 "${task.name}" 已完成。`);
-                task.countdown.timeLeft = 0;
-                stopTimer(task.id); 
-            } else {
-                updateCountdownDisplayModal(task);
-                updateTitleAndFavicon(task);
-                saveData();
-            }
-        }, 1000);
+        task.isRunning = true;
+        task.timerState = { type: 'countdown', startTime: Date.now(), initialDuration: duration };
+        showModal(countdownDisplayModal);
+        saveData();
         renderAll();
+        startMasterTimer();
     }
 
     function stopTimer(taskId, doRender = true) {
         const task = tasks.find(t => t.id === taskId);
-        if (!task) return;
-
-        if (task.isRunning && task.elapsedSeconds > 0) {
-            task.records.push({ date: new Date().toISOString(), duration: task.elapsedSeconds });
-        } else if (task.countdown) {
-            const timeSpent = task.countdown.initialDuration - task.countdown.timeLeft;
-            if (timeSpent > 0) {
-                 task.records.push({ date: new Date().toISOString(), duration: timeSpent });
-            }
+        if (!task || !task.timerState) return;
+        const duration = Math.floor((Date.now() - task.timerState.startTime) / 1000);
+        if (duration > 0) {
+            const finalDuration = task.timerState.type === 'countdown' 
+                ? Math.min(duration, task.timerState.initialDuration)
+                : duration;
+            task.records.push({ date: new Date().toISOString(), duration: finalDuration });
         }
-        
         task.isRunning = false;
-        task.countdown = null;
+        task.timerState = null;
         task.elapsedSeconds = 0;
-        
-        if (tasks.every(t => !t.isRunning && !t.countdown)) {
-            clearInterval(timerInterval);
-            timerInterval = null;
+        if (tasks.every(t => !t.isRunning)) {
+            if (globalTimerInterval) clearInterval(globalTimerInterval);
+            globalTimerInterval = null;
             resetTitleAndFavicon();
         }
-        
-        hideCountdownDisplayModal();
+        hideModal(countdownDisplayModal);
         saveData();
         if (doRender) renderAll();
     }
@@ -462,9 +643,11 @@
     function renderTasksList() {
         tasksContainer.innerHTML = '';
         const activeTasks = tasks.filter(t => t.isActive);
-
         if (activeTasks.length === 0) {
-            tasksContainer.innerHTML = `<div class="bg-white dark:bg-slate-800 p-8 rounded-lg text-center text-gray-500 dark:text-gray-400">还没有任何任务，快添加一个吧！</div>`;
+            tasksContainer.innerHTML = `<div class="bg-white dark:bg-gray-800 p-8 rounded-2xl text-center text-gray-500 dark:text-gray-400 shadow-sm">
+                <p class="text-lg">还没有任何任务</p>
+                <p class="mt-2 text-sm">"始于足下，成于专注。"</p>
+            </div>`;
             return;
         }
         activeTasks.forEach((task, index) => {
@@ -475,8 +658,14 @@
     function renderTask(taskId) {
         const task = tasks.find(t => t.id === taskId);
         const element = document.getElementById(`task-${taskId}`);
-        if (element && task && !task.countdown) {
-            element.querySelector('.task-time').textContent = formatTime(task.elapsedSeconds);
+        if (element && task) {
+            const timeToDisplay = task.timerState?.type === 'countdown' 
+                ? task.elapsedSeconds > 0 ? task.elapsedSeconds : 0
+                : task.elapsedSeconds;
+            element.querySelector('.task-time').textContent = formatTime(timeToDisplay);
+            if (task.timerState?.type === 'countdown') {
+                updateCountdownDisplayModal(task);
+            }
         }
     }
 
@@ -484,44 +673,44 @@
         const div = document.createElement('div');
         div.id = `task-${task.id}`;
         
-        let extraClasses = '';
-        if (task.countdown) {
-            extraClasses = 'countdown-active-indicator';
-        } else if (task.isRunning) {
-            extraClasses = 'regular-active-indicator';
+        let runningClass = '';
+        if (task.isRunning) {
+            runningClass = task.timerState.type === 'countdown' 
+                ? 'running-countdown' 
+                : 'running-regular';
         }
 
-        div.className = `task-item bg-white dark:bg-slate-800 p-4 border-2 border-transparent dark:border-slate-700 rounded-lg flex items-center justify-between shadow-sm mb-3 ${extraClasses}`;
+        div.className = `task-card bg-white dark:bg-gray-800 p-4 rounded-xl flex items-center justify-between shadow-sm transition-all duration-300 border-l-4 border-transparent ${runningClass}`;
         
-        const isTiming = task.isRunning || task.countdown;
+        const isTiming = task.isRunning;
 
         div.innerHTML = `
             <div class="flex items-center flex-grow min-w-0">
-                <div class="flex flex-col items-center mr-3 space-y-2">
-                    <button onclick="moveTask(${task.id}, 'up')" class="p-1 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-25 disabled:cursor-not-allowed" ${index === 0 ? 'disabled' : ''}>
+                <div class="flex flex-col items-center self-stretch justify-center px-2 space-y-3">
+                    <button onclick="moveTask(${task.id}, 'up')" class="p-1 text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 disabled:opacity-25 disabled:cursor-not-allowed transition-colors" ${index === 0 ? 'disabled' : ''}>
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"></path></svg>
                     </button>
-                    <button onclick="moveTask(${task.id}, 'down')" class="p-1 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-25 disabled:cursor-not-allowed" ${index === totalActive - 1 ? 'disabled' : ''}>
+                    <button onclick="moveTask(${task.id}, 'down')" class="p-1 text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 disabled:opacity-25 disabled:cursor-not-allowed transition-colors" ${index === totalActive - 1 ? 'disabled' : ''}>
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
                     </button>
                 </div>
-                <div class="flex-grow min-w-0">
+                <div class="flex-grow min-w-0 ml-2">
                     <p class="font-semibold truncate">${task.name}</p>
-                    <p class="text-2xl font-mono font-bold task-time">${formatTime(task.elapsedSeconds)}</p>
+                    <p class="text-2xl font-mono font-bold text-gray-800 dark:text-white task-time">${formatTime(task.elapsedSeconds || 0)}</p>
                 </div>
             </div>
             <div class="flex items-center flex-shrink-0 space-x-2 ml-2">
-                <button onclick="handleToggleTimer(${task.id})" class="btn-press p-3 rounded-full transition-colors ${isTiming ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'} text-white" title="常规计时">
-                    ${isTiming 
-                        ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>` 
-                        : `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`
+                <button onclick="handleToggleTimer(${task.id})" class="btn-press p-3 rounded-full transition-colors ${isTiming && task.timerState?.type === 'regular' ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-800 dark:text-yellow-300' : 'bg-primary-100 text-primary-600 dark:bg-primary-800 dark:text-primary-300 hover:bg-primary-200 dark:hover:bg-primary-700'}" title="常规计时">
+                    ${isTiming && task.timerState?.type === 'regular'
+                        ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" /></svg>` 
+                        : `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8.07v3.86a1 1 0 001.555.832l3.197-1.932a1 1 0 000-1.664L9.555 7.168z" clip-rule="evenodd" /></svg>`
                     }
                 </button>
-                <button onclick="handleCountdown(${task.id})" class="btn-press p-3 rounded-full transition-colors ${task.countdown ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-400 hover:bg-amber-500'} text-white" title="倒计时">
+                <button onclick="handleCountdown(${task.id})" class="btn-press p-3 rounded-full transition-colors ${isTiming && task.timerState?.type === 'countdown' ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-800 dark:text-yellow-300' : 'bg-amber-100 text-amber-600 dark:bg-amber-800 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-700'}" title="倒计时">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 000-1.5h-3.25V5z" clip-rule="evenodd" /></svg>
                 </button>
-                <button onclick="openDeleteModal(${task.id})" class="btn-press p-3 rounded-full bg-gray-400 hover:bg-gray-500 dark:bg-slate-600 dark:hover:bg-slate-500 text-white transition-colors" title="移除任务">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                <button onclick="openDeleteModal(${task.id})" class="btn-press p-3 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600 transition-colors" title="移除任务">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg>
                 </button>
             </div>
         `;
@@ -529,23 +718,11 @@
     }
 
     // --- Countdown Modals ---
-    function showCountdownDisplayModal(task) {
-        countdownDisplayModal.classList.remove('hidden');
-        setTimeout(() => {
-            countdownCard.classList.remove('scale-95', 'opacity-0');
-        }, 10);
-        updateCountdownDisplayModal(task);
-    }
     function updateCountdownDisplayModal(task) {
-        if (!task.countdown) return;
+        if (!task.isRunning || task.timerState?.type !== 'countdown') return;
+        const timeToDisplay = task.elapsedSeconds > 0 ? task.elapsedSeconds : 0;
         countdownTaskName.textContent = task.name;
-        countdownTimer.textContent = formatTime(task.countdown.timeLeft);
-    }
-    function hideCountdownDisplayModal() {
-        countdownCard.classList.add('scale-95', 'opacity-0');
-        setTimeout(() => {
-            countdownDisplayModal.classList.add('hidden');
-        }, 300);
+        countdownTimer.textContent = formatTime(timeToDisplay);
     }
 
     // --- Stats Rendering ---
@@ -555,24 +732,26 @@
         const sortedTasks = Object.entries(data).sort((a, b) => b[1] - a[1]);
         const totalPeriodSeconds = sortedTasks.reduce((sum, [, duration]) => sum + duration, 0);
 
-        statsSummary.innerHTML = `<p class="text-gray-600 dark:text-gray-300">总计专注: <span class="font-bold text-blue-600 dark:text-blue-400 text-lg">${formatTime(totalPeriodSeconds)}</span></p>`;
+        statsSummary.innerHTML = `<p class="text-gray-500 dark:text-gray-400 mt-2">总计专注时长</p><p class="font-bold text-primary-500 text-4xl">${formatTime(totalPeriodSeconds)}</p>`;
 
         if (sortedTasks.length === 0) {
             statsContainer.innerHTML = `<div class="text-center text-gray-500 dark:text-gray-400 py-10">暂无记录</div>`;
             return;
         }
 
+        const maxDuration = sortedTasks.length > 0 ? sortedTasks[0][1] : 0;
+
         sortedTasks.forEach(([taskName, duration]) => {
-            const percentage = totalPeriodSeconds > 0 ? (duration / totalPeriodSeconds) * 100 : 0;
+            const percentage = maxDuration > 0 ? (duration / maxDuration) * 100 : 0;
             const statItem = document.createElement('div');
             statItem.className = 'space-y-2';
             statItem.innerHTML = `
-                <div class="flex justify-between items-center">
-                    <span class="font-medium text-sm truncate">${taskName}</span>
-                    <span class="font-semibold text-sm">${formatTime(duration)}</span>
+                <div class="flex justify-between items-center text-sm">
+                    <span class="font-medium truncate text-gray-700 dark:text-gray-300">${taskName}</span>
+                    <span class="font-semibold text-gray-500 dark:text-gray-400">${formatTime(duration)}</span>
                 </div>
-                <div class="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2">
-                    <div class="bg-blue-500 h-2 rounded-full" style="width: ${percentage}%"></div>
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                    <div class="bg-primary-500 h-2.5 rounded-full" style="width: ${percentage}%"></div>
                 </div>
             `;
             statsContainer.appendChild(statItem);
@@ -593,7 +772,6 @@
                 startDate = new Date(today.getTime() - diff * 24 * 60 * 60 * 1000);
                 break;
             case 'monthly': startDate = new Date(now.getFullYear(), now.getMonth(), 1); break;
-            case 'yearly': startDate = new Date(now.getFullYear(), 0, 1); break;
             case 'total': startDate = new Date(0); break;
         }
 
@@ -620,15 +798,15 @@
 
     // --- State Recovery & Title/Favicon ---
     function restoreInterruptedTimer() {
-        const runningTask = tasks.find(t => t.isRunning || t.countdown);
+        const runningTask = tasks.find(t => t.timerState);
         if (runningTask) {
-            if(runningTask.isRunning) startTimer(runningTask.id);
-            if(runningTask.countdown) startCountdown(runningTask.id, runningTask.countdown.timeLeft / 60);
+            runningTask.isRunning = true;
+            startMasterTimer();
         }
     }
     
     function updateTitleAndFavicon(task) {
-        const time = task.countdown ? task.countdown.timeLeft : task.elapsedSeconds;
+        const time = task.elapsedSeconds > 0 ? task.elapsedSeconds : 0;
         const timeString = formatTime(time);
         document.title = `${timeString} - ${task.name}`;
         
@@ -636,7 +814,7 @@
         canvas.width = 32;
         canvas.height = 32;
         const ctx = canvas.getContext('2d');
-        ctx.fillStyle = task.countdown ? '#f59e0b' : '#3b82f6'; // Amber for Countdown, Blue for regular timer
+        ctx.fillStyle = task.timerState.type === 'countdown' ? '#f59e0b' : '#3b82f6';
         ctx.beginPath();
         ctx.arc(16, 16, 16, 0, 2 * Math.PI);
         ctx.fill();
@@ -651,66 +829,9 @@
 
     function resetTitleAndFavicon() {
         document.title = '时间记录器';
-        favicon.href = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏰</text></svg>`;
+        favicon.href = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏳</text></svg>`;
     }
-
-    // --- Import / Export ---
-    function handleExport() {
-        const dataToExport = {
-            tasks: tasks,
-            settings: settings
-        };
-        const dataStr = JSON.stringify(dataToExport, null, 2);
-        const blob = new Blob([dataStr], {type: "application/json"});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `self-discipline-data-${new Date().toISOString().slice(0,10)}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
-
-    function handleImport(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const importedData = JSON.parse(e.target.result);
-                if (importedData && importedData.tasks && importedData.settings) {
-                    openConfirmationModal({
-                        title: '确认导入数据',
-                        message: '这将覆盖您当前的所有任务和设置。此操作无法撤销。',
-                        actionText: '确认导入',
-                        action: () => {
-                            localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(importedData.tasks));
-                            localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(importedData.settings));
-                            // Reload everything from the new data
-                            loadData();
-                            applySettings();
-                            renderAll();
-                            changeTab('daily');
-                        },
-                        isDestructive: true
-                    });
-                } else {
-                    alert('文件格式无效，请确保导入正确的文件。');
-                }
-            } catch (error) {
-                alert('导入失败，文件可能已损坏或格式不正确。');
-                console.error("Import error:", error);
-            } finally {
-                // Reset file input to allow importing the same file again
-                importFileInput.value = '';
-            }
-        };
-        reader.readAsText(file);
-    }
-
-
+    
     // --- Helpers ---
     function formatTime(totalSeconds) {
         const hours = Math.floor(totalSeconds / 3600);
@@ -719,11 +840,11 @@
         return [hours, minutes, secs].map(v => v.toString().padStart(2, '0')).join(':');
     }
     
-    function showNotification(title, body) {
-        if (Notification.permission === "granted") {
-            new Notification(title, { body: body });
-        }
-    }
+    // --- Expose functions to global scope for onclick attributes ---
+    window.moveTask = moveTask;
+    window.handleToggleTimer = handleToggleTimer;
+    window.handleCountdown = handleCountdown;
+    window.openDeleteModal = openDeleteModal;
 
 </script>
 
