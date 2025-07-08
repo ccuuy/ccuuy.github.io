@@ -251,7 +251,6 @@
     const quoteFooter = document.getElementById('quote-footer');
 
     // Modals
-    const allModals = document.querySelectorAll('.modal');
     const confirmModal = document.getElementById('confirm-modal');
     const confirmTitle = document.getElementById('confirm-title');
     const confirmMessage = document.getElementById('confirm-message');
@@ -402,13 +401,17 @@
     addTaskForm.addEventListener('submit', handleAddTask);
     themeToggleBtn.addEventListener('click', toggleTheme);
     
-    allModals.forEach(modal => {
+    // Add backdrop click listener only to dismissible modals
+    [confirmModal, countdownInputModal, countdownDisplayModal].forEach(modal => {
         modal.addEventListener('click', (e) => {
+            // Only hide if the click is on the backdrop itself, not the content
             if (e.target === modal) {
                 hideModal(modal);
             }
         });
     });
+    
+    // Explicit cancel button listeners
     confirmCancelBtn.addEventListener('click', () => hideModal(confirmModal));
     confirmActionBtn.addEventListener('click', () => {
         if (typeof confirmActionCallback === 'function') {
