@@ -90,7 +90,7 @@
                     <span class="text-sm font-medium text-gray-600 dark:text-gray-300" id="user-email"></span>
                 </div>
                 <button id="theme-toggle-btn" title="切换主题" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none transition-colors">
-                    </button>
+                </button>
                 <button id="logout-btn" title="登出" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                 </button>
@@ -124,7 +124,9 @@
             <div class="lg:col-span-2">
                 <section class="sticky top-8 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm">
                     <h2 class="text-xl font-bold text-center mb-4">时间统计</h2>
-                    <div class="border-b border-gray-200 dark:border-gray-700">
+                    <div id="stats-summary" class="mt-6 text-center"></div>
+                    <div id="heatmap-container" class="mt-8"></div>
+                    <div class="border-b border-gray-200 dark:border-gray-700 mt-6">
                         <nav class="flex justify-center space-x-1" aria-label="Tabs">
                             <button class="tab-button whitespace-nowrap py-2 px-3 rounded-md font-medium text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onclick="changeTab('daily')">今日</button>
                             <button class="tab-button whitespace-nowrap py-2 px-3 rounded-md font-medium text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onclick="changeTab('weekly')">本周</button>
@@ -132,7 +134,6 @@
                             <button class="tab-button whitespace-nowrap py-2 px-3 rounded-md font-medium text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onclick="changeTab('total')">总计</button>
                         </nav>
                     </div>
-                    <div id="stats-summary" class="mt-6 text-center"></div>
                     <div id="stats-container" class="mt-4 space-y-4"></div>
                 </section>
             </div>
@@ -193,6 +194,8 @@
         </div>
     </div>
 
+    <div id="heatmap-tooltip" class="absolute z-10 hidden px-3 py-2 text-sm text-white bg-gray-900 rounded-md shadow-lg dark:bg-gray-700 pointer-events-none text-center" style="max-width: 200px;"></div>
+
 
 <script type="module">
     // --- Firebase SDK Imports ---
@@ -237,6 +240,8 @@
     const tabs = document.querySelectorAll('.tab-button');
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
     const favicon = document.getElementById('favicon');
+    const heatmapContainer = document.getElementById('heatmap-container');
+    const heatmapTooltip = document.getElementById('heatmap-tooltip');
     
     // Auth Elements
     const authModal = document.getElementById('auth-modal');
@@ -273,6 +278,7 @@
     let taskForCountdownId = null;
     let confirmActionCallback = null;
     let currentUserId = null;
+    let heatmapDate = new Date(); // State for the currently displayed month in the heatmap
 
     // --- Constants ---
     const motivationalQuotes = [
@@ -433,6 +439,11 @@
             hideModal(countdownInputModal);
         }
     });
+
+    // --- Heatmap Event Listeners ---
+    heatmapContainer.addEventListener('mouseover', handleHeatmapMouseover);
+    heatmapContainer.addEventListener('mouseout', handleHeatmapMouseout);
+    document.addEventListener('mousemove', handleHeatmapMousemove);
 
     // --- Settings ---
     function applySettings() {
@@ -641,6 +652,7 @@
     function renderAll() {
         renderTasksList();
         renderStats();
+        renderMonthlyHeatmap();
     }
 
     function renderTasksList() {
@@ -771,7 +783,7 @@
             case 'daily': startDate = today; break;
             case 'weekly':
                 const dayOfWeek = now.getDay();
-                const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Assuming Monday is the first day of the week
                 startDate = new Date(today.getTime() - diff * 24 * 60 * 60 * 1000);
                 break;
             case 'monthly': startDate = new Date(now.getFullYear(), now.getMonth(), 1); break;
@@ -797,6 +809,133 @@
             tab.classList.toggle('active', tab.getAttribute('onclick').includes(`'${tabName}'`));
         });
         renderStats();
+    }
+
+    // --- Heatmap Rendering ---
+    function handleHeatmapMouseover(e) {
+        const target = e.target.closest('[data-date]');
+        if (target && target.getAttribute('data-date')) {
+            const dateStr = target.getAttribute('data-date');
+            const duration = parseInt(target.getAttribute('data-duration'), 10);
+            
+            const date = new Date(dateStr);
+            const formattedDate = date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+
+            const durationText = duration > 0 ? `${formatTime(duration)} 的专注` : '无活动';
+            heatmapTooltip.innerHTML = `<strong>${durationText}</strong><br><span class="text-xs text-gray-300">${formattedDate}</span>`;
+            
+            heatmapTooltip.classList.remove('hidden');
+        }
+    }
+
+    function handleHeatmapMouseout() {
+        heatmapTooltip.classList.add('hidden');
+    }
+
+    function handleHeatmapMousemove(e) {
+        if (!heatmapTooltip.classList.contains('hidden')) {
+            heatmapTooltip.style.left = `${e.pageX + 15}px`;
+            heatmapTooltip.style.top = `${e.pageY - 30}px`;
+        }
+    }
+
+    function getDailyAggregatedData() {
+        const dailyTotals = {};
+        tasks.forEach(task => {
+            task.records.forEach(record => {
+                const recordDate = new Date(record.date);
+                const dateString = new Date(Date.UTC(recordDate.getFullYear(), recordDate.getMonth(), recordDate.getDate())).toISOString().split('T')[0];
+                if (!dailyTotals[dateString]) {
+                    dailyTotals[dateString] = 0;
+                }
+                dailyTotals[dateString] += record.duration;
+            });
+        });
+        return dailyTotals;
+    }
+
+    function getHeatmapColor(duration, maxDuration) {
+        if (duration <= 0) return 'bg-gray-200 dark:bg-gray-700/60';
+        const percentage = maxDuration > 0 ? duration / maxDuration : 0;
+        if (percentage > 0.7) return 'bg-primary-700';
+        if (percentage > 0.5) return 'bg-primary-600';
+        if (percentage > 0.3) return 'bg-primary-400';
+        return 'bg-primary-200';
+    }
+
+    function renderMonthlyHeatmap() {
+        // 1. Get data
+        const dailyData = getDailyAggregatedData();
+        const values = Object.values(dailyData).filter(d => d > 0);
+        values.sort((a, b) => a - b);
+        // Use 90th percentile for max to avoid outliers skewing the colors
+        const maxDuration = values.length > 0 ? values[Math.floor(values.length * 0.9)] || values[values.length - 1] : 1;
+
+        // 2. Get current month details
+        const year = heatmapDate.getFullYear();
+        const month = heatmapDate.getMonth();
+        const monthName = `${year}年 ${month + 1}月`;
+
+        const firstDayOfMonth = new Date(year, month, 1);
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const startDayOfWeek = firstDayOfMonth.getDay(); // 0 for Sunday, 1 for Monday...
+
+        // 3. Build HTML for days
+        let daysHtml = '';
+        // Add empty cells for days before the 1st of the month
+        for (let i = 0; i < startDayOfWeek; i++) {
+            daysHtml += '<div></div>';
+        }
+
+        // Add cells for each day of the month
+        for (let day = 1; day <= daysInMonth; day++) {
+            const currentDate = new Date(Date.UTC(year, month, day));
+            const dateString = currentDate.toISOString().split('T')[0];
+            const duration = dailyData[dateString] || 0;
+            const colorClass = getHeatmapColor(duration, maxDuration);
+            
+            daysHtml += `<div class="w-full aspect-square rounded-md flex items-center justify-center ${colorClass}" data-date="${dateString}" data-duration="${duration}">
+                            <span class="text-xs text-white/70 mix-blend-difference">${day}</span>
+                         </div>`;
+        }
+
+        // 4. Update the DOM
+        heatmapContainer.innerHTML = `
+            <div class="flex items-center justify-between mb-2">
+                <button id="heatmap-prev-btn" class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                </button>
+                <h3 id="heatmap-month-year" class="font-semibold text-sm">${monthName}</h3>
+                <button id="heatmap-next-btn" class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4-4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                </button>
+            </div>
+            <div class="grid grid-cols-7 gap-1 text-center text-xs text-gray-500 dark:text-gray-400 mb-1">
+                <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+            </div>
+            <div class="grid grid-cols-7 gap-1">
+                ${daysHtml}
+            </div>
+            <div class="flex justify-end items-center text-xs text-gray-400 dark:text-gray-500 mt-2 space-x-2">
+                 <span>少</span>
+                 <div class="w-3 h-3 rounded-sm bg-gray-200 dark:bg-gray-700/60"></div>
+                 <div class="w-3 h-3 rounded-sm bg-primary-200"></div>
+                 <div class="w-3 h-3 rounded-sm bg-primary-400"></div>
+                 <div class="w-3 h-3 rounded-sm bg-primary-600"></div>
+                 <div class="w-3 h-3 rounded-sm bg-primary-700"></div>
+                 <span>多</span>
+            </div>
+        `;
+
+        // 5. Add event listeners
+        document.getElementById('heatmap-prev-btn').addEventListener('click', () => {
+            heatmapDate.setMonth(heatmapDate.getMonth() - 1);
+            renderMonthlyHeatmap();
+        });
+        document.getElementById('heatmap-next-btn').addEventListener('click', () => {
+            heatmapDate.setMonth(heatmapDate.getMonth() + 1);
+            renderMonthlyHeatmap();
+        });
     }
 
     // --- State Recovery & Title/Favicon ---
