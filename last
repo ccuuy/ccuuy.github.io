@@ -1,0 +1,777 @@
+import React, { useState, useEffect } from 'react';
+import { Crown, Dices, Coins, Swords, Zap, Skull, Shield, RefreshCw, ArrowRight, Flame, AlertTriangle, Lock, XCircle, Gavel, Scroll, Ghost, Star, Ban } from 'lucide-react';
+
+// --- 游戏配置与平衡性调整 V3.7.1 (Bug修复版) ---
+
+const MAX_DAYS = 7;
+const MAX_DOOM = 10; 
+const INITIAL_RESOURCES = {
+  gold: 12,     
+  magic: 6,     
+  army: 6,      
+  doom: 0
+};
+
+// --- 王室法令 ---
+const DECREES = [
+  { id: 'martial_law', title: "军事管制", desc: "军队镇压的消耗额外减少 2 点。", icon: Swords, color: "text-blue-400" },
+  { id: 'tithe', title: "什一税", desc: "每天早上获得 +3 金币。", icon: Coins, color: "text-yellow-400" },
+  { id: 'mana_flow', title: "法力回流", desc: "增幅技能不再消耗魔力，但每回合只能用一次。", icon: Zap, color: "text-purple-400" },
+  { id: 'fortification', title: "城墙加固", desc: "毁灭值上限 +3。", icon: Shield, color: "text-gray-300" },
+  { id: 'propaganda', title: "虚假宣传", desc: "每次因危机失败增加毁灭值时，有 50% 概率免疫。", icon: Crown, color: "text-amber-500" },
+  { id: 'lucky_dice', title: "幸运女神", desc: "每天早上额外获得 1 颗骰子。", icon: Dices, color: "text-pink-400" },
+  { id: 'black_market', title: "黑市交易", desc: "可以用 5 金币购买 1 点毁灭值的消除（每天限一次）。", icon: Ghost, color: "text-green-400" },
+];
+
+// --- 事件库 ---
+const THREAT_TYPES = {
+  INVASION: { color: "text-red-400", borderColor: "border-red-900", icon: Swords, label: "战争" },
+  PLAGUE: { color: "text-green-400", borderColor: "border-green-900", icon: Skull, label: "瘟疫" },
+  UNREST: { color: "text-amber-400", borderColor: "border-amber-900", icon: Flame, label: "暴乱" },
+  CURSE: { color: "text-purple-400", borderColor: "border-purple-900", icon: Zap, label: "诅咒" },
+  BOSS: { color: "text-rose-500", borderColor: "border-rose-600", icon: Crown, label: "天启" }
+};
+
+const THREAT_DECK = [
+  // Diff 1-3 (Early Game)
+  { id: 't1', type: 'UNREST', title: "面包暴动", desc: "粮价飞涨，平民冲击仓库。", diff: 2, badEffect: { gold: -3 }, goodReward: { gold: 2 } },
+  { id: 't2', type: 'INVASION', title: "斥候", desc: "敌人的侦察兵。", diff: 2, badEffect: { army: -2 }, goodReward: { army: 2 } },
+  { id: 't3', type: 'CURSE', title: "恶梦", desc: "全城的人都做了同一个噩梦。", diff: 3, badEffect: { magic: -2 }, goodReward: { magic: 2 } },
+  { id: 't4', type: 'PLAGUE', title: "流感", desc: "普通的季节性疾病。", diff: 3, badEffect: { gold: -2 }, goodReward: { gold: 2 } },
+  
+  // Diff 4-5 (Mid Game)
+  { id: 't5', type: 'INVASION', title: "先锋骑兵", desc: "铁蹄踏破了外层的防线。", diff: 4, badEffect: { doom: 1, army: -3 }, goodReward: { army: 3 } },
+  { id: 't6', type: 'UNREST', title: "异教徒", desc: "他们在井水里下毒，散布恐慌。", diff: 4, badEffect: { doom: 1, magic: -3 }, goodReward: { magic: 3 } },
+  { id: 't7', type: 'PLAGUE', title: "黑死病", desc: "医生们束手无策。", diff: 5, badEffect: { doom: 1, gold: -5 }, goodReward: { magic: 4 } },
+  { id: 't8', type: 'CURSE', title: "血月", desc: "所有的狼都在嚎叫，死人不安分。", diff: 5, badEffect: { magic: -5, doom: 1 }, goodReward: { magic: 5 } },
+  { id: 't9', type: 'UNREST', title: "银行挤兑", desc: "没有人再相信王国的货币。", diff: 5, badEffect: { gold: -10, doom: 1 }, goodReward: { gold: 8 } },
+  { id: 't10', type: 'INVASION', title: "投石车", desc: "巨石砸向城墙。", diff: 5, badEffect: { doom: 2, army: -4 }, goodReward: { army: 5 } },
+
+  // Diff 6+ (Late Game)
+  { id: 't11', type: 'BOSS', title: "红龙苏醒", desc: "它要求一半的国库作为贡品。", diff: 7, badEffect: { gold: -20, doom: 2 }, goodReward: { magic: 6 }, immuneToSuppress: true },
+  { id: 't12', type: 'BOSS', title: "亡灵大军", desc: "死去的士兵重新站了起来。", diff: 7, badEffect: { army: -10, doom: 3 }, goodReward: { army: 8 }, immuneToSuppress: true },
+  { id: 't13', type: 'BOSS', title: "大裂隙", desc: "皇宫的地板裂开了，深渊凝视着你。", diff: 7, badEffect: { doom: 4 }, goodReward: { magic: 10 }, immuneToSuppress: true }, 
+  { id: 't14', type: 'BOSS', title: "伪王", desc: "一个和你长得一模一样的人宣称王权。", diff: 6, badEffect: { doom: 3, gold: -10 }, goodReward: { doom: -1 }, immuneToSuppress: true }, 
+];
+
+// 最终 BOSS 组
+const BOSS_DECK = [
+  { id: 'b1', type: 'BOSS', title: "天启：战争", desc: "普通的武器无法伤它分毫。必须使用魔法强化剑刃。", diff: 7, badEffect: { doom: 5, army: -20 }, goodReward: { army: 10 }, immuneToSuppress: true },
+  { id: 'b2', type: 'BOSS', title: "天启：饥荒", desc: "它吞噬一切资源。如果不阻止，国库将瞬间枯竭。", diff: 7, badEffect: { doom: 5, gold: -20 }, goodReward: { gold: 10 }, immuneToSuppress: true },
+  { id: 'b3', type: 'BOSS', title: "天启：死亡", desc: "只有集中国运的最强一击才能将其击退。", diff: 8, badEffect: { doom: 99 }, goodReward: { doom: -5 }, immuneToSuppress: true }, 
+];
+
+// --- 游戏核心组件 ---
+
+const ResourceBadge = ({ icon: Icon, value, label, color = "text-gray-200", danger }) => (
+  <div className={`flex items-center gap-2 px-3 py-2 rounded border shadow-sm min-w-[80px] justify-center transition-all duration-300 ${danger ? 'bg-red-900/50 border-red-500 scale-110 animate-pulse' : 'bg-gray-900/80 border-gray-700'}`}>
+    <Icon size={16} className={color} />
+    <span className={`text-sm font-bold ${value < 0 ? 'text-red-500' : 'text-gray-200'}`}>{value}</span>
+  </div>
+);
+
+const Die = ({ value, isSelected, onClick, disabled, modifier = 0 }) => {
+  const finalValue = value + modifier;
+  let displayValue = finalValue;
+  if (displayValue > 99) displayValue = 99; 
+  if (displayValue < 1) displayValue = 1;
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`
+        relative w-16 h-16 rounded-xl text-3xl font-black flex items-center justify-center border-b-4 transition-all transform
+        ${isSelected 
+          ? 'bg-amber-500 text-white border-amber-700 translate-y-1 shadow-inner' 
+          : disabled 
+            ? 'bg-gray-800 text-gray-600 border-gray-900 cursor-not-allowed opacity-50'
+            : 'bg-gray-200 text-gray-800 border-gray-400 hover:-translate-y-1 hover:shadow-lg'
+        }
+      `}
+    >
+      {displayValue}
+      {modifier !== 0 && (
+        <div className="absolute -top-2 -right-2 flex flex-col gap-0.5">
+          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold shadow border ${modifier > 0 ? 'bg-purple-600 text-white border-purple-400' : 'bg-red-600 text-white border-red-400'}`}>
+            {modifier > 0 ? '+' : ''}{modifier}
+          </span>
+        </div>
+      )}
+    </button>
+  );
+};
+
+const ThreatCard = ({ threat, onAssign, onSuppress, selectedDie, canAffordArmy, suppressCost }) => {
+  const typeInfo = THREAT_TYPES[threat.type];
+  const Icon = typeInfo.icon;
+  
+  let outcome = "neutral"; 
+  let finalDieVal = 0;
+  
+  if (selectedDie) {
+    finalDieVal = selectedDie.value + selectedDie.modifier;
+    if (finalDieVal >= threat.diff) outcome = "success";
+    else outcome = "fail";
+  }
+
+  return (
+    <div className={`
+      relative flex flex-col bg-gray-800 rounded-lg border-2 p-4 transition-all duration-300 h-full group
+      ${threat.resolved ? 'opacity-30 scale-95 grayscale border-gray-800' : `${typeInfo.borderColor} shadow-lg hover:shadow-xl hover:-translate-y-1`}
+      ${selectedDie && !threat.resolved ? (outcome === 'success' ? 'ring-4 ring-green-500/50' : 'ring-4 ring-red-500/50') : ''}
+    `}>
+      {/* Header */}
+      <div className="flex justify-between items-start mb-3 pb-2 border-b border-gray-700/50">
+        <div className="flex items-center gap-2">
+          <div className={`p-1.5 rounded bg-gray-900 ${typeInfo.color}`}>
+            <Icon size={18} />
+          </div>
+          <h3 className={`font-bold leading-tight ${typeInfo.color}`}>{threat.title}</h3>
+        </div>
+        <div className="flex flex-col items-end">
+           <div className="text-xs font-mono text-gray-500 uppercase">Diff</div>
+           <div className={`text-xl font-black ${threat.diff > 6 ? 'text-red-500' : 'text-white'}`}>{threat.diff}</div>
+        </div>
+      </div>
+
+      {/* Description */}
+      <p className="text-xs text-gray-400 mb-4 flex-grow leading-relaxed">{threat.desc}</p>
+
+      {/* Rewards/Penalties */}
+      <div className="space-y-2 text-xs mb-4 bg-black/30 p-3 rounded border border-white/5">
+        <div className="flex items-center justify-between text-green-400/90">
+          <span className="font-bold opacity-70">成功:</span>
+          <div className="flex gap-2 font-mono">
+            {threat.goodReward.gold && <span>+{threat.goodReward.gold}金</span>}
+            {threat.goodReward.magic && <span>+{threat.goodReward.magic}魔</span>}
+            {threat.goodReward.army && <span>+{threat.goodReward.army}兵</span>}
+            {threat.goodReward.doom && <span className="text-blue-300">{threat.goodReward.doom}毁灭</span>}
+          </div>
+        </div>
+        <div className="flex items-center justify-between text-red-400/90">
+          <span className="font-bold opacity-70">失败:</span>
+          <div className="flex gap-2 font-mono">
+            {threat.badEffect.doom && <span className="font-bold text-red-500">+{threat.badEffect.doom}毁灭</span>}
+            {threat.badEffect.gold && <span>{threat.badEffect.gold}金</span>}
+            {threat.badEffect.army && <span>{threat.badEffect.army}兵</span>}
+            {threat.badEffect.magic && <span>{threat.badEffect.magic}魔</span>}
+          </div>
+        </div>
+      </div>
+
+      {/* Actions */}
+      {!threat.resolved ? (
+        <div className="space-y-2 mt-auto">
+          <button
+            onClick={() => onAssign(threat)}
+            disabled={!selectedDie}
+            className={`
+              w-full py-3 rounded font-bold text-sm transition-all flex items-center justify-center gap-2 border
+              ${selectedDie 
+                ? (outcome === 'success' 
+                    ? 'bg-green-700 hover:bg-green-600 text-white border-green-500' 
+                    : 'bg-red-900/80 hover:bg-red-800 text-red-100 border-red-700')
+                : 'bg-gray-700 text-gray-500 border-gray-600 cursor-default'
+              }
+            `}
+          >
+            {selectedDie ? (
+              outcome === 'success' ? (
+                <>
+                  <Shield size={16} /> 必胜 ({finalDieVal})
+                </>
+              ) : (
+                <>
+                  <AlertTriangle size={16} /> 失败 ({finalDieVal})
+                </>
+              )
+            ) : (
+              <span className="text-xs opacity-50">选择骰子</span>
+            )}
+          </button>
+
+          {threat.immuneToSuppress ? (
+             <div className="w-full py-2 rounded text-xs font-bold flex items-center justify-center gap-1 bg-gray-900/50 text-gray-500 border border-gray-800 cursor-not-allowed opacity-70">
+               <Ban size={12} /> 天启无法镇压
+             </div>
+          ) : (
+            <button
+              onClick={() => onSuppress(threat)}
+              disabled={!canAffordArmy}
+              className={`
+                w-full py-2 rounded text-xs font-bold flex items-center justify-center gap-1 transition-all border border-dashed
+                ${canAffordArmy 
+                  ? 'bg-gray-800 text-blue-300 border-blue-800 hover:bg-blue-900/50 hover:border-blue-400' 
+                  : 'bg-gray-900 text-gray-600 border-gray-800 cursor-not-allowed'
+                }
+              `}
+              title={`消耗 ${suppressCost} 军力直接解决`}
+            >
+              <Gavel size={12} /> 镇压 (-{suppressCost} 军力)
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="mt-auto h-16 flex items-center justify-center border-2 border-dashed border-gray-700 rounded bg-gray-800/50">
+           <span className="text-gray-500 font-bold text-sm flex items-center gap-2">
+             <Shield size={14} /> 已解决
+           </span>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const DecreeModal = ({ options, onSelect }) => (
+  <div className="fixed inset-0 z-50 bg-black/90 flex flex-col items-center justify-center p-4 backdrop-blur-sm">
+    <h2 className="text-4xl font-black text-amber-500 mb-2 tracking-wider uppercase">王室法令</h2>
+    <p className="text-gray-400 mb-8">选择一项政策来应对日益严峻的局势...</p>
+    
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full">
+      {options.map((decree) => {
+        const Icon = decree.icon;
+        return (
+          <button
+            key={decree.id}
+            onClick={() => onSelect(decree)}
+            className="bg-gray-800 hover:bg-gray-700 border-2 border-gray-600 hover:border-amber-500 rounded-xl p-6 flex flex-col items-center text-center transition-all group hover:-translate-y-2"
+          >
+            <div className={`w-16 h-16 rounded-full bg-gray-900 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform border border-gray-700 ${decree.color}`}>
+              <Icon size={32} />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">{decree.title}</h3>
+            <p className="text-sm text-gray-400 leading-relaxed">{decree.desc}</p>
+          </button>
+        );
+      })}
+    </div>
+  </div>
+);
+
+const App = () => {
+  const [gameState, setGameState] = useState('MENU'); 
+  const [day, setDay] = useState(1);
+  const [resources, setResources] = useState(INITIAL_RESOURCES);
+  const [dice, setDice] = useState([]);
+  const [selectedDieIndex, setSelectedDieIndex] = useState(null);
+  const [currentThreats, setCurrentThreats] = useState([]);
+  const [activeDecrees, setActiveDecrees] = useState([]);
+  const [log, setLog] = useState([]);
+  const [message, setMessage] = useState(null);
+  
+  // Modal states
+  const [showDecreeSelection, setShowDecreeSelection] = useState(false);
+  const [decreeOptions, setDecreeOptions] = useState([]);
+
+  // Derived stats based on decrees
+  const maxDoom = activeDecrees.find(d => d.id === 'fortification') ? MAX_DOOM + 3 : MAX_DOOM;
+  const suppressCost = activeDecrees.find(d => d.id === 'martial_law') ? 2 : 4;
+  const freeManaBoost = activeDecrees.find(d => d.id === 'mana_flow');
+  const [manaBoostUsed, setManaBoostUsed] = useState(false);
+
+  // --- Core Logic ---
+
+  const startGame = () => {
+    setResources(INITIAL_RESOURCES);
+    setDay(1);
+    setActiveDecrees([]);
+    setLog([]);
+    setManaBoostUsed(false);
+    // 关键修复：强制传入第1天和空法令，避免读取到上一局的旧状态
+    startDay(1, []);
+  };
+
+  const getThreatCountForDay = (d) => {
+    if (d === 1) return 3;
+    if (d === 2) return 3;
+    if (d === 3) return 4; 
+    if (d === 4) return 4;
+    if (d >= 5) return 5; 
+    return 3;
+  };
+
+  // 关键修复：接受当前回合的参数，不再依赖 state
+  const getDiceCount = (currentDay, currentDecrees) => {
+    let base = 3;
+    if (currentDecrees.find(d => d.id === 'lucky_dice')) base += 1;
+    // Day 5+ grants an extra die naturally
+    if (currentDay >= 5) base += 1;
+    return base;
+  };
+
+  // 关键修复：允许接受传入的 decrees，默认为 state
+  const startDay = (dayNum, currentDecrees = activeDecrees) => {
+    setDay(dayNum);
+    setManaBoostUsed(false);
+    
+    // Resources processing (Decrees)
+    if (currentDecrees.find(d => d.id === 'tithe')) {
+      setResources(prev => ({ ...prev, gold: prev.gold + 3 })); 
+      addLog("什一税：获得 3 金币");
+    }
+
+    // Generate Dice
+    // 关键修复：传入当前的 dayNum 和 currentDecrees
+    const count = getDiceCount(dayNum, currentDecrees);
+    const newDice = Array(count).fill(0).map((_, i) => ({ 
+      id: i, 
+      value: Math.floor(Math.random() * 6) + 1,
+      modifier: 0, 
+      used: false 
+    }));
+    setDice(newDice);
+    
+    // Generate Threats
+    if (dayNum === MAX_DAYS) {
+      setCurrentThreats(BOSS_DECK.map(t => ({ ...t, instanceId: Math.random(), resolved: false })));
+      addLog("最终日：天启降临！无法镇压！");
+    } else {
+      const tCount = getThreatCountForDay(dayNum);
+      const threats = [];
+      for(let i=0; i<tCount; i++) {
+        let pool = THREAT_DECK;
+        if (dayNum <= 2) pool = THREAT_DECK.filter(t => t.diff <= 3);
+        else if (dayNum <= 4) pool = THREAT_DECK.filter(t => t.diff <= 5);
+        else pool = THREAT_DECK.filter(t => t.diff >= 4); 
+
+        const t = pool[Math.floor(Math.random() * pool.length)];
+        threats.push({ ...t, instanceId: Math.random(), resolved: false });
+      }
+      setCurrentThreats(threats);
+      addLog(`第 ${dayNum} 天：出现了 ${tCount} 个危机。`);
+    }
+    
+    setSelectedDieIndex(null);
+    setGameState('PLAYING');
+  };
+
+  const rollDie = () => Math.floor(Math.random() * 6) + 1;
+
+  const rerollDie = () => {
+    if (selectedDieIndex === null) return showMessage("请先选择骰子", "error");
+    if (resources.gold < 3) return showMessage("金币不足 (3)", "error");
+
+    setResources(prev => ({ ...prev, gold: prev.gold - 3 }));
+    setDice(prev => prev.map((d, i) => i === selectedDieIndex ? { ...d, value: rollDie() } : d));
+    showMessage("重随成功", "success");
+  };
+
+  const boostDie = (amount) => {
+    if (selectedDieIndex === null) return showMessage("请先选择骰子", "error");
+    
+    // Check Mana Flow perk
+    if (freeManaBoost && !manaBoostUsed) {
+      setManaBoostUsed(true);
+      showMessage("法力回流触发 (免费)", "success");
+    } else {
+      if (resources.magic < 2) return showMessage("魔力不足 (2)", "error");
+      setResources(prev => ({ ...prev, magic: prev.magic - 2 }));
+      showMessage("魔力增幅 +1", "success");
+    }
+
+    setDice(prev => prev.map((d, i) => 
+      i === selectedDieIndex ? { ...d, modifier: d.modifier + amount } : d
+    ));
+  };
+
+  const buyDoomReduction = () => {
+    const hasPerk = activeDecrees.find(d => d.id === 'black_market');
+    if (!hasPerk) return;
+    if (resources.gold < 5) return showMessage("金币不足", "error");
+    if (resources.doom <= 0) return showMessage("没有毁灭值可消除", "info");
+
+    setResources(prev => ({ ...prev, gold: prev.gold - 5, doom: Math.max(0, prev.doom - 1) }));
+    showMessage("黑市交易完成", "success");
+  };
+
+  const handleSuppress = (threat) => {
+    if (threat.immuneToSuppress) return showMessage("此危机无法被镇压！", "error");
+    if (resources.army < suppressCost) return showMessage(`军力不足 (${suppressCost})`, "error");
+    
+    setResources(prev => ({ ...prev, army: prev.army - suppressCost }));
+    
+    const newThreats = currentThreats.map(t => 
+      t.instanceId === threat.instanceId ? { ...t, resolved: true } : t
+    );
+    setCurrentThreats(newThreats);
+    addLog(`镇压了 ${threat.title}`);
+  };
+
+  const assignDieToThreat = (threat) => {
+    if (selectedDieIndex === null) return;
+    
+    const die = dice[selectedDieIndex];
+    const finalVal = die.value + die.modifier;
+    const isSuccess = finalVal >= threat.diff;
+    
+    const newResources = { ...resources };
+    let logMsg = "";
+    let doomAdded = 0;
+
+    if (isSuccess) {
+      if (threat.goodReward.gold) newResources.gold += threat.goodReward.gold;
+      if (threat.goodReward.magic) newResources.magic += threat.goodReward.magic;
+      if (threat.goodReward.army) newResources.army += threat.goodReward.army;
+      if (threat.goodReward.doom) newResources.doom += threat.goodReward.doom; // Usually negative
+      logMsg = `解决: ${threat.title}`;
+      showMessage("胜利", "success");
+    } else {
+      if (threat.badEffect.doom) {
+         doomAdded = threat.badEffect.doom;
+      }
+      if (threat.badEffect.gold) newResources.gold += threat.badEffect.gold;
+      if (threat.badEffect.army) newResources.army += threat.badEffect.army;
+      if (threat.badEffect.magic) newResources.magic += threat.badEffect.magic;
+      logMsg = `失败: ${threat.title}`;
+      showMessage("溃败", "error");
+    }
+
+    // 3.0 Mechanic: Resource Debt converts to Doom
+    ['gold', 'army', 'magic'].forEach(res => {
+      if (newResources[res] < 0) {
+        const debt = Math.abs(newResources[res]);
+        doomAdded += debt;
+        addLog(`资源匮乏: ${debt} 点 ${res} 转化为毁灭值!`);
+        newResources[res] = 0;
+      }
+    });
+
+    // Propaganda perk check
+    if (doomAdded > 0 && activeDecrees.find(d => d.id === 'propaganda')) {
+      if (Math.random() > 0.5) {
+        doomAdded = 0;
+        showMessage("虚假宣传生效！毁灭值被掩盖。", "success");
+      }
+    }
+
+    newResources.doom += doomAdded;
+    setResources(newResources);
+    addLog(logMsg);
+    
+    // Cleanup
+    const newDice = [...dice];
+    newDice[selectedDieIndex].used = true;
+    setDice(newDice);
+    setSelectedDieIndex(null);
+
+    const newThreats = currentThreats.map(t => 
+      t.instanceId === threat.instanceId ? { ...t, resolved: true } : t
+    );
+    setCurrentThreats(newThreats);
+
+    if (newResources.doom >= maxDoom) setGameState('GAMEOVER');
+  };
+
+  const endDay = () => {
+    // Resolve unresolved threats
+    const unresolved = currentThreats.filter(t => !t.resolved);
+    let newRes = { ...resources };
+    let totalDoomAdded = 0;
+
+    unresolved.forEach(t => {
+      if (t.badEffect.doom) totalDoomAdded += t.badEffect.doom;
+      if (t.badEffect.gold) newRes.gold += t.badEffect.gold;
+      if (t.badEffect.army) newRes.army += t.badEffect.army;
+      if (t.badEffect.magic) newRes.magic += t.badEffect.magic;
+    });
+
+    // Resource Debt Check again
+    ['gold', 'army', 'magic'].forEach(res => {
+      if (newRes[res] < 0) {
+        totalDoomAdded += Math.abs(newRes[res]);
+        newRes[res] = 0;
+      }
+    });
+
+    if (totalDoomAdded > 0) addLog(`无视危机/资源赤字: 毁灭值 +${totalDoomAdded}`);
+    newRes.doom += totalDoomAdded;
+    setResources(newRes);
+
+    if (newRes.doom >= maxDoom) {
+      setGameState('GAMEOVER');
+      return;
+    }
+
+    if (day >= MAX_DAYS) {
+      setGameState('VICTORY');
+    } else {
+      // Trigger Decree Selection on Day 2 and 4
+      if (day === 2 || day === 4) {
+        triggerDecreeSelection();
+      } else {
+        startDay(day + 1);
+      }
+    }
+  };
+
+  const triggerDecreeSelection = () => {
+    // Pick 3 random perks that aren't already active
+    const available = DECREES.filter(d => !activeDecrees.find(ad => ad.id === d.id));
+    const shuffled = [...available].sort(() => 0.5 - Math.random());
+    setDecreeOptions(shuffled.slice(0, 3));
+    setShowDecreeSelection(true);
+  };
+
+  const selectDecree = (decree) => {
+    setActiveDecrees([...activeDecrees, decree]);
+    setShowDecreeSelection(false);
+    addLog(`颁布新法: ${decree.title}`);
+    startDay(day + 1);
+  };
+
+  // Helper
+  const addLog = (msg) => setLog(prev => [msg, ...prev].slice(0, 5));
+  const showMessage = (text, type) => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage(null), 1500);
+  };
+
+  // --- Render ---
+
+  if (gameState === 'MENU') {
+    return (
+      <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center text-gray-100 font-sans p-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-900/20 via-gray-900 to-gray-950"></div>
+        <div className="text-center space-y-8 max-w-lg w-full relative z-10">
+          <div className="flex justify-center mb-4">
+             <Crown size={80} className="text-amber-500 animate-bounce" />
+          </div>
+          <div>
+            <h1 className="text-6xl font-black text-white mb-2 tracking-tighter drop-shadow-xl">王国的<br/><span className="text-amber-600">最后七天</span></h1>
+            <div className="flex justify-center gap-2 text-amber-500/60 text-sm font-bold tracking-[0.3em] uppercase">
+              <span>策略</span> &bull; <span>生存</span> &bull; <span>博弈</span>
+            </div>
+          </div>
+          
+          <div className="bg-gray-900/80 backdrop-blur p-6 rounded-xl border border-gray-800 text-left space-y-4 text-sm text-gray-300 shadow-2xl">
+            <h3 className="text-white font-bold text-lg border-b border-gray-700 pb-2 mb-4">V3.7.1 Bug修复版</h3>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-2"><RefreshCw className="text-yellow-400 shrink-0" size={16} /> <span><b>经济刺激：</b> 初始资源大幅提升，技能消耗降低。</span></li>
+              <li className="flex items-start gap-2"><Shield className="text-green-400 shrink-0" size={16} /> <span><b>难度回调：</b> 天启骑士不再是不可战胜的，只要善用魔力。</span></li>
+              <li className="flex items-start gap-2"><Ban className="text-rose-500 shrink-0" size={16} /> <span><b>核心规则：</b> 依然小心资源赤字，那是通往毁灭的捷径。</span></li>
+            </ul>
+          </div>
+
+          <button onClick={startGame} className="w-full bg-amber-700 hover:bg-amber-600 text-white font-bold py-4 px-12 rounded-xl text-xl transition-all shadow-[0_0_30px_rgba(180,83,9,0.4)] hover:scale-[1.02] border-t border-amber-500">
+            开始统治
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (gameState === 'GAMEOVER') {
+    return (
+      <div className="min-h-screen bg-red-950 flex flex-col items-center justify-center text-gray-100 p-4 text-center relative">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')] opacity-50"></div>
+        <div className="z-10 max-w-lg">
+          <Skull size={100} className="text-red-500 mb-6 mx-auto animate-pulse" />
+          <h2 className="text-5xl font-black text-white mb-4 tracking-widest uppercase">王国陨落</h2>
+          <p className="text-red-200 text-xl mb-8 leading-relaxed">
+            历史不会记住弱者。<br/>毁灭值达到了 {resources.doom} / {maxDoom}。
+          </p>
+          <button onClick={() => setGameState('MENU')} className="bg-white text-red-900 font-bold py-3 px-12 rounded hover:bg-gray-200 shadow-xl hover:scale-105 transition-transform">
+            重新开始
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (gameState === 'VICTORY') {
+    return (
+      <div className="min-h-screen bg-amber-950 flex flex-col items-center justify-center text-gray-100 p-4 text-center relative">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-yellow-600/20 via-amber-950 to-black"></div>
+        <div className="z-10 max-w-lg">
+          <Crown size={100} className="text-yellow-400 mb-6 mx-auto" />
+          <h2 className="text-5xl font-black text-white mb-4">光荣的胜利</h2>
+          <p className="text-amber-100 text-xl mb-8">
+            你在天启中幸存了下来。<br/>你的法令被后世传颂。
+          </p>
+          <div className="flex justify-center gap-2 mb-8 flex-wrap">
+            {activeDecrees.map(d => (
+              <span key={d.id} className="text-xs bg-black/40 px-3 py-1 rounded-full border border-amber-500/30 text-amber-200">{d.title}</span>
+            ))}
+          </div>
+          <button onClick={() => setGameState('MENU')} className="bg-amber-500 text-white font-bold py-3 px-12 rounded hover:bg-amber-400 shadow-xl hover:scale-105 transition-transform">
+            再次统治
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-950 text-gray-100 flex flex-col font-sans select-none overflow-hidden relative">
+      
+      {/* Decree Modal */}
+      {showDecreeSelection && <DecreeModal options={decreeOptions} onSelect={selectDecree} />}
+
+      {/* HUD */}
+      <header className="bg-gray-900 border-b border-gray-800 p-3 z-20 shadow-md relative">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+          
+          <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
+            <div className="flex flex-col items-center bg-gray-800 px-3 py-1 rounded border border-gray-700">
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Day</span>
+              <span className={`text-2xl font-black leading-none ${day === 7 ? 'text-red-500 animate-pulse' : 'text-white'}`}>{day}/{MAX_DAYS}</span>
+            </div>
+            
+            <div className="flex items-center gap-2 bg-red-950/30 px-3 py-2 rounded border border-red-900/50 flex-1 md:flex-none min-w-[140px]">
+               <AlertTriangle size={16} className="text-red-500" />
+               <div className="flex flex-col w-full">
+                 <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-red-400 mb-1">
+                   <span>毁灭值</span>
+                   <span>{resources.doom}/{maxDoom}</span>
+                 </div>
+                 <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+                   <div className="h-full bg-red-600 transition-all duration-500" style={{ width: `${(resources.doom / maxDoom) * 100}%` }}></div>
+                 </div>
+               </div>
+            </div>
+          </div>
+
+          {/* Feedback Message */}
+          <div className="absolute top-20 left-1/2 transform -translate-x-1/2 pointer-events-none z-50">
+             {message && (
+               <div className={`px-6 py-3 rounded-xl shadow-2xl font-black backdrop-blur-md border animate-in fade-in zoom-in duration-200 flex items-center gap-2
+                 ${message.type === 'success' ? 'bg-green-900/90 text-green-100 border-green-500' : 'bg-red-900/90 text-red-100 border-red-500'}
+               `}>
+                 {message.type === 'success' ? <Shield size={18}/> : <Skull size={18}/>}
+                 {message.text}
+               </div>
+             )}
+          </div>
+
+          {/* Resources */}
+          <div className="flex gap-2 w-full md:w-auto justify-center">
+            <ResourceBadge icon={Coins} value={resources.gold} label="金币" color="text-yellow-400" danger={resources.gold <= 2} />
+            <ResourceBadge icon={Swords} value={resources.army} label="军力" color="text-blue-400" danger={resources.army <= 2} />
+            <ResourceBadge icon={Zap} value={resources.magic} label="魔力" color="text-purple-400" danger={resources.magic <= 2} />
+          </div>
+        </div>
+      </header>
+
+      {/* Active Decrees Bar */}
+      {activeDecrees.length > 0 && (
+        <div className="bg-black/20 border-b border-white/5 py-1 px-4 flex justify-center gap-4 overflow-x-auto">
+          {activeDecrees.map(d => {
+            const Icon = d.icon;
+            return (
+              <div key={d.id} className="flex items-center gap-1.5 text-xs text-gray-400" title={d.desc}>
+                <Icon size={12} className={d.color} />
+                <span>{d.title}</span>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Main Game Area */}
+      <main className="flex-1 overflow-y-auto p-4 max-w-6xl mx-auto w-full flex flex-col pb-40">
+        
+        {/* Boss Warning */}
+        {day === 7 && (
+          <div className="mb-6 bg-rose-950/50 border border-rose-500/50 p-4 rounded-lg text-center animate-pulse">
+             <h3 className="text-rose-400 font-black text-xl tracking-[0.3em] uppercase mb-1">决战时刻</h3>
+             <p className="text-rose-200/60 text-xs">BOSS 无法被军队镇压，但你可以利用魔力强化骰子击败它。</p>
+          </div>
+        )}
+
+        {/* Cards Grid */}
+        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4`}>
+          {currentThreats.map((threat) => (
+            <ThreatCard 
+              key={threat.instanceId} 
+              threat={threat} 
+              onAssign={assignDieToThreat}
+              onSuppress={handleSuppress}
+              selectedDie={selectedDieIndex !== null ? dice[selectedDieIndex] : null}
+              canAffordArmy={resources.army >= suppressCost}
+              suppressCost={suppressCost}
+            />
+          ))}
+        </div>
+
+      </main>
+
+      {/* Footer Controls */}
+      <div className="fixed bottom-0 left-0 right-0 bg-[#0f1117] border-t border-gray-800 p-4 pb-6 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] z-30">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-end md:items-center justify-between gap-4">
+          
+          {/* Skills */}
+          <div className="flex gap-2 w-full md:w-auto justify-center order-2 md:order-1">
+            <button onClick={rerollDie} className="flex flex-col items-center gap-1 group p-2 rounded-lg hover:bg-white/5 transition-colors">
+              <div className="w-10 h-10 rounded-full bg-gray-800 border border-gray-600 flex items-center justify-center text-yellow-500 group-hover:bg-yellow-500 group-hover:text-white transition-all shadow-lg">
+                <RefreshCw size={18} />
+              </div>
+              <span className="text-[10px] text-gray-400 font-bold">-3 金币</span>
+            </button>
+
+             <button onClick={() => boostDie(1)} className="flex flex-col items-center gap-1 group p-2 rounded-lg hover:bg-white/5 transition-colors">
+              <div className={`w-10 h-10 rounded-full bg-gray-800 border border-gray-600 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-all shadow-lg ${freeManaBoost && !manaBoostUsed ? 'text-green-400 border-green-500' : 'text-purple-500'}`}>
+                <Zap size={18} />
+              </div>
+              <span className="text-[10px] text-gray-400 font-bold">{freeManaBoost && !manaBoostUsed ? '免费' : '-2 魔力'}</span>
+            </button>
+
+            {activeDecrees.find(d => d.id === 'black_market') && (
+              <button onClick={buyDoomReduction} className="flex flex-col items-center gap-1 group p-2 rounded-lg hover:bg-white/5 transition-colors">
+                <div className="w-10 h-10 rounded-full bg-gray-800 border border-gray-600 flex items-center justify-center text-green-500 group-hover:bg-green-600 group-hover:text-white transition-all shadow-lg">
+                  <Ghost size={18} />
+                </div>
+                <span className="text-[10px] text-gray-400 font-bold">-5 金 / 减毁</span>
+              </button>
+            )}
+          </div>
+
+          {/* Dice Pool */}
+          <div className="flex-1 flex justify-center gap-3 order-1 md:order-2 w-full pb-2 md:pb-0 border-b md:border-none border-gray-800">
+            {dice.map((die, idx) => !die.used && (
+              <Die 
+                key={die.id} 
+                value={die.value} 
+                modifier={die.modifier}
+                isSelected={selectedDieIndex === idx} 
+                onClick={() => setSelectedDieIndex(selectedDieIndex === idx ? null : idx)}
+              />
+            ))}
+            {dice.every(d => d.used) && (
+              <div className="text-gray-600 font-bold text-sm italic flex items-center animate-pulse">
+                行动点数耗尽，请结束回合...
+              </div>
+            )}
+          </div>
+
+          {/* End Turn */}
+          <div className="order-3 md:order-3 w-full md:w-auto">
+             <button 
+              onClick={endDay}
+              className={`
+                w-full md:w-auto px-8 py-4 rounded-xl font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl transition-all hover:scale-105
+                ${dice.some(d => !d.used) && currentThreats.some(t => !t.resolved)
+                  ? 'bg-gray-800 text-red-400 border-2 border-red-900 hover:bg-red-900 hover:text-white' 
+                  : 'bg-gradient-to-r from-amber-700 to-orange-700 text-white border-t border-orange-500'
+                }
+              `}
+            >
+              <span className="text-sm">
+                {dice.some(d => !d.used) && currentThreats.some(t => !t.resolved) ? "强行结束 (承受惩罚)" : "进入下一天"}
+              </span>
+              <ArrowRight size={18} />
+            </button>
+          </div>
+
+        </div>
+        
+        {/* Log */}
+        <div className="text-center text-[10px] text-gray-600 mt-2 h-4 overflow-hidden font-mono uppercase tracking-wide">
+          {log[0] || "等待指令..."}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default App;
